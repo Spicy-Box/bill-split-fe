@@ -3,6 +3,7 @@ import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { Image, TouchableOpacity, View, Text } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function OnboardingPage() {
   const router = useRouter();
