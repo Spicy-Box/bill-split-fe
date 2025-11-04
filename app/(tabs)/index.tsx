@@ -1,4 +1,4 @@
-import ListItem from "@/components/HomePage/common/ListItem";
+import ListItem from "@/components/common/ListItem";
 import CreateNewEvent from "@/components/HomePage/CreateNewEvent";
 import EventList from "@/components/HomePage/EventList";
 import WelcomePanel from "@/components/HomePage/WelcomePanel";
@@ -62,6 +62,10 @@ export default function HomeScreen() {
 
         <TouchableOpacity onPress={handleResetData}>
           <Text className="font-inter">Clear App Data</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => router.push("/auth/login")}>
+          <Text className="font-inter">Login</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

@@ -1,5 +1,5 @@
 import { FlatList } from "react-native";
-import ListItem from "./common/ListItem";
+import ListItem from "../common/ListItem";
 
 export default function EventList() {
   const DATA = [

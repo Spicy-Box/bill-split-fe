@@ -79,10 +79,12 @@ export default function OnboardingPage() {
         titleStyles={{
           color: COLOR.dark1,
           fontWeight: 700,
+          fontFamily: "inter",
         }}
         subTitleStyles={{
           width: 300,
           fontSize: 16,
+          fontFamily: "inter",
         }}
         bottomBarColor={COLOR.secondary3}
         SkipButtonComponent={(props) => (
