@@ -9,6 +9,7 @@ import { TouchableOpacity, View } from "react-native";
 import { Text } from "@react-navigation/elements";
 import { ReactElement } from "react";
 import { SvgProps } from "react-native-svg";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function TabLayout() {
   const router = useRouter();

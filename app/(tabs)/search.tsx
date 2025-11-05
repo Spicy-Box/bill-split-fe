@@ -1,10 +1,23 @@
-import { Text } from "@react-navigation/elements";
+import { COLOR } from "@/utils/color";
+import { useState } from "react";
+import { View } from "react-native";
+import { IconButton, Searchbar, TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SearchPage() {
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
   return (
-    <SafeAreaView>
-      <Text>Search</Text>
+    <SafeAreaView className="p-5">
+      <Searchbar
+        placeholder="Search"
+        onChangeText={(text) => setSearchQuery(text)}
+        value={searchQuery}
+        style={{ backgroundColor: COLOR.secondary1 }}
+        inputStyle={{ color: COLOR.dark1 }}
+        iconColor={COLOR.dark1}
+        rippleColor={COLOR.secondary1}
+      />
     </SafeAreaView>
   );
 }

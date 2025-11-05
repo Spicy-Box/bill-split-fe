@@ -56,9 +56,7 @@ export default function HomeScreen() {
           <Text className="font-inter">Clear App Data</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={() => router.push("/auth/login" as RelativePathString)}
-        >
+        <TouchableOpacity onPress={() => router.push("/auth/login" as RelativePathString)}>
           <Text className="font-inter">Login</Text>
         </TouchableOpacity>
       </View>
