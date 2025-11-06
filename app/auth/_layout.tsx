@@ -1,5 +1,5 @@
 import { Slot, Stack, usePathname, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
@@ -31,7 +31,9 @@ export default function AuthLayout() {
                 onPress={() => router.back()}
               />
             </View>
-            <Logo width={50} height={50} />
+            <TouchableOpacity onPress={() => router.replace("/")}>
+              <Logo width={50} height={50} />
+            </TouchableOpacity>
             <View className="w-[50px] h-[50px]"></View>
           </View>
           <Animated.View
