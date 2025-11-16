@@ -23,7 +23,15 @@
     ],
     "collectCoverage": false,
     "collectCoverageFrom": [
-      "app/onboarding.tsx"
+      "app/**/*.{ts,tsx}",
+      "components/**/*.{ts,tsx}",
+      "utils/**/*.{ts,tsx}",
+      "!**/*.d.ts",
+      "!**/*.config.{js,ts}",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!**/.expo/**",
+      "!**/app/_layout.tsx"
     ],
     "coverageReporters": [
       "json",
