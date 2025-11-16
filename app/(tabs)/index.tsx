@@ -40,7 +40,7 @@ export default function HomeScreen() {
         {
           text: "Reset",
           style: "destructive",
-          onPress: resetData,
+          onPress: () => resetData(),
         },
       ]
     );
