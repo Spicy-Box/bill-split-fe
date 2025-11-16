@@ -30,8 +30,7 @@
       "!**/*.config.{js,ts}",
       "!**/node_modules/**",
       "!**/coverage/**",
-      "!**/.expo/**",
-      "!**/app/_layout.tsx"
+      "!**/.expo/**"
     ],
     "coverageReporters": [
       "json",

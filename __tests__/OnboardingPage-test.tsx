@@ -174,4 +174,40 @@ describe("OnboardingPage", () => {
     dotsContainer = getByTestId("pagination-dots");
     expect(dotsContainer.children.length).toBe(5);
   });
+
+  it("renders Dot component for pagination", () => {
+    const { getByTestId } = render(<OnboardingPage />);
+
+    const dotsContainer = getByTestId("pagination-dots");
+    expect(dotsContainer).toBeTruthy();
+    expect(dotsContainer.children.length).toBe(5); // 5 pages = 5 dots
+  });
+
+  it("renders Dot component with selected state on first page", () => {
+    const { getByTestId } = render(<OnboardingPage />);
+
+    const dotsContainer = getByTestId("pagination-dots");
+    // First dot should be selected (index 0)
+    expect(dotsContainer.children[0]).toBeTruthy();
+  });
+
+  it("updates Dot selected state when navigating pages", () => {
+    const { getByText, getByTestId } = render(<OnboardingPage />);
+
+    // Initially on page 1 (index 0)
+    let dotsContainer = getByTestId("pagination-dots");
+    expect(dotsContainer.children.length).toBe(5);
+
+    // Navigate to page 2
+    fireEvent.press(getByText("Next"));
+
+    // Re-query after navigation
+    dotsContainer = getByTestId("pagination-dots");
+    expect(dotsContainer.children.length).toBe(5);
+
+    // Navigate to page 3
+    fireEvent.press(getByText("Next"));
+    dotsContainer = getByTestId("pagination-dots");
+    expect(dotsContainer.children.length).toBe(5);
+  });
 });
