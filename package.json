@@ -9,14 +9,42 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "test:coverage": "jest --coverage --watchAll=false",
+    "test:onboarding": "jest OnboardingPage-test.tsx --coverage --watchAll=false"
   },
   "jest": {
     "preset": "jest-expo",
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)"
     ],
-    "testMatch": ["**/__tests__/*.ts?(x)"]
+    "testMatch": [
+      "**/__tests__/**/*.ts?(x)"
+    ],
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+      "app/**/*.{ts,tsx}",
+      "components/**/*.{ts,tsx}",
+      "utils/**/*.{ts,tsx}",
+      "!**/*.d.ts",
+      "!**/*.config.{js,ts}",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!**/.expo/**",
+      "!**/app/_layout.tsx"
+    ],
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "html"
+    ],
+    "coverageDirectory": "coverage",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/.expo/",
+      "/coverage/"
+    ]
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
