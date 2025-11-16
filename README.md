@@ -1,5 +1,4 @@
-# Welcome to your Expo app 👋
-
+# Welcome to your Expo app 👋 [![React Native CI - Test, Report & SonarCloud](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml/badge.svg)](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml)  [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Spicy-Box_bill-split-fe)](https://sonarcloud.io/summary/new_code?id=Spicy-Box_bill-split-fe)  
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
