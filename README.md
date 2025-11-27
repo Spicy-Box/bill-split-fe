@@ -25,11 +25,11 @@ In the output, you'll find options to open the app in a
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-# 🧪 Testing Guide
+## 🧪 Testing Guide
 
 This project uses **Jest** and **React Native Testing Library** to test both UI components and application logic.
 
-## 1. Run all tests
+### 1. Run all tests
 
 ```bash
 npm run test
@@ -41,7 +41,7 @@ This command will:
 - Display pass/fail results in the terminal
 - Automatically watch file changes in development mode
 
-## 2. Run tests with coverage report
+### 2. Run tests with coverage report
 
 ```bash
 npm run test:coverage
