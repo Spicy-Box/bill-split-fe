@@ -1,4 +1,5 @@
-# Welcome to your Expo app 👋 [![React Native CI - Test, Report & SonarCloud](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml/badge.svg)](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml)  [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Spicy-Box_bill-split-fe)](https://sonarcloud.io/summary/new_code?id=Spicy-Box_bill-split-fe)  
+# Welcome to your Expo app 👋 [![React Native CI - Test, Report & SonarCloud](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml/badge.svg)](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml) [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Spicy-Box_bill-split-fe)](https://sonarcloud.io/summary/new_code?id=Spicy-Box_bill-split-fe)
+
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
@@ -23,6 +24,40 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+# 🧪 Testing Guide
+
+This project uses **Jest** and **React Native Testing Library** to test both UI components and application logic.
+
+## 1. Run all tests
+
+```bash
+npm run test
+```
+
+This command will:
+
+- Execute all test files inside the `__tests__/` directory
+- Display pass/fail results in the terminal
+- Automatically watch file changes in development mode
+
+## 2. Run tests with coverage report
+
+```bash
+npm run test:coverage
+```
+
+This command will:
+
+- Generate a **coverage report**
+- Export results to:
+
+```
+coverage/
+└── index.html
+```
+
+You can open `coverage/index.html` in your browser to view a detailed coverage dashboard (statements, branches, functions, lines).
 
 ## Get a fresh project
 
