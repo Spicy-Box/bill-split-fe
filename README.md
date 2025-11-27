@@ -1,4 +1,8 @@
-# Welcome to your Expo app 👋 [![React Native CI - Test, Report & SonarCloud](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml/badge.svg)](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml) [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Spicy-Box_bill-split-fe)](https://sonarcloud.io/summary/new_code?id=Spicy-Box_bill-split-fe)
+# Welcome to Divvy Split App 👋
+
+[![React Native CI - Test, Report & SonarCloud](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml/badge.svg)](https://github.com/Spicy-Box/bill-split-fe/actions/workflows/test.yml) [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Spicy-Box_bill-split-fe)]
+
+(https://sonarcloud.io/summary/new_code?id=Spicy-Box_bill-split-fe)
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -59,7 +63,7 @@ coverage/
 
 You can open `coverage/index.html` in your browser to view a detailed coverage dashboard (statements, branches, functions, lines).
 
-## Get a fresh project
+<!-- ## Get a fresh project
 
 When you're ready, run:
 
@@ -81,4 +85,4 @@ To learn more about developing your project with Expo, look at the following res
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions. -->
