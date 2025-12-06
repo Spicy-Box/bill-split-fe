@@ -9,7 +9,7 @@ export default function EventLayout() {
         gestureEnabled: true,
       }}
     >
-      <Stack.Screen name="add" options={{ headerShown: true, title: "Add" }} />
+      <Stack.Screen name="add" options={{ headerShown: false }} />
     </Stack>
   );
 }
