@@ -1,26 +1,16 @@
 import { COLOR } from "@/utils/color";
-import { Pencil } from "lucide-react-native";
+import { Folder, MenuIcon, Pencil } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import type { SplitModeOptionsProps } from "./types";
 
 const renderSplitIcon = (iconType: string) => {
   switch (iconType) {
     case "equally":
-      return (
-        <View className="w-4 h-4 items-center justify-center">
-          <View className="w-full h-0.5 bg-light1 mb-0.5" />
-          <View className="w-full h-0.5 bg-light1 mb-0.5" />
-          <View className="w-full h-0.5 bg-light1" />
-        </View>
-      );
+      return <MenuIcon size={16} color={COLOR.light1} />;
     case "by-item":
-      return (
-        <View className="w-4 h-4 items-center justify-center">
-          <View className="w-3 h-3 border-2 border-light1 rounded" />
-        </View>
-      );
+      return <Folder size={16} color={COLOR.light1} />;
     case "manually":
-      return <Pencil size={14} color={COLOR.light1} />;
+      return <Pencil size={16} color={COLOR.light1} />;
     default:
       return null;
   }
@@ -42,9 +32,7 @@ export default function SplitModeOptions({
           } py-2 rounded-full flex-row items-center justify-center gap-1`}
         >
           {renderSplitIcon(option.icon)}
-          <Text className="text-light1 text-xs font-semibold font-inter">
-            {option.label}
-          </Text>
+          <Text className="text-light1 text-sm font-semibold font-inter">{option.label}</Text>
         </TouchableOpacity>
       ))}
     </View>

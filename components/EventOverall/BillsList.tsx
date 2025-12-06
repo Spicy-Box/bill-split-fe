@@ -17,19 +17,19 @@ const BillIcon = () => (
 // Bill Item Component
 const BillItem = ({ bill }: { bill: Bill }) => (
   <View className="bg-light1 rounded-xl p-3 flex-row items-center justify-between">
-    <View className="flex-row items-center gap-2.5">
-      <View className="w-11 h-11">
+    <View className="flex-row items-center gap-2.5 flex-1">
+      <View className="w-11 h-11 items-center justify-center">
         <BillIcon />
       </View>
-      <View className="gap-1">
+      <View className="gap-1 flex-1">
         <Text className="text-dark1 font-medium text-base font-inter">{bill.name}</Text>
         <Text className="text-dark1 text-xs font-medium font-inter opacity-40">
           Paid by {bill.paidBy}
         </Text>
       </View>
     </View>
-    <View className="bg-primary3 rounded-lg px-3 py-1">
-      <Text className="text-light1 text-center text-sm font-semibold font-inter">
+    <View className="bg-primary3 rounded-lg px-3 py-1.5 items-center justify-center ml-2">
+      <Text className="text-light1 text-sm font-semibold font-inter">
         VND {bill.amount.toLocaleString()}
       </Text>
     </View>

@@ -33,6 +33,7 @@ export default function BillItemRow({
               activeUnderlineColor="transparent"
               textColor={COLOR.dark1}
               cursorColor={COLOR.dark1}
+              selectionColor={COLOR.dark1}
               placeholder="Item name"
               placeholderTextColor={COLOR.primary2}
               numberOfLines={1}
@@ -57,6 +58,7 @@ export default function BillItemRow({
                 underlineColor="transparent"
                 activeUnderlineColor="transparent"
                 textColor={COLOR.primary2}
+                selectionColor={COLOR.dark1}
                 cursorColor={COLOR.primary2}
                 placeholder="0.00"
                 placeholderTextColor={COLOR.primary2}
@@ -89,7 +91,10 @@ export default function BillItemRow({
             )}
 
             {/* Quantity Controls */}
-            <View className="flex-row items-center gap-1 bg-dark1 rounded-full px-1 py-0.5" style={{ overflow: "hidden" }}>
+            <View
+              className="flex-row items-center gap-1 bg-dark1 rounded-full p-1"
+              style={{ overflow: "hidden" }}
+            >
               <TouchableOpacity
                 onPress={() => onUpdateQuantity(-1)}
                 className="w-6 h-6 bg-primary1 rounded-full items-center justify-center"
@@ -116,10 +121,7 @@ export default function BillItemRow({
             ${(item.unitPrice * item.quantity).toFixed(2)}
           </Text>
           {/* Delete button */}
-          <TouchableOpacity
-            onPress={onRemove}
-            className="w-6 h-6 items-center justify-center"
-          >
+          <TouchableOpacity onPress={onRemove} className="w-6 h-6 items-center justify-center">
             <X size={18} color={COLOR.dark1} />
           </TouchableOpacity>
         </View>

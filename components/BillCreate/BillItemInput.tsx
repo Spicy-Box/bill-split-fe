@@ -1,5 +1,6 @@
 import { COLOR } from "@/utils/color";
 import { Plus } from "lucide-react-native";
+import { useRef } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import type { BillItemInputProps } from "./types";
@@ -10,6 +11,12 @@ export default function BillItemInput({
   onSubmit,
   onAdd,
 }: BillItemInputProps) {
+  const textInputRef = useRef<any>(null);
+
+  const handlePlusPress = () => {
+    textInputRef.current?.focus();
+  };
+
   return (
     <View
       className="flex-row items-center gap-3 py-3 mt-2"
@@ -21,7 +28,8 @@ export default function BillItemInput({
         paddingHorizontal: 12,
       }}
     >
-      <View
+      <TouchableOpacity
+        onPress={handlePlusPress}
         style={{
           borderWidth: 1,
           borderColor: COLOR.primary2,
@@ -31,8 +39,9 @@ export default function BillItemInput({
         }}
       >
         <Plus size={20} color={COLOR.primary2} />
-      </View>
+      </TouchableOpacity>
       <TextInput
+        ref={textInputRef}
         value={value}
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
@@ -43,6 +52,7 @@ export default function BillItemInput({
         activeUnderlineColor="transparent"
         textColor={COLOR.dark1}
         cursorColor={COLOR.dark1}
+        selectionColor={COLOR.dark1}
         style={{
           backgroundColor: "transparent",
           flex: 1,
@@ -55,13 +65,8 @@ export default function BillItemInput({
         contentStyle={{ paddingHorizontal: 0 }}
       />
       {value.trim() && (
-        <TouchableOpacity
-          onPress={onAdd}
-          className="bg-primary1 px-3 py-1 rounded-full"
-        >
-          <Text className="text-dark1 text-xs font-semibold font-inter">
-            Add
-          </Text>
+        <TouchableOpacity onPress={onAdd} className="bg-primary1 px-3 py-1 rounded-full">
+          <Text className="text-dark1 text-xs font-semibold font-inter">Add</Text>
         </TouchableOpacity>
       )}
     </View>

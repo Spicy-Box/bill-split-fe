@@ -7,17 +7,13 @@ import {
 import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import {
-  KeyboardAvoidingView,
-  ScrollView,
-  Text
-} from "react-native";
+import { KeyboardAvoidingView, ScrollView, Text } from "react-native";
 import { Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const INITIAL_PARTICIPANTS: Participant[] = [
-  { id: 1, name: "Khánh Lê"},
-  { id: 2, name: ""},
+  { id: 1, name: "Khánh Lê" },
+  { id: 2, name: "" },
 ];
 
 export default function AddEventPage() {
@@ -25,9 +21,7 @@ export default function AddEventPage() {
   const [eventName, setEventName] = useState("");
   const [currency, setCurrency] = useState("");
   const [selectedEmoji] = useState("🤗");
-  const [participants, setParticipants] = useState<Participant[]>(
-    INITIAL_PARTICIPANTS
-  );
+  const [participants, setParticipants] = useState<Participant[]>(INITIAL_PARTICIPANTS);
 
   const removeParticipant = (id: number) => {
     setParticipants(participants.filter((p) => p.id !== id));
@@ -35,18 +29,11 @@ export default function AddEventPage() {
 
   const addParticipant = () => {
     const newId = Math.max(...participants.map((p) => p.id), 0) + 1;
-    setParticipants([
-      ...participants,
-      { id: newId, name: ""},
-    ]);
+    setParticipants([...participants, { id: newId, name: "" }]);
   };
 
   const updateParticipant = (id: number, name: string) => {
-    setParticipants(
-      participants.map((p) =>
-        p.id === id ? { ...p, name} : p
-      )
-    );
+    setParticipants(participants.map((p) => (p.id === id ? { ...p, name } : p)));
   };
 
   const handleCreateEvent = () => {
@@ -91,16 +78,14 @@ export default function AddEventPage() {
             onPress={handleCreateEvent}
             buttonColor={COLOR.primary3}
             textColor={COLOR.light1}
-            icon={({ size, color }) => (
-              <Text className="text-light1 text-2xl font-bold">+</Text>
-            )}
+            icon={({ size, color }) => <Text className="text-light1 text-2xl font-bold">+</Text>}
             contentStyle={{ paddingVertical: 4 }}
             labelStyle={{
               fontSize: 14,
               fontWeight: "600",
               fontFamily: "inter",
             }}
-            className="rounded-xl mt-4"
+            className="rounded-xl"
           >
             Create Event
           </Button>

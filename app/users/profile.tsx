@@ -2,9 +2,10 @@ import { Image } from "expo-image";
 import { Calendar, Mail, Phone, Save, X } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { COLOR } from "@/utils/color";
+import { TextInput } from "react-native-paper";
 
 // Data interfaces
 interface ProfileFormData {
@@ -66,9 +67,7 @@ export default function ProfilePage() {
         <View className="p-5 gap-5">
           {/* Section 1: Title and User Card */}
           <View className="gap-4">
-            <Text className="text-2xl font-medium text-dark1 font-inter">
-              Profile
-            </Text>
+            <Text className="text-2xl font-medium text-dark1 font-inter">Profile</Text>
 
             {/* User Card */}
             <View className="bg-primary1 rounded-2xl p-4 flex-row items-center gap-3">
@@ -95,88 +94,98 @@ export default function ProfilePage() {
           {/* Section 2: Form Fields */}
           <View className="gap-4">
             {/* First Name and Last Name Row */}
-            <View className="flex-row gap-4">
+            <View className="flex-row w-full gap-4">
               {/* First Name */}
-              <View className="flex-1 bg-light1 rounded-xl p-4">
-                <Text className="text-xs font-medium text-primary3 font-inter">
-                  First Name
-                </Text>
+              <View className="flex-1">
                 <TextInput
+                  label="First Name"
                   value={formData.firstName}
                   onChangeText={(value) => handleInputChange("firstName", value)}
-                  className="text-sm text-dark1 border-b-2 border-primary3 bg-transparent py-2 font-inter"
-                  placeholderTextColor="#ADB0B9"
+                  textColor={COLOR.dark1}
+                  underlineColor={COLOR.primary3}
+                  activeUnderlineColor={COLOR.primary3}
+                  style={{
+                    backgroundColor: COLOR.light1,
+                  }}
                 />
               </View>
 
               {/* Last Name */}
-              <View className="flex-1 bg-light1 rounded-xl p-4">
-                <Text className="text-xs font-medium text-primary3 font-inter">
-                  Last Name
-                </Text>
+              <View className="flex-1">
                 <TextInput
+                  label="Last Name"
                   value={formData.lastName}
                   onChangeText={(value) => handleInputChange("lastName", value)}
-                  className="text-sm text-dark1 border-b-2 border-primary3 bg-transparent py-2 font-inter"
-                  placeholderTextColor="#ADB0B9"
+                  textColor={COLOR.dark1}
+                  underlineColor={COLOR.primary3}
+                  activeUnderlineColor={COLOR.primary3}
+                  style={{
+                    backgroundColor: COLOR.light1,
+                  }}
                 />
               </View>
             </View>
 
             {/* Date of Birth */}
-            <View className="bg-light1 rounded-xl p-4 flex-row gap-3">
-              <View className="justify-center">
+            <View className="bg-light1 rounded-xl flex-row items-center">
+              <View className="justify-center ml-3">
                 <Calendar size={28} color={COLOR.primary3} />
               </View>
               <View className="flex-1">
-                 <Text className="text-xs font-medium text-primary3 font-inter">
-                   Date of birth
-                 </Text>
                 <TextInput
+                  label="Date of birth"
                   value={formData.dateOfBirth}
                   onChangeText={(value) => handleInputChange("dateOfBirth", value)}
-                  className="text-sm text-dark1 border-b-2 border-primary3 bg-transparent py-2 font-inter"
-                  placeholderTextColor="#ADB0B9"
                   placeholder="DD/MM/YYYY"
+                  textColor={COLOR.dark1}
+                  underlineColor={COLOR.primary3}
+                  activeUnderlineColor={COLOR.primary3}
+                  style={{
+                    backgroundColor: COLOR.light1,
+                  }}
                 />
               </View>
             </View>
 
             {/* Phone */}
-            <View className="bg-light1 rounded-xl p-4 flex-row gap-3">
-              <View className="justify-center">
+            <View className="bg-light1 rounded-xl flex-row items-center">
+              <View className="justify-center ml-3">
                 <Phone size={28} color={COLOR.primary3} />
               </View>
               <View className="flex-1">
-                 <Text className="text-xs font-medium text-primary3 font-inter">
-                   Phone
-                 </Text>
                 <TextInput
+                  label="Phone"
                   value={formData.phone}
                   onChangeText={(value) => handleInputChange("phone", value)}
-                  className="text-sm text-dark1 border-b-2 border-primary3 bg-transparent py-2 font-inter"
-                  placeholderTextColor="#ADB0B9"
                   keyboardType="phone-pad"
+                  textColor={COLOR.dark1}
+                  underlineColor={COLOR.primary3}
+                  activeUnderlineColor={COLOR.primary3}
+                  style={{
+                    backgroundColor: COLOR.light1,
+                  }}
                 />
               </View>
             </View>
 
             {/* Email */}
-            <View className="bg-light1 rounded-xl p-4 flex-row gap-3">
-              <View className="justify-center">
+            <View className="bg-light1 rounded-xl flex-row  items-center">
+              <View className="justify-center ml-3">
                 <Mail size={28} color={COLOR.primary3} />
               </View>
               <View className="flex-1">
-                 <Text className="text-xs font-medium text-primary3 font-inter">
-                   Email
-                 </Text>
                 <TextInput
+                  label="Email"
                   value={formData.email}
                   onChangeText={(value) => handleInputChange("email", value)}
-                  className="text-sm text-dark1 border-b-2 border-primary3 bg-transparent py-2 font-inter"
-                  placeholderTextColor="#ADB0B9"
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  textColor={COLOR.dark1}
+                  underlineColor={COLOR.primary3}
+                  activeUnderlineColor={COLOR.primary3}
+                  style={{
+                    backgroundColor: COLOR.light1,
+                  }}
                 />
               </View>
             </View>
@@ -207,4 +216,3 @@ export default function ProfilePage() {
     </SafeAreaView>
   );
 }
-

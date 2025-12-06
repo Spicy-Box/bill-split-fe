@@ -10,25 +10,13 @@ export const AddBillMenuModal = ({
   onCreateBill,
 }: AddBillMenuModalProps) => {
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        className="flex-1 bg-dark1/30"
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity className="flex-1 bg-dark1/30" activeOpacity={1} onPress={onClose}>
         <View className="flex-1" />
         <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
-          <View className="bg-light1 rounded-t-2xl p-5 gap-5 relative">
+          <View className="bg-light1 rounded-t-2xl px-6 pb-12 pt-10 gap-8 relative">
             {/* Open Camera Option */}
-            <TouchableOpacity
-              onPress={onOpenCamera}
-              className="flex-row items-center gap-3"
-            >
+            <TouchableOpacity onPress={onOpenCamera} className="flex-row items-center gap-3">
               <View className="w-8 h-8 bg-primary3 rounded-full items-center justify-center absolute">
                 <Camera size={20} color="white" />
               </View>
@@ -38,10 +26,7 @@ export const AddBillMenuModal = ({
             </TouchableOpacity>
 
             {/* Upload Bill Option */}
-            <TouchableOpacity
-              onPress={onUploadBill}
-              className="flex-row items-center gap-3"
-            >
+            <TouchableOpacity onPress={onUploadBill} className="flex-row items-center gap-3">
               <View className="w-8 h-8 bg-primary3 rounded-full items-center justify-center absolute">
                 <Upload size={20} color="white" />
               </View>
@@ -51,10 +36,7 @@ export const AddBillMenuModal = ({
             </TouchableOpacity>
 
             {/* Create Bill Option */}
-            <TouchableOpacity
-              onPress={onCreateBill}
-              className="flex-row items-center gap-3"
-            >
+            <TouchableOpacity onPress={onCreateBill} className="flex-row items-center gap-3">
               <View className="w-8 h-8 bg-primary3 rounded-full items-center justify-center absolute">
                 <Pencil size={18} color="white" />
               </View>

@@ -3,21 +3,12 @@ import { IconButton } from "react-native-paper";
 import { View, Text, TouchableOpacity } from "react-native";
 import type { EventHeaderProps } from "./types";
 
-export default function EventHeader({
-  selectedEmoji,
-  onEmojiPress,
-  onClose,
-}: EventHeaderProps) {
+export default function EventHeader({ selectedEmoji, onEmojiPress, onClose }: EventHeaderProps) {
   return (
     <>
       {/* Close Button */}
       <View className="flex-row justify-end -mt-2">
-        <IconButton
-          icon="close"
-          iconColor={COLOR.dark1}
-          size={24}
-          onPress={onClose}
-        />
+        <IconButton icon="close" iconColor={COLOR.dark1} size={24} onPress={onClose} />
       </View>
 
       {/* Emoji Selection */}
@@ -27,7 +18,7 @@ export default function EventHeader({
         onPress={onEmojiPress}
       >
         <View className="bg-light1 rounded-full w-28 h-28 items-center justify-center">
-          <Text className="text-6xl">{selectedEmoji}</Text>
+          <Text className="text-4xl">{selectedEmoji}</Text>
         </View>
         <Text className="text-dark1 text-base font-inter font-medium">
           Choose Event&apos;s Emoji
