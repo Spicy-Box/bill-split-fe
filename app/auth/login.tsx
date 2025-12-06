@@ -1,15 +1,16 @@
 import TitleAuth from "@/components/AuthPage/TitleAuth";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { COLOR } from "@/utils/color";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { ActivityIndicator, Button, Checkbox, TextInput } from "react-native-paper";
-import LoadingScreen from "../bills/loading";
 
 type TCheckbox = "unchecked" | "checked" | "indeterminate";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [emailInput, setEmailInput] = useState<string>("");
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [checkbox, setCheckbox] = useState<TCheckbox>("unchecked");
@@ -20,6 +21,7 @@ export default function LoginPage() {
 
   const handleLogin = async () => {
     await login(emailInput, passwordInput);
+    router.navigate("/");
   };
 
   if (isLoading)
