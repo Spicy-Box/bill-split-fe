@@ -1,9 +1,11 @@
 import TitleAuth from "@/components/AuthPage/TitleAuth";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { COLOR } from "@/utils/color";
 import { Link } from "expo-router";
 import { useState } from "react";
 import { Text, View } from "react-native";
-import { Button, Checkbox, TextInput } from "react-native-paper";
+import { ActivityIndicator, Button, Checkbox, TextInput } from "react-native-paper";
+import LoadingScreen from "../bills/loading";
 
 type TCheckbox = "unchecked" | "checked" | "indeterminate";
 
@@ -12,12 +14,24 @@ export default function LoginPage() {
   const [passwordInput, setPasswordInput] = useState<string>("");
   const [checkbox, setCheckbox] = useState<TCheckbox>("unchecked");
 
+  const login = useAuthStore((state) => state.login);
+  const isLoading = useAuthStore((state) => state.isLoading);
+  const error = useAuthStore((state) => state.error);
+
+  const handleLogin = async () => {
+    await login(emailInput, passwordInput);
+  };
+
+  if (isLoading)
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator animating={true} size={"large"} color={COLOR.dark1} />
+      </View>
+    );
+
   return (
-    <View className="gap-10">
-      <TitleAuth
-        title="Get Started Now"
-        desc="Created an account or login to explore"
-      />
+    <View className="flex-1 gap-10">
+      <TitleAuth title="Get Started Now" desc="Created an account or login to explore" />
       <View className="gap-4">
         <TextInput
           label="Email"
@@ -59,18 +73,11 @@ export default function LoginPage() {
               else setCheckbox("unchecked");
             }}
           />
-          <Link
-            href={"/auth/forgot_password"}
-            className="font-inter text-primary3 font-bold"
-          >
+          <Link href={"/auth/forgot_password"} className="font-inter text-primary3 font-bold">
             Forgot password ?
           </Link>
         </View>
-        <Button
-          mode="contained"
-          buttonColor={COLOR.dark1}
-          onPress={() => console.log("hello")}
-        >
+        <Button mode="contained" buttonColor={COLOR.dark1} onPress={handleLogin}>
           Login
         </Button>
       </View>

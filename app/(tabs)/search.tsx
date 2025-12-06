@@ -10,18 +10,20 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   return (
-    <SafeAreaView className="p-5 gap-5">
-      <WelcomePanel />
-      <Searchbar
-        placeholder="Search"
-        onChangeText={(text) => setSearchQuery(text)}
-        value={searchQuery}
-        style={{ backgroundColor: COLOR.secondary1 }}
-        inputStyle={{ color: COLOR.dark1 }}
-        iconColor={COLOR.dark1}
-        rippleColor={COLOR.secondary1}
-      />
-      <EventList />
+    <SafeAreaView className="flex-1">
+      <View className="p-5 gap-5">
+        <WelcomePanel />
+        <Searchbar
+          placeholder="Search"
+          onChangeText={(text) => setSearchQuery(text)}
+          value={searchQuery}
+          style={{ backgroundColor: COLOR.secondary1 }}
+          inputStyle={{ color: COLOR.dark1 }}
+          iconColor={COLOR.dark1}
+          rippleColor={COLOR.secondary1}
+        />
+        <EventList />
+      </View>
     </SafeAreaView>
   );
 }
