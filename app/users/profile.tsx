@@ -6,6 +6,7 @@ import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 // Data interfaces
 interface ProfileFormData {
@@ -39,6 +40,11 @@ const USER_PROFILE: UserProfile = {
 
 export default function ProfilePage() {
   const router = useRouter();
+  const user = useAuthStore((state) => state.user);
+
+  // const [firstName, setFirstName] = useState<string>(user?.first_name ?? "");
+  // const [lastName, setLastName] = useState<string></string>
+
   const [formData, setFormData] = useState<ProfileFormData>(INITIAL_FORM_DATA);
 
   const handleInputChange = (name: keyof ProfileFormData, value: string) => {
@@ -79,7 +85,7 @@ export default function ProfilePage() {
               <View className="w-16 h-16 rounded-full overflow-hidden border border-dark1">
                 <Image
                   source={USER_PROFILE.avatarUrl}
-                  style={{ width: 53, height: 53 }}
+                  style={{ width: "100%", aspectRatio: "1/1" }}
                   contentFit="cover"
                 />
               </View>
