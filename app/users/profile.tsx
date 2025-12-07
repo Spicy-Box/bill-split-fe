@@ -113,13 +113,15 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     // setFormData(INITIAL_FORM_DATA);
-    console.log("Changes cancelled");
     router.back();
   };
 
   const handleLogout = async () => {
     await logout();
-    console.log("User logged out");
+    Toast.show({
+      type: "success",
+      text1: "Logout successfully",
+    });
     router.replace("/auth/login");
   };
 

@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
+import Toast from "react-native-toast-message";
 
 export default function SetNewPasswordPage() {
   const router = useRouter();
@@ -25,10 +26,20 @@ export default function SetNewPasswordPage() {
       });
 
       setLoading(false);
-      logout();
+      await logout();
+      Toast.show({
+        type: "success",
+        text1: "Change password successfully",
+      });
       router.navigate("/auth/login");
     } catch (err: any) {
+      setLoading(false);
       console.log(err);
+      Toast.show({
+        type: "error",
+        text1: "Failed to reset password",
+        text2: err?.response?.data?.message || "Please try again",
+      });
     }
   };
 
@@ -46,6 +57,7 @@ export default function SetNewPasswordPage() {
 
       <TextInput
         label="New Password"
+        secureTextEntry={true}
         underlineColor={COLOR.primary2}
         textColor={COLOR.dark1}
         activeUnderlineColor={COLOR.dark1}

@@ -7,6 +7,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
+import Toast from "react-native-toast-message";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -26,6 +27,10 @@ export default function ForgotPasswordPage() {
 
       setEmail(emailInput);
       setLoading(false);
+      Toast.show({
+        type: "success",
+        text1: "Send Email successfully",
+      });
 
       router.navigate("/auth/otp");
     } catch (err: any) {

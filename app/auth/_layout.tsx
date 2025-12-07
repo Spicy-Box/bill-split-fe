@@ -7,6 +7,7 @@ import { COLOR } from "@/utils/color";
 import { IconButton } from "react-native-paper";
 import Logo from "@/assets/images/Logo.svg";
 import { useAuthStore } from "@/stores/useAuthStore";
+import Toast from "react-native-toast-message";
 
 export default function AuthLayout() {
   const pathname = usePathname();
@@ -52,6 +53,7 @@ export default function AuthLayout() {
             <Slot></Slot>
           </Animated.View>
         </View>
+        <Toast />
       </SafeAreaView>
     </LinearGradient>
   );
