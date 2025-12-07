@@ -2,8 +2,9 @@ import TitleAuth from "@/components/AuthPage/TitleAuth";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { COLOR } from "@/utils/color";
 import { Link, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 import { ActivityIndicator, Button, Checkbox, TextInput } from "react-native-paper";
 
 type TCheckbox = "unchecked" | "checked" | "indeterminate";
@@ -20,6 +21,16 @@ export default function LoginPage() {
   const error = useAuthStore((state) => state.error);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
+  useEffect(() => {
+    if (error) {
+      Toast.show({
+        type: "error",
+        text1: "Login failed",
+        text2: error,
+      });
+    }
+  }, [error]);
+
   const handleLogin = async () => {
     await login(emailInput, passwordInput);
     const user = useAuthStore.getState().user;
@@ -27,6 +38,10 @@ export default function LoginPage() {
 
     // Only redirect if login was successful
     if (user && accessToken) {
+      Toast.show({
+        type: "success",
+        text1: "Login successfully",
+      });
       router.replace("/(tabs)");
     }
   };

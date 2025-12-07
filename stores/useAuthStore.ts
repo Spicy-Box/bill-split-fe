@@ -70,11 +70,16 @@ export const useAuthStore = create<AuthState>()(
           });
           // Không cần storeData nữa, persist tự động lưu
         } catch (err: any) {
+          const errorMessage =
+            err.response?.data?.message ||
+            err.response?.data?.error ||
+            err.message ||
+            "Something went wrong";
+
           set({
             isLoading: false,
-            error: err.message || "Something went wrong",
+            error: errorMessage,
           });
-          console.log(err);
         }
       },
 

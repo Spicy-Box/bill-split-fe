@@ -30,8 +30,9 @@ api.interceptors.response.use(
     const status = response?.status;
 
     console.log(status);
+    const isAuthEndpoint = config?.url?.includes("/users/login");
 
-    if (status === 401 || status === 403) {
+    if ((status === 401 || status === 403) && !isAuthEndpoint) {
       const authStore = getAuthStore();
       const refreshAccessToken = authStore.getState().refreshAccessToken;
 
@@ -45,7 +46,6 @@ api.interceptors.response.use(
         router.replace("/auth/login");
         return Promise.reject(error);
       }
-
 
       // Gắn token mới
       config.headers.Authorization = `Bearer ${newToken}`;

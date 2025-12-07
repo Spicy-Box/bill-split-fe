@@ -11,6 +11,8 @@ import { DatePickerModal } from "react-native-paper-dates";
 import { SingleChange } from "react-native-paper-dates/lib/typescript/Date/Calendar";
 import { format } from "date-fns";
 import api, { apiUrl } from "@/utils/api";
+import Toast from "react-native-toast-message";
+import { isAxiosError } from "axios";
 
 // Data interfaces
 interface ProfileFormData {
@@ -94,8 +96,17 @@ export default function ProfilePage() {
 
       updateUserFromStore(updateUser);
 
-      // router.back();
+      Toast.show({
+        type: "success",
+        text1: "Update profile successfully",
+      });
     } catch (err: any) {
+      if (isAxiosError(err)) {
+        Toast.show({
+          type: "error",
+          text1: err.message,
+        });
+      }
       console.log("Lỗi khi lưu: ", err);
     }
   };

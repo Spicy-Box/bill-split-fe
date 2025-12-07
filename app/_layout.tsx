@@ -3,7 +3,7 @@ import "../global.css";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { configureFonts, MD3LightTheme, PaperProvider } from "react-native-paper";
-
+import Toast from "react-native-toast-message";
 import { registerTranslation, en } from "react-native-paper-dates";
 import { ActivityIndicator, Text, View } from "react-native";
 import { COLOR } from "../utils/color";
@@ -63,6 +63,7 @@ export default function RootLayout() {
 
             <Stack.Screen name="auth" />
           </Stack>
+          <Toast />
         </SafeAreaProvider>
       </PaperProvider>
     </>
