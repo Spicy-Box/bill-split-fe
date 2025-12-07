@@ -19,42 +19,17 @@ interface AuthState {
   refreshToken: string | null;
   isLoading: boolean;
   error: string | null;
-  hasHydrated: boolean
+  hasHydrated: boolean;
 
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshAccessToken: () => Promise<string | null>;
   setUser: (user: User | null) => void;
   setHasHydrated: (value: boolean) => void;
   updateUser: (fields: Partial<User>) => void;
+  setAccessToken: (accessToken: string) => void;
+  setRefreshToken: (refreshToken: string) => void;
 }
-
-// const zustandStorage: StateStorage = {
-//   setItem: async (name: string, value: string) => {
-//     try {
-//       await storeData(name, value);
-//     } catch (error) {
-//       console.error('Error in zustandStorage.setItem:', error);
-//       // Don't throw - let Zustand handle it gracefully
-//     }
-//   },
-//   getItem: async (name: string) => {
-//     try {
-//       const value = await getData(name);
-//       return value ?? null;
-//     } catch (error) {
-//       console.error('Error in zustandStorage.getItem:', error);
-//       return null;
-//     }
-//   },
-//   removeItem: async (name: string) => {
-//     try {
-//       await removeData(name);
-//     } catch (error) {
-//       console.error('Error in zustandStorage.removeItem:', error);
-//     }
-//   },
-// };
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -103,31 +78,41 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      logout: () => {
-        set({
-          user: null,
-          accessToken: null,
-          refreshToken: null,
-          error: null,
-        });
+      logout: async () => {
+        try {
+          await api.post(`${apiUrl}/users/logout`, null, {
+            params: {
+              refresh_token: get().refreshToken,
+            },
+          });
+
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            error: null,
+          });
+        } catch (err: any) {
+          console.log("Error at logout in useAuthStore.ts", err);
+        }
       },
 
       refreshAccessToken: async () => {
         const refreshToken = get().refreshToken;
 
         console.log("Print refreshToken in useAuthStore", refreshToken);
-        
+
         if (!refreshToken) return null;
 
         try {
           const res = await api.post(`${apiUrl}/users/refresh`, null, {
-            params: {refresh_token: refreshToken}
+            params: { refresh_token: refreshToken },
           });
 
           const newAccessToken: string = res.data?.data?.access_token;
           set({ accessToken: newAccessToken });
 
-          console.log("new access token", newAccessToken)
+          console.log("new access token", newAccessToken);
 
           return newAccessToken;
         } catch {
@@ -137,10 +122,12 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setUser: (user) => set({ user }),
+
       setHasHydrated: (value: boolean) => set({ hasHydrated: value }),
+
       updateUser: (fields) => {
         const currentUser = get().user;
-        
+
         if (!currentUser) {
           console.warn("Cannot update user: user is null");
           return;
@@ -153,9 +140,21 @@ export const useAuthStore = create<AuthState>()(
           },
         });
       },
+
+      setAccessToken: (accessToken) => {
+        set({
+          accessToken: accessToken,
+        });
+      },
+
+      setRefreshToken: (refreshToken) => {
+        set({
+          refreshToken: refreshToken,
+        });
+      },
     }),
     {
-      name: "auth-storage", 
+      name: "auth-storage",
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (state) => ({
         user: state.user,

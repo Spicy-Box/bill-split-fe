@@ -30,16 +30,9 @@ export default function RootLayout() {
 
   if (!loaded || !hasHydrated) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#fff",
-        }}
-      >
-        <ActivityIndicator size="large" color={COLOR.primary1} />
-        <Text style={{ marginTop: 12, color: "#666" }}>Loading</Text>
+      <View className="flex-1 items-center justify-center bg-primary1">
+        <ActivityIndicator size="large" color={COLOR.dark1} />
+        <Text className="mt-3 text-dark1">Loading</Text>
       </View>
     );
   }
