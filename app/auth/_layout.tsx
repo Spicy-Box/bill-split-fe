@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { COLOR } from "@/utils/color";
 import { IconButton } from "react-native-paper";
 import Logo from "@/assets/images/Logo.svg";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function AuthLayout() {
   const pathname = usePathname();

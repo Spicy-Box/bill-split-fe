@@ -18,13 +18,20 @@ export default function LoginPage() {
   const login = useAuthStore((state) => state.login);
   const isLoading = useAuthStore((state) => state.isLoading);
   const error = useAuthStore((state) => state.error);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
   const handleLogin = async () => {
     await login(emailInput, passwordInput);
-    router.navigate("/");
+    const user = useAuthStore.getState().user;
+    const accessToken = useAuthStore.getState().accessToken;
+
+    // Only redirect if login was successful
+    if (user && accessToken) {
+      router.replace("/(tabs)");
+    }
   };
 
-  if (isLoading)
+  if (isLoading || !hasHydrated)
     return (
       <View className="flex-1 items-center justify-center">
         <ActivityIndicator animating={true} size={"large"} color={COLOR.dark1} />

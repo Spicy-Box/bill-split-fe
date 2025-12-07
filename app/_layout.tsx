@@ -7,6 +7,7 @@ import { configureFonts, MD3LightTheme, PaperProvider } from "react-native-paper
 import { registerTranslation, en } from "react-native-paper-dates";
 import { ActivityIndicator, Text, View } from "react-native";
 import { COLOR } from "../utils/color";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 registerTranslation("en", en);
 
@@ -24,7 +25,10 @@ export default function RootLayout() {
     fonts: configureFonts({ config: fontConfig }),
   };
 
-  if (!loaded) {
+  const user = useAuthStore((state) => state.user);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+
+  if (!loaded || !hasHydrated) {
     return (
       <View
         style={{
@@ -35,7 +39,7 @@ export default function RootLayout() {
         }}
       >
         <ActivityIndicator size="large" color={COLOR.primary1} />
-        <Text style={{ marginTop: 12, color: "#666" }}>Loading fonts…</Text>
+        <Text style={{ marginTop: 12, color: "#666" }}>Loading</Text>
       </View>
     );
   }
@@ -52,15 +56,19 @@ export default function RootLayout() {
               fullScreenGestureEnabled: false,
             }}
           >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="events" />
+            <Stack.Protected guard={user ? true : false}>
+              <Stack.Screen name="events" />
+              <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="bills" />
+              <Stack.Screen
+                name="users/profile"
+                options={{
+                  animation: "fade_from_bottom",
+                }}
+              />
+            </Stack.Protected>
+
             <Stack.Screen name="auth" />
-            <Stack.Screen
-              name="users/profile"
-              options={{
-                animation: "fade_from_bottom",
-              }}
-            />
           </Stack>
         </SafeAreaProvider>
       </PaperProvider>

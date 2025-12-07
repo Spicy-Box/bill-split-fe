@@ -1,20 +1,32 @@
 import { COLOR } from "@/utils/color";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { Calendar, LogOut, Mail, Phone, Save, X } from "lucide-react-native";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { LogOut, Save, X } from "lucide-react-native";
+import { useCallback, useState } from "react";
+import { Pressable, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { DatePickerModal } from "react-native-paper-dates";
+import { SingleChange } from "react-native-paper-dates/lib/typescript/Date/Calendar";
+import { format } from "date-fns";
+import api, { apiUrl } from "@/utils/api";
 
 // Data interfaces
 interface ProfileFormData {
   firstName: string;
   lastName: string;
-  dateOfBirth: string;
+  dateOfBirth: Date;
   phone: string;
   email: string;
+}
+
+interface UserUpdate {
+  first_name?: string;
+  last_name?: string;
+  dob?: string;
+  phone?: string;
+  email?: string;
 }
 
 interface UserProfile {
@@ -27,7 +39,7 @@ interface UserProfile {
 const INITIAL_FORM_DATA: ProfileFormData = {
   firstName: "Nguyen Tuan",
   lastName: "Anh",
-  dateOfBirth: "09/08/2004",
+  dateOfBirth: new Date("2004-08-09"),
   phone: "0909710979",
   email: "tuananhdeptrai@gmail.com",
 };
@@ -41,28 +53,61 @@ const USER_PROFILE: UserProfile = {
 export default function ProfilePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
+  const updateUserFromStore = useAuthStore((state) => state.updateUser);
 
-  // const [firstName, setFirstName] = useState<string>(user?.first_name ?? "");
-  // const [lastName, setLastName] = useState<string></string>
+  const [firstName, setFirstName] = useState<string>(
+    user?.first_name ?? INITIAL_FORM_DATA.firstName
+  );
+  const [lastName, setLastName] = useState<string>(user?.last_name ?? INITIAL_FORM_DATA.lastName);
+  const [email, setEmail] = useState<string>(user?.email ?? INITIAL_FORM_DATA.email);
+  const [phone, setPhone] = useState<string>(user?.phone ?? INITIAL_FORM_DATA.phone);
+  const [date, setDate] = useState<Date | undefined>(
+    user?.dob ? new Date(user.dob) : INITIAL_FORM_DATA.dateOfBirth
+  );
+  const [open, setOpen] = useState(false);
 
-  const [formData, setFormData] = useState<ProfileFormData>(INITIAL_FORM_DATA);
+  const onDismissSingle = useCallback(() => {
+    setOpen(false);
+  }, [setOpen]);
 
-  const handleInputChange = (name: keyof ProfileFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const onConfirmSingle: SingleChange = useCallback(
+    (params) => {
+      setOpen(false);
+      setDate(params.date);
+    },
+    [setOpen, setDate]
+  );
 
-  const handleSave = () => {
-    console.log("Profile saved:", formData);
-    router.back();
+  const handleSave = async () => {
+    try {
+      const updateUser: UserUpdate = {};
+
+      if (user?.first_name !== firstName) updateUser.first_name = firstName;
+      if (user?.last_name !== lastName) updateUser.last_name = lastName;
+      if (user?.email !== email) updateUser.email = email;
+      if (user?.phone !== phone) updateUser.phone = phone;
+      if (user?.dob !== format(date as Date, "yyyy-MM-dd"))
+        updateUser.dob = format(date as Date, "yyyy-MM-dd");
+
+      const res = await api.put(`${apiUrl}/users/update-user`, updateUser);
+
+      updateUserFromStore(updateUser);
+
+      // router.back();
+    } catch (err: any) {
+      console.log("Lỗi khi lưu: ", err);
+    }
   };
 
   const handleCancel = () => {
-    setFormData(INITIAL_FORM_DATA);
+    // setFormData(INITIAL_FORM_DATA);
     console.log("Changes cancelled");
     router.back();
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     console.log("User logged out");
     router.replace("/auth/login");
   };
@@ -110,8 +155,8 @@ export default function ProfilePage() {
               <View className="flex-1">
                 <TextInput
                   label="First Name"
-                  value={formData.firstName}
-                  onChangeText={(value) => handleInputChange("firstName", value)}
+                  value={firstName}
+                  onChangeText={(text) => setFirstName(text)}
                   textColor={COLOR.dark1}
                   underlineColor={COLOR.primary3}
                   activeUnderlineColor={COLOR.primary3}
@@ -125,8 +170,8 @@ export default function ProfilePage() {
               <View className="flex-1">
                 <TextInput
                   label="Last Name"
-                  value={formData.lastName}
-                  onChangeText={(value) => handleInputChange("lastName", value)}
+                  value={lastName}
+                  onChangeText={(text) => setLastName(text)}
                   textColor={COLOR.dark1}
                   underlineColor={COLOR.primary3}
                   activeUnderlineColor={COLOR.primary3}
@@ -138,68 +183,69 @@ export default function ProfilePage() {
             </View>
 
             {/* Date of Birth */}
-            <View className="bg-light1 rounded-xl flex-row items-center">
-              <View className="justify-center ml-3">
-                <Calendar size={28} color={COLOR.primary3} />
-              </View>
-              <View className="flex-1">
+            <View>
+              <Pressable onPress={() => setOpen(true)}>
                 <TextInput
                   label="Date of birth"
-                  value={formData.dateOfBirth}
-                  onChangeText={(value) => handleInputChange("dateOfBirth", value)}
-                  placeholder="DD/MM/YYYY"
+                  value={format(date as Date, "yyyy-MM-dd")}
+                  editable={false}
+                  onFocus={() => setOpen(true)}
                   textColor={COLOR.dark1}
                   underlineColor={COLOR.primary3}
                   activeUnderlineColor={COLOR.primary3}
+                  left={
+                    <TextInput.Icon
+                      icon="calendar"
+                      color={COLOR.primary3}
+                      onPress={() => setOpen(true)}
+                    />
+                  }
                   style={{
                     backgroundColor: COLOR.light1,
                   }}
                 />
-              </View>
+              </Pressable>
+
+              <DatePickerModal
+                locale="en"
+                mode="single"
+                visible={open}
+                onDismiss={onDismissSingle}
+                date={date}
+                onConfirm={onConfirmSingle}
+              />
             </View>
 
             {/* Phone */}
-            <View className="bg-light1 rounded-xl flex-row items-center">
-              <View className="justify-center ml-3">
-                <Phone size={28} color={COLOR.primary3} />
-              </View>
-              <View className="flex-1">
-                <TextInput
-                  label="Phone"
-                  value={formData.phone}
-                  onChangeText={(value) => handleInputChange("phone", value)}
-                  keyboardType="phone-pad"
-                  textColor={COLOR.dark1}
-                  underlineColor={COLOR.primary3}
-                  activeUnderlineColor={COLOR.primary3}
-                  style={{
-                    backgroundColor: COLOR.light1,
-                  }}
-                />
-              </View>
-            </View>
+            <TextInput
+              label="Phone"
+              value={phone}
+              onChangeText={(text) => setPhone(text)}
+              keyboardType="phone-pad"
+              textColor={COLOR.dark1}
+              underlineColor={COLOR.primary3}
+              activeUnderlineColor={COLOR.primary3}
+              left={<TextInput.Icon icon={"phone"} color={COLOR.primary3} />}
+              style={{
+                backgroundColor: COLOR.light1,
+              }}
+            />
 
             {/* Email */}
-            <View className="bg-light1 rounded-xl flex-row  items-center">
-              <View className="justify-center ml-3">
-                <Mail size={28} color={COLOR.primary3} />
-              </View>
-              <View className="flex-1">
-                <TextInput
-                  label="Email"
-                  value={formData.email}
-                  onChangeText={(value) => handleInputChange("email", value)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  textColor={COLOR.dark1}
-                  underlineColor={COLOR.primary3}
-                  activeUnderlineColor={COLOR.primary3}
-                  style={{
-                    backgroundColor: COLOR.light1,
-                  }}
-                />
-              </View>
-            </View>
+            <TextInput
+              label="Email"
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              textColor={COLOR.dark1}
+              underlineColor={COLOR.primary3}
+              activeUnderlineColor={COLOR.primary3}
+              left={<TextInput.Icon icon={"mail"} color={COLOR.primary3} />}
+              style={{
+                backgroundColor: COLOR.light1,
+              }}
+            />
 
             {/* Logout Button */}
             <TouchableOpacity

@@ -6,6 +6,7 @@ import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import { DatePickerInput } from "react-native-paper-dates";
 import { useState } from "react";
 import api, { apiUrl } from "@/utils/api";
+import { format } from "date-fns";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function SignUpPage() {
   const [phone, setPhone] = useState<string>("");
 
   const handleRegister = async () => {
-    const formattedDate = inputDate?.toISOString().split("T")[0];
+    const formattedDate = format(inputDate as Date, "yyyy-MM-dd");
     const registerData = {
       first_name: firstName,
       last_name: lastName,
