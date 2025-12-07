@@ -40,7 +40,7 @@ export default function BillItemRow({
               style={{
                 backgroundColor: "transparent",
                 maxWidth: "70%",
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: "700",
                 fontFamily: "inter",
                 paddingHorizontal: 0,
@@ -117,7 +117,7 @@ export default function BillItemRow({
         {/* Right column: Total price and delete button */}
         {/* Total price */}
         <View className="flex-row items-center gap-2">
-          <Text className="text-dark1 font-semibold text-base font-inter">
+          <Text className="text-dark1 font-semibold text-base">
             ${(item.unitPrice * item.quantity).toFixed(2)}
           </Text>
           {/* Delete button */}

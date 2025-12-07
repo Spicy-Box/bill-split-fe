@@ -204,7 +204,8 @@ export default function CreateBill() {
         setSplitMode("by-item");
       }
 
-      setShowParticipantDropdown(null);
+      // Removed setShowParticipantDropdown(null) to keep dropdown open
+      // setShowParticipantDropdown(null);
     },
     [items, participants.length, splitMode]
   );

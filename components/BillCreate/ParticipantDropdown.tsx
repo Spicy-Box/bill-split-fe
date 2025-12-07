@@ -15,6 +15,14 @@ export default function ParticipantDropdown({
 }: ParticipantDropdownProps) {
   const item = items.find((i) => i.id === itemId);
 
+  const Checkbox = ({ checked }: { checked: boolean }) => (
+    <View
+      className={`w-6 h-6 rounded-sm items-center justify-center border ${checked ? "bg-primary1 border-primary1" : "border-dark1"}`}
+    >
+      {checked && <Text className="text-dark1 text-xs">✓</Text>}
+    </View>
+  );
+
   return (
     <Modal
       visible={visible}
@@ -28,9 +36,20 @@ export default function ParticipantDropdown({
         onPress={onClose}
       >
         <View className="bg-light1 mx-6 mt-40 rounded-2xl p-4">
-          <Text className="text-dark1 font-bold text-base font-inter mb-3">
-            Select Participant
-          </Text>
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-dark1 font-bold text-base font-inter">
+              Select Participant
+            </Text>
+            <TouchableOpacity
+              onPress={onClose}
+              className="bg-primary1/80 px-3 py-1 rounded-lg"
+              activeOpacity={0.8}
+            >
+              <Text className="text-dark1 font-semibold text-xs">
+                Close
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           {/* Everyone option */}
           <TouchableOpacity
@@ -43,18 +62,15 @@ export default function ParticipantDropdown({
             <Text className="text-dark1 font-medium font-inter flex-1">
               Everyone
             </Text>
-            {item?.participants.includes(everyoneOption) && (
-              <View className="w-5 h-5 bg-primary1 rounded-full items-center justify-center">
-                <Text className="text-dark1 text-xs">✓</Text>
-              </View>
-            )}
+            <Checkbox checked={item?.participants.includes(everyoneOption) ?? false} />
           </TouchableOpacity>
 
           {/* Individual participants */}
           {participants.map((participant) => {
-            const isSelected =
+            const isSelected = !!(
               item?.participants.includes(participant.id) &&
-              !item?.participants.includes(everyoneOption);
+              !item?.participants.includes(everyoneOption)
+            );
 
             return (
               <TouchableOpacity
@@ -63,20 +79,16 @@ export default function ParticipantDropdown({
                 className="flex-row items-center py-3 border-b border-light3"
               >
                 <Avatar.Image
-                  size={40}
+                  size={35}
                   source={require("../../assets/images/avatar.png")}
                   style={{ marginRight: 12 }}
                 />
-                <Text className="text-dark1 font-medium font-inter flex-1">
+                <Text className="text-dark1 font-medium font-inter text-base flex-1">
                   {participant.isMe
                     ? `${participant.name} (Me)`
                     : participant.name}
                 </Text>
-                {isSelected && (
-                  <View className="w-5 h-5 bg-primary1 rounded-full items-center justify-center">
-                    <Text className="text-dark1 text-xs">✓</Text>
-                  </View>
-                )}
+                <Checkbox checked={isSelected} />
               </TouchableOpacity>
             );
           })}

@@ -1,11 +1,11 @@
+import { COLOR } from "@/utils/color";
 import { Image } from "expo-image";
-import { Calendar, Mail, Phone, Save, X } from "lucide-react-native";
 import { useRouter } from "expo-router";
+import { Calendar, LogOut, Mail, Phone, Save, X } from "lucide-react-native";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { COLOR } from "@/utils/color";
 import { TextInput } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Data interfaces
 interface ProfileFormData {
@@ -54,6 +54,11 @@ export default function ProfilePage() {
     setFormData(INITIAL_FORM_DATA);
     console.log("Changes cancelled");
     router.back();
+  };
+
+  const handleLogout = () => {
+    console.log("User logged out");
+    router.replace("/auth/login");
   };
 
   return (
@@ -189,30 +194,43 @@ export default function ProfilePage() {
                 />
               </View>
             </View>
-          </View>
 
-          {/* Buttons */}
-          <View className="flex-row gap-3 pt-6">
+            {/* Logout Button */}
             <TouchableOpacity
-              onPress={handleSave}
-              className="flex-1 bg-primary3 py-3 px-4 rounded-full flex-row items-center justify-center gap-2"
+              onPress={handleLogout}
+              className="py-3 px-4 rounded-full flex-row items-center justify-center gap-2 mt-4"
               activeOpacity={0.7}
+              style={{ backgroundColor: COLOR.primary5 }}
             >
-              <Save size={20} color="#FFFFFF" />
-              <Text className="text-light1 font-medium font-inter">Save</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleCancel}
-              className="flex-1 bg-primary2 py-3 px-4 rounded-full flex-row items-center justify-center gap-2"
-              activeOpacity={0.7}
-            >
-              <X size={20} color="#FFFFFF" />
-              <Text className="text-light1 font-medium font-inter">Cancel</Text>
+              <LogOut size={20} color="#FFFFFF" />
+              <Text className="text-light1 font-medium font-inter">Logout</Text>
             </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
+
+      {/* Bottom Buttons - Fixed at bottom */}
+      <View className="p-5 gap-3 bg-light3">
+        <View className="flex-row gap-3">
+          <TouchableOpacity
+            onPress={handleSave}
+            className="flex-1 bg-primary3 py-3 px-4 rounded-full flex-row items-center justify-center gap-2"
+            activeOpacity={0.7}
+          >
+            <Save size={20} color="#FFFFFF" />
+            <Text className="text-light1 font-medium font-inter">Save</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handleCancel}
+            className="flex-1 bg-primary2 py-3 px-4 rounded-full flex-row items-center justify-center gap-2"
+            activeOpacity={0.7}
+          >
+            <X size={20} color="#FFFFFF" />
+            <Text className="text-light1 font-medium font-inter">Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }

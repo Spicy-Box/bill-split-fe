@@ -5,6 +5,7 @@ export const COLOR = {
   primary2: token.colors.primary2,
   primary3: token.colors.primary3,
   primary4: token.colors.primary4,
+  primary5: token.colors.primary5,
   alert: token.colors.alert,
   secondary1: token.colors.secondary1,
   secondary2: token.colors.secondary2,

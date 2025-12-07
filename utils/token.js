@@ -4,6 +4,7 @@ module.exports = {
     primary2: "#ADB0B9",
     primary3: "#996BFF",
     primary4: "#118C4F",
+    primary5: "#EE4B2B",
     alert: "#EE4B2B",
 
     secondary1: "#EAE4FC",
