@@ -1,4 +1,4 @@
-import { Stack } from "expo-router";
+import { Stack, useNavigationContainerRef } from "expo-router";
 import "../global.css";
 import { useFonts } from "expo-font";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -8,10 +8,34 @@ import { registerTranslation, en } from "react-native-paper-dates";
 import { ActivityIndicator, Text, View } from "react-native";
 import { COLOR } from "../utils/color";
 import { useAuthStore } from "@/stores/useAuthStore";
+import * as Sentry from "@sentry/react-native";
+import { useEffect } from "react";
+import { navigationIntegration } from "@/sentry";
+
+// Sentry.init({
+//   dsn: 'https://b1b537a2e262325c93b6d34d8540d51d@o4510499774332928.ingest.de.sentry.io/4510499780231248',
+
+//   // Adds more context data to events (IP address, cookies, user, etc.)
+//   // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+//   sendDefaultPii: true,
+
+//   // Enable Logs
+//   enableLogs: true,
+
+//   // Configure Session Replay
+//   replaysSessionSampleRate: 0.1,
+//   replaysOnErrorSampleRate: 1,
+//   integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration()],
+
+//   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+//   // spotlight: __DEV__,
+// });
 
 registerTranslation("en", en);
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
+  const ref = useNavigationContainerRef();
+
   const [loaded] = useFonts({
     inter: require("../assets/fonts/Inter-VariableFont_opsz,wght.ttf"),
   });
@@ -27,6 +51,21 @@ export default function RootLayout() {
 
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+
+  useEffect(() => {
+    if (ref) {
+      navigationIntegration.registerNavigationContainer(ref);
+    }
+  }, [ref]);
+
+  useEffect(() => {
+    Sentry.setUser({
+      id: "divvy_test_2025",
+      email: "anhnguyentuan073@gmail.com",
+      username: "tuanemtramtinh",
+    });
+    Sentry.setTag("group", "divvy");
+  }, []);
 
   if (!loaded || !hasHydrated) {
     return (
@@ -53,6 +92,7 @@ export default function RootLayout() {
               <Stack.Screen name="events" />
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="bills" />
+              <Stack.Screen name="test" />
               <Stack.Screen
                 name="users/profile"
                 options={{
@@ -68,4 +108,4 @@ export default function RootLayout() {
       </PaperProvider>
     </>
   );
-}
+});

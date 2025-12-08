@@ -2,9 +2,9 @@ import CreateNewEvent from "@/components/HomePage/CreateNewEvent";
 import EventList from "@/components/HomePage/EventList";
 import WelcomePanel from "@/components/HomePage/WelcomePanel";
 import { getData } from "@/utils/asyncStorage";
-import { Link, useRouter } from "expo-router";
+import { Link, RelativePathString, useRouter } from "expo-router";
 import { useCallback, useEffect } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
@@ -32,6 +32,7 @@ export default function HomeScreen() {
         <Link href={"/auth/login"}>
           <Text>Login</Text>
         </Link>
+        <Link href={"/test"}>Test</Link>
       </View>
     </SafeAreaView>
   );
