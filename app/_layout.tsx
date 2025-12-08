@@ -100,7 +100,7 @@ export default Sentry.wrap(function RootLayout() {
                 }}
               />
             </Stack.Protected>
-
+            <Stack.Screen name="onboarding" />
             <Stack.Screen name="auth" />
           </Stack>
           <Toast />

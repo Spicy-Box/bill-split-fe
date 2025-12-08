@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import Toast from "react-native-toast-message";
 import { ActivityIndicator, Button, Checkbox, TextInput } from "react-native-paper";
+import { getData } from "@/utils/asyncStorage";
 
 type TCheckbox = "unchecked" | "checked" | "indeterminate";
 
@@ -30,6 +31,16 @@ export default function LoginPage() {
       });
     }
   }, [error]);
+
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      const onboarded = await getData("onboarded");
+      if (onboarded !== "1") {
+        router.replace("/onboarding");
+      }
+    };
+    checkOnboarding();
+  }, [router]);
 
   const handleLogin = async () => {
     await login(emailInput, passwordInput);
