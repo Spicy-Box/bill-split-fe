@@ -37,7 +37,8 @@ export default function OverallScreen() {
 
   const handleOpenCamera = () => {
     setShowAddMenu(false);
-    router.push("/bills/loading");
+    router.push("/events/camera");
+    // router.push("/bills/loading");
     // TODO: Implement camera functionality
   };
 
