@@ -48,7 +48,7 @@
           "project": "divvy",
           "organization": "spicy-box",
           "experimental_android": {
-            "enableAndroidGradlePlugin": true
+            "enableAndroidGradlePlugin": false
           }
         }
       ]
