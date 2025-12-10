@@ -47,8 +47,7 @@
           "project": "divvy",
           "organization": "ho-chi-minh-city-university-qp"
         }
-      ],
-      "sentry-expo"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
