@@ -44,3 +44,4 @@ app-example
 
 # test coverage folder
 coverage/
+.env.local

@@ -108,36 +108,3 @@ export default function CameraScreen() {
     </SafeAreaView>
   );
 }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: "center",
-
-//     backgroundColor: COLOR.primary1,
-//   },
-//   message: {
-//     textAlign: "center",
-//     paddingBottom: 10,
-//   },
-//   camera: {
-//     flex: 1,
-//   },
-//   buttonContainer: {
-//     position: "absolute",
-//     bottom: 64,
-//     flexDirection: "row",
-//     backgroundColor: "transparent",
-//     width: "100%",
-//     paddingHorizontal: 64,
-//   },
-//   button: {
-//     flex: 1,
-//     alignItems: "center",
-//   },
-//   text: {
-//     fontSize: 24,
-//     fontWeight: "bold",
-//     color: "white",
-//   },
-// });

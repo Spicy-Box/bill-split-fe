@@ -3,14 +3,12 @@ import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { Image, TouchableOpacity, View, Text } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
+  const user = useAuthStore((state) => state.user);
 
   const Btn = ({ label, onPress }: { label: string; onPress?: () => void }) =>
     label === "Next" || label === "Done" ? (
@@ -67,7 +65,11 @@ export default function OnboardingPage() {
 
   const handleFinish = async () => {
     await storeData("onboarded", "1");
-    router.replace("/");
+    if (user) {
+      router.replace("/");
+    } else {
+      router.replace("/auth/login");
+    }
   };
 
   return (
@@ -87,15 +89,9 @@ export default function OnboardingPage() {
           fontFamily: "inter",
         }}
         bottomBarColor={COLOR.secondary3}
-        SkipButtonComponent={(props) => (
-          <Btn label="Skip" onPress={props.onPress} />
-        )}
-        NextButtonComponent={(props) => (
-          <Btn label="Next" onPress={props.onPress} />
-        )}
-        DoneButtonComponent={(props) => (
-          <Btn label="Done" onPress={props.onPress} />
-        )}
+        SkipButtonComponent={(props) => <Btn label="Skip" onPress={props.onPress} />}
+        NextButtonComponent={(props) => <Btn label="Next" onPress={props.onPress} />}
+        DoneButtonComponent={(props) => <Btn label="Done" onPress={props.onPress} />}
         DotComponent={Dot}
         pages={[
           {

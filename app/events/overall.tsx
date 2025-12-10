@@ -15,6 +15,8 @@ import { useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as MediaLibrary from "expo-media-library";
+import { ActivityIndicator } from "react-native-paper";
+import { COLOR } from "@/utils/color";
 
 const EVENT_DATA: EventNameAndCurrency = {
   name: "Camping Trip 2025",
@@ -34,11 +36,12 @@ const BILLS_DATA: Bill[] = [
   { id: "4", name: "Oyasumi Punpun", amount: 455000, paidBy: "Sarah" },
 ];
 
-const ALBUM_PAGE_SIZE = 60;
+const ALBUM_PAGE_SIZE = 15;
 
 export default function OverallScreen() {
   const router = useRouter();
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [albums, setAlbums] = useState<MediaLibrary.Album[]>([]);
   const [selectedAssetUri, setSelectedAssetUri] = useState<string | null>(null);
   const [showAlbumPicker, setShowAlbumPicker] = useState(false);
@@ -109,6 +112,7 @@ export default function OverallScreen() {
 
   const handleUploadBill = async () => {
     setShowAddMenu(false);
+    setLoading(true);
     setSelectedAssetUri(null);
     // Open album via MediaLibrary: ensure permission, fetch albums, then let user tap a thumbnail
     if (!(await ensureMediaLibraryPermission())) return;
@@ -133,6 +137,7 @@ export default function OverallScreen() {
       fetchedAlbums.find((a) => preferredTitles.includes(a.title)) ?? fetchedAlbums[0];
 
     await loadAlbumAssets(defaultAlbum);
+    setLoading(false);
     setShowAlbumPicker(true);
   };
 
@@ -143,7 +148,17 @@ export default function OverallScreen() {
 
   return (
     <>
+      {loading && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 z-30 items-center justify-center bg-primary1">
+          <ActivityIndicator size={"large"} color={COLOR.dark1} />
+        </View>
+      )}
       <SafeAreaView className="bg-primary1" edges={["top"]} />
+      {loading && (
+        <View className="absolute bg-dark1">
+          <ActivityIndicator size={"large"} color={COLOR.dark1} />
+        </View>
+      )}
       <View className="flex-1">
         <EventHeader eventNameAndCurrency={EVENT_DATA} />
 
