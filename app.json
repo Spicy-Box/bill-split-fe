@@ -44,8 +44,12 @@
         "@sentry/react-native/expo",
         {
           "url": "https://sentry.io/",
+          "note": "Use SENTRY_AUTH_TOKEN env to authenticate with Sentry.",
           "project": "divvy",
-          "organization": "spicy-box"
+          "organization": "spicy-box",
+          "experimental_android": {
+            "enableAndroidGradlePlugin": true
+          }
         }
       ]
     ],
