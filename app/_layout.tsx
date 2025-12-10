@@ -8,6 +8,7 @@ import { registerTranslation, en } from "react-native-paper-dates";
 import { ActivityIndicator, Text, View } from "react-native";
 import { COLOR } from "../utils/color";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 registerTranslation("en", en);
 
@@ -39,6 +40,7 @@ export default function RootLayout() {
 
   return (
     <>
+      {/* <GestureHandlerRootView> */}
       <PaperProvider theme={theme}>
         <SafeAreaProvider>
           <Stack
@@ -66,6 +68,7 @@ export default function RootLayout() {
           <Toast />
         </SafeAreaProvider>
       </PaperProvider>
+      {/* </GestureHandlerRootView> */}
     </>
   );
 }

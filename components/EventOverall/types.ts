@@ -35,3 +35,8 @@ export interface AddBillMenuModalProps {
   onUploadBill: () => void;
   onCreateBill: () => void;
 }
+
+export interface AlbumThumb {
+  id: string;
+  uri: string | null;
+}
