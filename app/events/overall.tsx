@@ -55,7 +55,6 @@ export default function OverallScreen() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       allowsEditing: true,
-      aspect: [4, 3],
       quality: 1,
     });
 
@@ -95,7 +94,6 @@ export default function OverallScreen() {
 
         {/* Add Bill FAB */}
         <View className="absolute bottom-8 left-0 right-0 items-center z-10">
-          <Button onPress={pickImage}>Image</Button>
           <TouchableOpacity
             onPress={() => setShowAddMenu(true)}
             className="items-center gap-1"

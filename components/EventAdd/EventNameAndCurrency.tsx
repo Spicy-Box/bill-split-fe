@@ -13,9 +13,7 @@ export default function EventNameAndCurrency({
     <>
       {/* Event Name Field */}
       <View>
-        <Text className="text-primary2 text-xs font-inter mb-1 ml-1">
-          Event&apos;s name
-        </Text>
+        <Text className="text-primary2 text-xs font-inter mb-1 ml-1">Event&apos;s name</Text>
         <TextInput
           value={eventName}
           onChangeText={onEventNameChange}
@@ -45,9 +43,7 @@ export default function EventNameAndCurrency({
 
       {/* Currency Field */}
       <View>
-        <Text className="text-primary2 text-xs font-inter mb-1 ml-1">
-          Currency
-        </Text>
+        <Text className="text-primary2 text-xs font-inter mb-1 ml-1">Currency</Text>
         <TextInput
           value={currency}
           onChangeText={onCurrencyChange}

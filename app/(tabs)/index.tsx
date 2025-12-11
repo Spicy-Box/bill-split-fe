@@ -69,10 +69,10 @@ export default function HomeScreen() {
 
         <EventList />
 
-        <Link href={"/auth/login"}>
+        {/* <Link href={"/auth/login"}>
           <Text>Login</Text>
         </Link>
-        <Link href={"/test"}>Test</Link>
+        <Link href={"/test"}>Test</Link> */}
 
         <Button
           mode="outlined"

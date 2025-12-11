@@ -1,7 +1,14 @@
 import { FlatList } from "react-native";
 import ListItem from "../common/ListItem";
+import { useCallback, useEffect, useState } from "react";
+import { EventReponse } from "@/interfaces/api/event.api";
+import api from "@/utils/api";
+import { format } from "date-fns";
 
 export default function EventList() {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [eventList, setEventList] = useState<EventReponse[]>([]);
+
   const DATA = [
     {
       id: "1",
@@ -33,15 +40,32 @@ export default function EventList() {
     },
   ];
 
+  const fetchEventList = useCallback(async () => {
+    const res = await api.get("/events/");
+    const data: EventReponse[] = res.data.data;
+
+    console.log(data);
+    setEventList(data);
+  }, []);
+
+  useEffect(() => {
+    fetchEventList();
+  }, [fetchEventList]);
+
   return (
     <FlatList
       contentContainerStyle={{
         gap: 20,
       }}
-      data={DATA}
+      data={eventList}
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
-        <ListItem name={item.name} date={item.date} price={item.price} people={item.people} />
+        <ListItem
+          name={item.name}
+          date={format(item.createdAt, "dd MMM, yyyy")}
+          price={item.totalAmount}
+          people={item.participantsCount}
+        />
       )}
     />
   );

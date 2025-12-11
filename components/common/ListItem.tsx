@@ -26,7 +26,10 @@ export default function ListItem({
 
       {/* Col 3 */}
       <View className="gap-1">
-        <Text className="bg-primary3 text-light1 rounded-lg p-1 text-sm font-bold font-inter">
+        <Text
+          className="bg-primary3 text-light1 rounded-lg p-1 text-sm font-bold font-inter"
+          style={{ textAlign: "center" }}
+        >
           VND {price.toLocaleString()}
         </Text>
         <Text className="text-primary2 font-semibold font-inter">{people} persons</Text>

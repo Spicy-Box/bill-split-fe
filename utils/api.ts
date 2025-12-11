@@ -16,7 +16,9 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = getAuthStore().getState().accessToken;
 
-  if (token && config.headers) {
+  config.headers = config.headers || {};
+
+  if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
@@ -31,8 +33,15 @@ api.interceptors.response.use(
 
     console.log(status);
     const isAuthEndpoint = config?.url?.includes("/users/login");
+    const isRefreshEndpoint = config?.url?.includes("/users/refresh");
+    const alreadyRetried = (config as typeof config & { _retry?: boolean })?._retry;
 
-    if ((status === 401 || status === 403) && !isAuthEndpoint) {
+    if (
+      (status === 401 || status === 403) &&
+      !isAuthEndpoint &&
+      !isRefreshEndpoint &&
+      !alreadyRetried
+    ) {
       const authStore = getAuthStore();
       const refreshAccessToken = authStore.getState().refreshAccessToken;
 
@@ -49,6 +58,8 @@ api.interceptors.response.use(
 
       // Gắn token mới
       config.headers.Authorization = `Bearer ${newToken}`;
+      // Tránh lặp vô hạn khi token refresh cũng hết hạn
+      (config as typeof config & { _retry?: boolean })._retry = true;
 
       // Gửi lại request cũ
       return api(config);

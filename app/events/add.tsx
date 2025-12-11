@@ -4,12 +4,16 @@ import {
   ParticipantsList,
   type Participant,
 } from "@/components/EventAdd";
+import { CurrencyObj, EventRequest } from "@/interfaces/api/event.api";
+import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
+import { isAxiosError } from "axios";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { KeyboardAvoidingView, ScrollView, Text } from "react-native";
-import { Button } from "react-native-paper";
+import { KeyboardAvoidingView, ScrollView, Text, View } from "react-native";
+import { ActivityIndicator, Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Toast from "react-native-toast-message";
 
 const INITIAL_PARTICIPANTS: Participant[] = [
   { id: 1, name: "Khánh Lê" },
@@ -18,6 +22,7 @@ const INITIAL_PARTICIPANTS: Participant[] = [
 
 export default function AddEventPage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   const [eventName, setEventName] = useState("");
   const [currency, setCurrency] = useState("");
   const [selectedEmoji] = useState("🤗");
@@ -36,13 +41,52 @@ export default function AddEventPage() {
     setParticipants(participants.map((p) => (p.id === id ? { ...p, name } : p)));
   };
 
-  const handleCreateEvent = () => {
-    // TODO: Implement create event logic
-    router.push("/events/overall");
+  const handleCreateEvent = async () => {
+    setLoading(true);
+    try {
+      // TODO: Implement create event logic
+
+      const currencyKey = (Object.keys(CurrencyObj) as (keyof typeof CurrencyObj)[]).find(
+        (code) => code === currency
+      );
+      console.log(currencyKey);
+      const defaultCurrency = currencyKey ? CurrencyObj[currencyKey] : CurrencyObj.VND;
+
+      const req: EventRequest = {
+        name: eventName,
+        currency: defaultCurrency,
+        participants: participants.map((p) => p.name).filter(Boolean),
+      };
+
+      await api.post("/events/", req);
+
+      Toast.show({
+        type: "success",
+        text1: "Add New Event Successfuly",
+      });
+      router.push("/");
+    } catch (err: any) {
+      if (isAxiosError(err)) {
+        console.log(err.message);
+        Toast.show({
+          type: "error",
+          text1: "Unable to create event",
+          text2: err.response?.data?.message ?? err.message,
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <KeyboardAvoidingView behavior="padding" className="flex-1">
+    <KeyboardAvoidingView behavior="padding" className="flex-1 ">
+      {loading && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 z-10 items-center justify-center flex-1 bg-[rgba(0,0,0,0.5)]">
+          <ActivityIndicator size={"large"} color={COLOR.primary3} />
+        </View>
+      )}
+
       <SafeAreaView className="flex-1 bg-light1">
         <ScrollView
           className="flex-1"
