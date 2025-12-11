@@ -9,6 +9,8 @@ Sentry.init({
 
   // Performance Monitoring
   tracesSampleRate: 1.0, // Capture 100% transactions khi test
+  profilesSampleRate: 1.0,
+
   enableAutoSessionTracking: true,
   sessionTrackingIntervalMillis: 5000,
 
@@ -16,7 +18,9 @@ Sentry.init({
   enableUserInteractionTracing: true,
 
   // Integrations - Simplified to avoid compatibility issues
-  integrations: [navigationIntegration],
+  integrations: [navigationIntegration, Sentry.hermesProfilingIntegration({
+    platformProfilers: false
+  })],
 
   // Privacy
   sendDefaultPii: false, // Không gửi thông tin cá nhân mặc định
