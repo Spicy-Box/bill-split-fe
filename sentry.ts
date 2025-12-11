@@ -4,7 +4,7 @@ export const navigationIntegration = Sentry.reactNavigationIntegration();
 
 Sentry.init({
   dsn: "https://b1b537a2e262325c93b6d34d8540d51d@o4510499774332928.ingest.de.sentry.io/4510499780231248",
-  tracePropagationTargets: ["https://myproject.org", /^\/api\//],
+  // tracePropagationTargets: ["https://myproject.org", /^\/api\//],
   debug: true, // Bật để xem logs khi test
 
   // Performance Monitoring
@@ -18,12 +18,10 @@ Sentry.init({
   enableUserInteractionTracing: true,
 
   // Integrations - Simplified to avoid compatibility issues
-  integrations: [navigationIntegration, Sentry.hermesProfilingIntegration({
-    platformProfilers: false
-  })],
+  integrations: [navigationIntegration],
 
   // Privacy
-  sendDefaultPii: false, // Không gửi thông tin cá nhân mặc định
+  sendDefaultPii: true, // Không gửi thông tin cá nhân mặc định
   maxBreadcrumbs: 150,
 
   // Enable native crash handling
