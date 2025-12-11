@@ -89,8 +89,8 @@ export default Sentry.wrap(function RootLayout() {
             }}
           >
             <Stack.Protected guard={user ? true : false}>
-              <Stack.Screen name="events" />
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="events" />
               <Stack.Screen name="bills/add" />
               <Stack.Screen name="bills/details" />
               <Stack.Screen name="bills/loading" />

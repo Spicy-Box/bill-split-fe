@@ -1,20 +1,28 @@
 import EventIcon from "@/assets/images/event-icon.svg";
+import { RelativePathString, useRouter } from "expo-router";
 
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 export default function ListItem({
+  id = "1",
   name = "Oyasumi Punpun",
   date = "15 Oct, 2025",
   price = 455000,
   people = 6,
 }: {
+  id: string;
   name: string;
   date: string;
   price: number;
   people: number;
 }) {
+  const router = useRouter();
+
   return (
-    <View className="flex-row justify-between bg-light1 p-3 rounded-xl items-center">
+    <TouchableOpacity
+      onPress={() => router.push(`/events/${id}` as RelativePathString)}
+      className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
+    >
       {/* Col 1 */}
       <EventIcon width={52} height={52} />
 
@@ -34,6 +42,6 @@ export default function ListItem({
         </Text>
         <Text className="text-primary2 font-semibold font-inter">{people} persons</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }

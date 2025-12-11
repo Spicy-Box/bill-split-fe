@@ -61,6 +61,7 @@ export default function EventList() {
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => (
         <ListItem
+          id={item.id}
           name={item.name}
           date={format(item.createdAt, "dd MMM, yyyy")}
           price={item.totalAmount}
