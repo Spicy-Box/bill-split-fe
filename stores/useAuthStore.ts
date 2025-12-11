@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { UserLoginRepsonse } from "@/interfaces/api/user.api";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
 interface User {
   id: string;
@@ -160,7 +161,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => Platform.OS === "web" ? localStorage : AsyncStorage),
       partialize: (state) => ({
         user: state.user,
         accessToken: state.accessToken,
