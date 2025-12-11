@@ -10,8 +10,10 @@ import {
 import { useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
 import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Button } from "react-native-paper";
+import * as ImagePicker from "expo-image-picker";
 
 const EVENT_DATA: EventNameAndCurrency = {
   name: "Camping Trip 2025",
@@ -34,6 +36,37 @@ const BILLS_DATA: Bill[] = [
 export default function OverallScreen() {
   const router = useRouter();
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [image, setImage] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    // setShowAddMenu(false);
+    // No permissions request is necessary for launching the image library.
+    // Manually request permissions for videos on iOS when `allowsEditing` is set to `false`
+    // and `videoExportPreset` is `'Passthrough'` (the default), ideally before launching the picker
+    // so the app users aren't surprised by a system dialog after picking a video.
+    // See "Invoke permissions for videos" sub section for more details.
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert("Permission required", "Permission to access the media library is required.");
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+
+    setShowAddMenu(false);
+  };
 
   const handleOpenCamera = () => {
     setShowAddMenu(false);
@@ -42,15 +75,11 @@ export default function OverallScreen() {
     // TODO: Implement camera functionality
   };
 
-  const handleUploadBill = () => {
-    setShowAddMenu(false);
-    // TODO: Implement upload functionality
-  };
-
   const handleCreateBill = () => {
     setShowAddMenu(false);
     router.push("/bills/add");
   };
+  // console.log(permission?.status);
 
   return (
     <>
@@ -66,6 +95,7 @@ export default function OverallScreen() {
 
         {/* Add Bill FAB */}
         <View className="absolute bottom-8 left-0 right-0 items-center z-10">
+          <Button onPress={pickImage}>Image</Button>
           <TouchableOpacity
             onPress={() => setShowAddMenu(true)}
             className="items-center gap-1"
@@ -86,12 +116,10 @@ export default function OverallScreen() {
           visible={showAddMenu}
           onClose={() => setShowAddMenu(false)}
           onOpenCamera={handleOpenCamera}
-          onUploadBill={handleUploadBill}
+          onUploadBill={pickImage}
           onCreateBill={handleCreateBill}
         />
       </View>
-      {/* </SafeAreaView> */}
-      {/* <SafeAreaView edges={["bottom"]} className="bg-light3" /> */}
     </>
   );
 }
