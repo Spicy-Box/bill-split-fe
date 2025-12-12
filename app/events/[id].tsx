@@ -7,13 +7,16 @@ import {
   type EventNameAndCurrency,
   type EventStats,
 } from "@/components/EventOverall";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { Plus } from "lucide-react-native";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
+import api from "@/utils/api";
+import { format } from "date-fns";
+import { useEventStore } from "@/stores/useEventStore";
 
 const EVENT_DATA: EventNameAndCurrency = {
   name: "Camping Trip 2025",
@@ -35,8 +38,14 @@ const BILLS_DATA: Bill[] = [
 
 export default function EventDetailScreen() {
   const router = useRouter();
+  const { id } = useLocalSearchParams();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [image, setImage] = useState<string | null>(null);
+  const [bills, setBills] = useState<Bill[]>([]);
+  const [eventName, setEventName] = useState<string>("");
+  const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [date, setDate] = useState<string>("");
+  const setParticipants = useEventStore((state) => state.setParticipants);
 
   const pickImage = async () => {
     // setShowAddMenu(false);
@@ -80,16 +89,37 @@ export default function EventDetailScreen() {
   };
   // console.log(permission?.status);
 
+  const fetchEventDetails = useCallback(async () => {
+    const response = await api.get(`/events/${id}`);
+    const data = response.data.data;
+
+    setEventName(data.name);
+    setDate(format(data.createdAt, "dd-MM-yyyy"));
+    setTotalAmount(data.totalAmount);
+    setBills(data.bills);
+    setParticipants(data?.participants ?? []);
+  }, [id, setParticipants]);
+
+  useEffect(() => {
+    fetchEventDetails();
+  }, [fetchEventDetails]);
+
   return (
     <>
       <SafeAreaView className="bg-primary1" edges={["top"]} />
       <View className="flex-1">
-        <EventHeader eventNameAndCurrency={EVENT_DATA} />
+        <EventHeader
+          eventNameAndCurrency={{
+            name: eventName,
+            date: date,
+            emoji: "🤗",
+          }}
+        />
 
         {/* Body */}
         <ScrollView className="flex-1 px-5 pt-5" showsVerticalScrollIndicator={false}>
           <StatsCard stats={STATS_DATA} />
-          <BillsList bills={BILLS_DATA} />
+          <BillsList bills={bills} />
         </ScrollView>
 
         {/* Add Bill FAB */}

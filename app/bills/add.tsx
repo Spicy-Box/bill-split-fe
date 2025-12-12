@@ -13,6 +13,7 @@ import {
   type SplitMode,
   type SplitOption,
 } from "@/components/BillCreate";
+import { useEventStore } from "@/stores/useEventStore";
 import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
@@ -23,7 +24,7 @@ import {
   KeyboardAvoidingView,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -44,10 +45,8 @@ const INITIAL_PARTICIPANTS: Participant[] = [
 
 export const EVERYONE_OPTION = "everyone";
 
-
-
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
-const MIN_CARD_HEIGHT = SCREEN_HEIGHT * 0.9; 
+const MIN_CARD_HEIGHT = SCREEN_HEIGHT * 0.9;
 const HEADER_SCROLL_THRESHOLD = 50;
 
 export default function CreateBill() {
@@ -58,7 +57,9 @@ export default function CreateBill() {
   const [newItemName, setNewItemName] = useState("");
   const [paidBy, setPaidBy] = useState<string>("me");
   const [splitMode, setSplitMode] = useState<SplitMode>("equally");
-  const [participants] = useState<Participant[]>(INITIAL_PARTICIPANTS);
+  // const [participants] = useState<Participant[]>(INITIAL_PARTICIPANTS);
+  const participants = useEventStore((state) => state.participants);
+  console.log(participants);
   const [manualSplits, setManualSplits] = useState<ManualSplit[]>([]);
   const [showParticipantDropdown, setShowParticipantDropdown] = useState<string | null>(null);
   const [showPaidByDropdown, setShowPaidByDropdown] = useState(false);
@@ -81,11 +82,7 @@ export default function CreateBill() {
     (id: string): string => {
       if (id === EVERYONE_OPTION) return "Everyone";
       const participant = participants.find((p) => p.id === id);
-      return participant
-        ? participant.isMe
-          ? `${participant.name} (Me)`
-          : participant.name
-        : id;
+      return participant ? (participant.isMe ? `${participant.name} (Me)` : participant.name) : id;
     },
     [participants]
   );
@@ -128,9 +125,7 @@ export default function CreateBill() {
   // Update item field
   const updateItem = useCallback(
     (id: string, field: keyof BillItem, value: string | number | string[]) => {
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
-      );
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
     },
     []
   );
@@ -144,9 +139,7 @@ export default function CreateBill() {
   const updateQuantity = useCallback((id: string, delta: number) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
+        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
       )
     );
   }, []);
@@ -189,8 +182,7 @@ export default function CreateBill() {
       // Check if we should switch to by-item mode
       const updatedItems = items.map((item) => {
         if (item.id !== itemId) return item;
-        if (participantId === EVERYONE_OPTION)
-          return { ...item, participants: [EVERYONE_OPTION] };
+        if (participantId === EVERYONE_OPTION) return { ...item, participants: [EVERYONE_OPTION] };
         if (item.participants.includes(EVERYONE_OPTION))
           return { ...item, participants: [participantId] };
         return item;
@@ -217,9 +209,7 @@ export default function CreateBill() {
 
       if (mode === "equally") {
         // Reset all items to everyone
-        setItems((prev) =>
-          prev.map((item) => ({ ...item, participants: [EVERYONE_OPTION] }))
-        );
+        setItems((prev) => prev.map((item) => ({ ...item, participants: [EVERYONE_OPTION] })));
       }
 
       if (mode === "manually") {
@@ -236,16 +226,11 @@ export default function CreateBill() {
   );
 
   // Update manual split amount
-  const updateManualSplit = useCallback(
-    (participantId: string, amount: number) => {
-      setManualSplits((prev) =>
-        prev.map((split) =>
-          split.participantId === participantId ? { ...split, amount } : split
-        )
-      );
-    },
-    []
-  );
+  const updateManualSplit = useCallback((participantId: string, amount: number) => {
+    setManualSplits((prev) =>
+      prev.map((split) => (split.participantId === participantId ? { ...split, amount } : split))
+    );
+  }, []);
 
   // Calculate subtotal
   const subtotal = useMemo(() => {
@@ -272,20 +257,16 @@ export default function CreateBill() {
 
   return (
     <SafeAreaView className="flex-1 bg-primary1" edges={["top"]}>
-      <KeyboardAvoidingView
-        behavior="padding"
-        className="flex-1"
-      >
+      <KeyboardAvoidingView behavior="padding" className="flex-1">
         <Animated.ScrollView
           className="flex-1 px-4"
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{ paddingBottom: 40 }}
           scrollEventThrottle={16}
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: false }
-          )}
+          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+            useNativeDriver: false,
+          })}
         >
           {/* Header with animation */}
           <Animated.View
@@ -297,16 +278,11 @@ export default function CreateBill() {
             <BillHeader title={billName || "New Bill"} onBack={() => router.back()} />
           </Animated.View>
 
-          <View
-            className="bg-light1 rounded-2xl p-4"
-            style={{ minHeight: MIN_CARD_HEIGHT }}
-          >
+          <View className="bg-light1 rounded-2xl p-4" style={{ minHeight: MIN_CARD_HEIGHT }}>
             {/* Paid By Section */}
             <View className="pb-4 border-b border-dashed border-dark1">
               <View className="flex-row items-center justify-center gap-2">
-                <Text className="text-dark1 font-medium text-base font-inter">
-                  Paid by
-                </Text>
+                <Text className="text-dark1 font-medium text-base font-inter">Paid by</Text>
                 <TouchableOpacity
                   onPress={() => setShowPaidByDropdown(true)}
                   className="bg-secondary3 rounded px-3 py-1 flex-row items-center gap-1"
@@ -330,9 +306,7 @@ export default function CreateBill() {
                     item={item}
                     participantDisplayText={getParticipantDisplayText(item.participants)}
                     onUpdateName={(text: string) => updateItem(item.id, "name", text)}
-                    onUpdateUnitPrice={(price: number) =>
-                      updateItem(item.id, "unitPrice", price)
-                    }
+                    onUpdateUnitPrice={(price: number) => updateItem(item.id, "unitPrice", price)}
                     onUpdateQuantity={(delta: number) => updateQuantity(item.id, delta)}
                     onRemove={() => removeItem(item.id)}
                     onParticipantPress={() => setShowParticipantDropdown(item.id)}
@@ -379,14 +353,10 @@ export default function CreateBill() {
               onPress={handleSplitBill}
               disabled={items.length === 0 && splitMode !== "manually"}
               className={`w-full ${
-                items.length === 0 && splitMode !== "manually"
-                  ? "bg-primary2"
-                  : "bg-dark1"
+                items.length === 0 && splitMode !== "manually" ? "bg-primary2" : "bg-dark1"
               } py-4 rounded-full mt-4`}
             >
-              <Text className="text-light1 text-center font-semibold font-inter">
-                Split Bill
-              </Text>
+              <Text className="text-light1 text-center font-semibold font-inter">Split Bill</Text>
             </TouchableOpacity>
           </View>
         </Animated.ScrollView>

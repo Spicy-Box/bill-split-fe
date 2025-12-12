@@ -3,7 +3,7 @@ import type { EventHeaderProps } from "./types";
 
 export const EventHeader = ({ eventNameAndCurrency }: EventHeaderProps) => {
   return (
-    <View className="bg-primary1 rounded-b-3xl py-10">
+    <View className="bg-primary1 py-10">
       <View className="flex-col items-center gap-4">
         <View className="bg-secondary3 rounded-full p-5 w-28 h-28 items-center justify-center">
           <Text className="text-4xl">{eventNameAndCurrency.emoji}</Text>

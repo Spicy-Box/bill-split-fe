@@ -19,3 +19,12 @@ export interface EventReponse {
   totalAmount: number;
   createdAt: string;
 }
+
+export interface ExportDetailRepsonse {
+  id: string;
+  name: string;
+  currency: number;
+  createdAt: string;
+  participants: string[];
+  bills: object[];
+}

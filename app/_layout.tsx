@@ -84,8 +84,8 @@ export default Sentry.wrap(function RootLayout() {
             screenOptions={{
               headerShown: false,
               animation: "fade",
-              gestureEnabled: false,
-              fullScreenGestureEnabled: false,
+              gestureEnabled: true,
+              fullScreenGestureEnabled: true,
             }}
           >
             <Stack.Protected guard={user ? true : false}>
