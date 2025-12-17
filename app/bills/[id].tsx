@@ -11,8 +11,11 @@ import {
   type DebtItem,
   type Participant,
 } from "@/components/BillDetail";
+import { BalancesRepsonse, BillByItemResponse } from "@/interfaces/api/bill.api";
+import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
-import { useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import { ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -80,42 +83,68 @@ const OWED_DETAILS: DebtItem[] = [
 ];
 
 export default function BillDetailPage() {
+  const { id } = useLocalSearchParams();
+
   const [activeTab, setActiveTab] = useState<"overall" | "balances">("overall");
+  const [billDetail, setBillDetail] = useState<BillByItemResponse | null>(null);
+  const [balance, setBalance] = useState<BalancesRepsonse[]>([]);
 
-  const billItems = BILL_ITEMS;
-  const participants = PARTICIPANTS;
-  const owedDetails = OWED_DETAILS;
+  const fetchBillDetail = useCallback(async () => {
+    const response = await api.get(`/bills/${id}`);
+    const data: BillByItemResponse = response.data.data;
+    setBillDetail(data);
+    console.log(data);
+  }, [id]);
 
-  const subtotal = billItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = subtotal;
-  const myAmount = participants[0]?.amount || 0;
+  const fetchBillBalances = useCallback(async () => {
+    const response = await api.get(`/bills/${id}/balances`);
+    const data = response.data.data;
+    console.log(data);
+    setBalance(data.balances);
+  }, [id]);
+
+  useEffect(() => {
+    fetchBillDetail();
+    fetchBillBalances();
+  }, [fetchBillDetail, fetchBillBalances]);
+
+  console.log({ billDetail });
 
   return (
     <SafeAreaView className="flex-1 bg-light3" edges={["top"]}>
       <StatusBar barStyle="dark-content" backgroundColor={COLOR.light3} />
 
-      <BillDetailHeader title="Grocery" />
+      <BillDetailHeader eventId={billDetail?.eventId ?? ""} title={billDetail?.title ?? ""} />
 
-      <View className="bg-light3 px-5">
+      <View className="bg-light3 px-5 flex-1">
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
 
         <ScrollView
-          className="bg-light3"
+          className="bg-light3 flex-1"
           contentContainerClassName="gap-4 pb-20"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 24 }}
         >
           {activeTab === "overall" ? (
             <>
-              <PaidByCard participant={participants[0]} />
-              <BillItemsCard items={billItems} total={total} />
-              <ParticipantsCard participants={participants} />
+              {billDetail?.paidBy && <PaidByCard participant={billDetail.paidBy} />}
+              {billDetail?.items && billDetail.totalAmount && (
+                <BillItemsCard
+                  items={billDetail.items}
+                  subTotal={billDetail.subtotal}
+                  tax={billDetail.tax}
+                  totalAmount={billDetail.totalAmount}
+                />
+              )}
+              {billDetail?.perUserShares && (
+                <ParticipantsCard participants={billDetail.perUserShares} />
+              )}
               <ExportButton />
             </>
           ) : (
             <>
-              <OwedAmountCard participant={participants[0]} amount={myAmount} />
-              <DebtsListCard debts={owedDetails} />
+              <OwedAmountCard balances={balance} />
+              <DebtsListCard debts={balance} />
               <ExportButton />
             </>
           )}

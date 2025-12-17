@@ -1,6 +1,6 @@
 import { COLOR } from "@/utils/color";
 import { ArrowLeft } from "lucide-react-native";
-import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { TextInput, TouchableOpacity, View } from "react-native";
 import type { BillHeaderProps } from "./types";
 
 export default function BillHeader({ title, onBack, setBillName }: BillHeaderProps) {
@@ -14,9 +14,10 @@ export default function BillHeader({ title, onBack, setBillName }: BillHeaderPro
       </TouchableOpacity>
       <TextInput
         onChangeText={(text) => setBillName(text)}
-        className="text-dark1 text-center font-semibold text-base font-inter flex-1 h-full"
+        className="text-dark1 font-semibold text-base font-inter flex-1 h-full text-center"
         value={title}
         placeholder="New Bill"
+        placeholderTextColor={COLOR.dark1}
         selectionColor={COLOR.dark1}
       />
 

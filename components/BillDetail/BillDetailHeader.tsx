@@ -4,13 +4,16 @@ import { ArrowLeft } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 import type { BillDetailHeaderProps } from "./types";
 
-export default function BillDetailHeader({ title }: BillDetailHeaderProps) {
+export default function BillDetailHeader({ title, eventId }: BillDetailHeaderProps) {
   const router = useRouter();
 
   return (
-    <View className="bg-light3 px-4 py-4 flex-row justify-between items-center" style={{ height: "10%" }}>
+    <View
+      className="bg-light3 px-4 py-4 flex-row justify-between items-center"
+      style={{ height: "10%" }}
+    >
       <TouchableOpacity
-        onPress={() => router.back()}
+        onPress={() => router.navigate(`/events/${eventId}`)}
         className="w-8 h-8 bg-dark1 rounded-full items-center justify-center"
       >
         <ArrowLeft size={20} color={COLOR.light1} />

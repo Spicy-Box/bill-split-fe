@@ -1,3 +1,5 @@
+import { BalancesRepsonse, ItemReponse } from "@/interfaces/api/bill.api";
+
 // Data interfaces
 export interface BillItem {
   id: string;
@@ -25,25 +27,27 @@ export interface DebtItem {
 // Props interfaces
 export interface BillDetailHeaderProps {
   title: string;
+  eventId: string;
 }
 
 export interface BillItemsCardProps {
-  items: BillItem[];
-  total: number;
+  items: ItemReponse[];
+  subTotal: number;
+  tax: number;
+  totalAmount: number;
 }
 
 export interface DebtsListCardProps {
-  debts: DebtItem[];
+  debts: BalancesRepsonse[];
 }
 
-export interface OwedAmountCardProps {
-  participant: Participant;
-  amount: number;
-}
+// export interface OwedAmountCardProps {
+//   balance: BalancesRepsonse[];
+// }
 
-export interface PaidByCardProps {
-  participant: Participant;
-}
+// export interface PaidByCardProps {
+//   participant: Participant;
+// }
 
 export interface ParticipantsCardProps {
   participants: Participant[];

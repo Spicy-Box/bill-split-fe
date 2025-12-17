@@ -1,3 +1,5 @@
+import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
+
 export interface Bill {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ export interface StatsCardProps {
 }
 
 export interface BillsListProps {
-  bills: Bill[];
+  bills: BillOverallItemRequest[];
 }
 
 export interface AddBillMenuModalProps {

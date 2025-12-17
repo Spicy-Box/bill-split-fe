@@ -4,7 +4,6 @@ import {
   EventHeader,
   StatsCard,
   type Bill,
-  type EventNameAndCurrency,
   type EventStats,
 } from "@/components/EventOverall";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -12,11 +11,13 @@ import { Plus } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Button } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 import api from "@/utils/api";
 import { format } from "date-fns";
 import { useEventStore } from "@/stores/useEventStore";
+import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
+import { IconButton } from "react-native-paper";
+import { COLOR } from "@/utils/color";
 
 // const EVENT_DATA: EventNameAndCurrency = {
 //   name: "Camping Trip 2025",
@@ -41,9 +42,9 @@ export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [image, setImage] = useState<string | null>(null);
-  const [bills, setBills] = useState<Bill[]>([]);
   const [eventName, setEventName] = useState<string>("");
   const [totalAmount, setTotalAmount] = useState<number>(0);
+  const [billList, setBillList] = useState<BillOverallItemRequest[]>([]);
   const [date, setDate] = useState<string>("");
   const setParticipants = useEventStore((state) => state.setParticipants);
   const setEventId = useEventStore((state) => state.setEventId);
@@ -88,19 +89,40 @@ export default function EventDetailScreen() {
     setEventName(data.name);
     setDate(format(data.createdAt, "dd-MM-yyyy"));
     setTotalAmount(data.totalAmount);
-    setBills(data.bills);
     setParticipants(data?.participants ?? []);
     setEventId(id as string);
   }, [id, setParticipants, setEventId]);
 
+  const fetchBillList = useCallback(async () => {
+    const response = await api.get(`/bills/?event_id=${id}`);
+    const data = response.data.data;
+
+    const bills: BillOverallItemRequest[] = data.map((item: BillOverallItemRequest) => {
+      return { id: item.id, title: item.title, totalAmount: item.totalAmount, paidBy: item.paidBy };
+    });
+
+    setBillList(bills);
+
+    console.log(bills);
+  }, [id]);
+
   useEffect(() => {
     fetchEventDetails();
-  }, [fetchEventDetails]);
+    fetchBillList();
+  }, [fetchEventDetails, fetchBillList]);
 
   return (
     <>
       <SafeAreaView className="bg-primary1" edges={["top"]} />
       <View className="flex-1">
+        <View className="flex-row bg-primary1 justify-end">
+          <IconButton
+            icon={"close"}
+            iconColor={COLOR.dark1}
+            size={25}
+            onPress={() => router.navigate("/")}
+          />
+        </View>
         <EventHeader
           eventNameAndCurrency={{
             name: eventName,
@@ -108,11 +130,10 @@ export default function EventDetailScreen() {
             emoji: "🤗",
           }}
         />
-
         {/* Body */}
         <ScrollView className="flex-1 px-5 pt-5" showsVerticalScrollIndicator={false}>
           <StatsCard stats={STATS_DATA} />
-          <BillsList bills={bills} />
+          <BillsList bills={billList} />
         </ScrollView>
 
         {/* Add Bill FAB */}

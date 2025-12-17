@@ -25,6 +25,7 @@ import {
   Alert,
   Dimensions,
   KeyboardAvoidingView,
+  Platform,
   Text,
   TouchableOpacity,
   View,
@@ -358,7 +359,7 @@ export default function CreateBill() {
         type: "success",
         text1: "Create bill successfully",
       });
-      router.push("/bills/detail");
+      router.push(`/bills/${data.id}`);
     } catch (err: any) {
       console.log(err);
     }
@@ -373,12 +374,16 @@ export default function CreateBill() {
       )}
 
       <SafeAreaView className="flex-1 bg-primary1" edges={["top"]}>
-        <KeyboardAvoidingView behavior="padding" className="flex-1">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          className="flex-1"
+          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+        >
           <Animated.ScrollView
             className="flex-1 px-4"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 40 }}
+            contentContainerStyle={{ paddingBottom: 100 }}
             scrollEventThrottle={16}
             onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
               useNativeDriver: false,

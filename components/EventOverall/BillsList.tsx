@@ -1,6 +1,8 @@
-import { Text, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 import type { Bill, BillsListProps } from "./types";
+import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
+import { Router, useRouter } from "expo-router";
 
 // Bill Icon Component
 const BillIcon = () => (
@@ -15,32 +17,37 @@ const BillIcon = () => (
 );
 
 // Bill Item Component
-const BillItem = ({ bill }: { bill: Bill }) => (
-  <View className="bg-light1 rounded-xl p-3 flex-row items-center justify-between">
+const BillItem = ({ bill, router }: { bill: BillOverallItemRequest; router: Router }) => (
+  <TouchableOpacity
+    className="bg-light1 rounded-xl p-3 flex-row items-center justify-between"
+    onPress={() => router.navigate(`/bills/${bill.id}`)}
+  >
     <View className="flex-row items-center gap-2.5 flex-1">
       <View className="w-11 h-11 items-center justify-center">
         <BillIcon />
       </View>
       <View className="gap-1 flex-1">
-        <Text className="text-dark1 font-medium text-base font-inter">{bill.name}</Text>
+        <Text className="text-dark1 font-medium text-base font-inter">{bill.title}</Text>
         <Text className="text-dark1 text-xs font-medium font-inter opacity-40">
-          Paid by {bill.paidBy}
+          Paid by {bill.paidBy.name}
         </Text>
       </View>
     </View>
     <View className="bg-primary3 rounded-lg px-3 py-1.5 items-center justify-center ml-2">
       <Text className="text-light1 text-sm font-semibold font-inter">
-        VND {bill.amount.toLocaleString()}
+        VND {bill.totalAmount.toLocaleString()}
       </Text>
     </View>
-  </View>
+  </TouchableOpacity>
 );
 
 export const BillsList = ({ bills }: BillsListProps) => {
+  const router = useRouter();
+
   return (
     <View className="gap-2.5 pb-24">
       {bills.map((bill) => (
-        <BillItem key={bill.id} bill={bill} />
+        <BillItem key={bill.id} bill={bill} router={router} />
       ))}
     </View>
   );
