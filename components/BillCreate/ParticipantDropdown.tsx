@@ -3,6 +3,7 @@ import { Users } from "lucide-react-native";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
 import { Avatar } from "react-native-paper";
 import type { ParticipantDropdownProps } from "./types";
+import { getParticipantId } from "./types";
 
 export default function ParticipantDropdown({
   visible,
@@ -24,30 +25,17 @@ export default function ParticipantDropdown({
   );
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="fade"
-      onRequestClose={onClose}
-    >
-      <TouchableOpacity
-        className="flex-1 bg-dark1/50"
-        activeOpacity={1}
-        onPress={onClose}
-      >
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity className="flex-1 bg-dark1/50" activeOpacity={1} onPress={onClose}>
         <View className="bg-light1 mx-6 mt-40 rounded-2xl p-4">
           <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-dark1 font-bold text-base font-inter">
-              Select Participant
-            </Text>
+            <Text className="text-dark1 font-bold text-base font-inter">Select Participant</Text>
             <TouchableOpacity
               onPress={onClose}
               className="bg-primary1/80 px-3 py-1 rounded-lg"
               activeOpacity={0.8}
             >
-              <Text className="text-dark1 font-semibold text-xs">
-                Close
-              </Text>
+              <Text className="text-dark1 font-semibold text-xs">Close</Text>
             </TouchableOpacity>
           </View>
 
@@ -59,23 +47,22 @@ export default function ParticipantDropdown({
             <View className="w-10 h-10 bg-primary1 rounded-full items-center justify-center mr-3">
               <Users size={20} color={COLOR.dark1} />
             </View>
-            <Text className="text-dark1 font-medium font-inter flex-1">
-              Everyone
-            </Text>
+            <Text className="text-dark1 font-medium font-inter flex-1">Everyone</Text>
             <Checkbox checked={item?.participants.includes(everyoneOption) ?? false} />
           </TouchableOpacity>
 
           {/* Individual participants */}
           {participants.map((participant) => {
+            const participantId = getParticipantId(participant);
             const isSelected = !!(
-              item?.participants.includes(participant.id) &&
+              item?.participants.includes(participantId) &&
               !item?.participants.includes(everyoneOption)
             );
 
             return (
               <TouchableOpacity
-                key={participant.id}
-                onPress={() => onSelectParticipant(itemId, participant.id)}
+                key={participantId}
+                onPress={() => onSelectParticipant(itemId, participantId)}
                 className="flex-row items-center py-3 border-b border-light3"
               >
                 <Avatar.Image
@@ -84,9 +71,7 @@ export default function ParticipantDropdown({
                   style={{ marginRight: 12 }}
                 />
                 <Text className="text-dark1 font-medium font-inter text-base flex-1">
-                  {participant.isMe
-                    ? `${participant.name} (Me)`
-                    : participant.name}
+                  {participant.user_id ? `${participant.name} (Me)` : participant.name}
                 </Text>
                 <Checkbox checked={isSelected} />
               </TouchableOpacity>

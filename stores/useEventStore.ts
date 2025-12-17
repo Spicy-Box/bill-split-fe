@@ -1,17 +1,27 @@
+import { Participant } from "@/components/BillCreate";
 import { create } from "zustand";
 
 
 interface EventState {
-  participants: string[] | null;
-  setParticipants: (participants: string[]) => void;
+  participants: Participant[] | [];
+  event_id: string | null;
+  setParticipants: (participants: Participant[]) => void;
+  setEventId: (event_id: string) => void;
 }
 
 export const useEventStore = create<EventState>((set, get) => ({
-  participants: null,
+  participants: [],
+  event_id: null,
 
-  setParticipants: (participants: string[]) => {
+  setParticipants: (participants) => {
     set({
       participants: participants
+    })
+  },
+
+  setEventId: (event_id) => {
+    set({
+      event_id: event_id
     })
   }
 }))

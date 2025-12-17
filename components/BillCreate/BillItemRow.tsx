@@ -78,7 +78,7 @@ export default function BillItemRow({
           {/* Row 2: Participant badge and quantity controls */}
           <View className="flex-row items-center justify-start gap-2">
             {/* Participant Badge */}
-            {mode !== "manually" && (
+            {mode !== "manual" && (
               <TouchableOpacity
                 onPress={onParticipantPress}
                 className="flex-row items-center gap-1 bg-primary1 rounded-full px-3 py-1"

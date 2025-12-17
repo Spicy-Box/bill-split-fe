@@ -22,3 +22,6 @@ export type {
   SplitResultListProps,
 } from "./types";
 
+// Export helper functions
+export { getParticipantId } from "./types";
+

@@ -43,8 +43,6 @@ export default function EventList() {
   const fetchEventList = useCallback(async () => {
     const res = await api.get("/events/");
     const data: EventReponse[] = res.data.data;
-
-    console.log(data);
     setEventList(data);
   }, []);
 

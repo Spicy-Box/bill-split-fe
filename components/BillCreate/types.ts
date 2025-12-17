@@ -8,10 +8,15 @@ export interface BillItem {
 }
 
 export interface Participant {
-  id: string;
   name: string;
+  user_id?: string;
+  is_guest: boolean;
   avatar?: string;
-  isMe?: boolean;
+}
+
+// Helper function to get participant identifier
+export function getParticipantId(participant: Participant): string {
+  return participant.user_id || participant.name;
 }
 
 export interface ManualSplit {
@@ -20,7 +25,7 @@ export interface ManualSplit {
   amount: number;
 }
 
-export type SplitMode = "equally" | "by-item" | "manually";
+export type SplitMode = "equally" | "by_item" | "manual";
 
 export interface SplitOption {
   id: SplitMode;
@@ -28,15 +33,12 @@ export interface SplitOption {
   icon: "equally" | "by-item" | "manually";
 }
 
-interface SplitAmount {
-  participant: Participant;
-  amount: number;
-}
 
 // Props interfaces
 export interface BillHeaderProps {
   title: string;
   onBack: () => void;
+  setBillName: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export interface BillItemRowProps {
@@ -61,6 +63,7 @@ export interface BillTotalsProps {
   subtotal: number;
   tax_rate: number;
   total: number;
+  setTaxRate: React.Dispatch<React.SetStateAction<number>>
 }
 
 export interface PaidByDropdownProps {
@@ -95,7 +98,6 @@ export interface ManualSplitItemProps {
 
 export interface SplitResultListProps {
   mode: SplitMode;
-  splitAmounts: SplitAmount[];
   manualSplits: ManualSplit[];
   participants: Participant[];
   hasItems: boolean;

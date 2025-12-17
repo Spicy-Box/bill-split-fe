@@ -18,11 +18,11 @@ import api from "@/utils/api";
 import { format } from "date-fns";
 import { useEventStore } from "@/stores/useEventStore";
 
-const EVENT_DATA: EventNameAndCurrency = {
-  name: "Camping Trip 2025",
-  date: "27-10-2025",
-  emoji: "🤗",
-};
+// const EVENT_DATA: EventNameAndCurrency = {
+//   name: "Camping Trip 2025",
+//   date: "27-10-2025",
+//   emoji: "🤗",
+// };
 
 const STATS_DATA: EventStats = {
   myExpenses: 20.5,
@@ -46,14 +46,9 @@ export default function EventDetailScreen() {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [date, setDate] = useState<string>("");
   const setParticipants = useEventStore((state) => state.setParticipants);
+  const setEventId = useEventStore((state) => state.setEventId);
 
   const pickImage = async () => {
-    // setShowAddMenu(false);
-    // No permissions request is necessary for launching the image library.
-    // Manually request permissions for videos on iOS when `allowsEditing` is set to `false`
-    // and `videoExportPreset` is `'Passthrough'` (the default), ideally before launching the picker
-    // so the app users aren't surprised by a system dialog after picking a video.
-    // See "Invoke permissions for videos" sub section for more details.
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
@@ -67,8 +62,6 @@ export default function EventDetailScreen() {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
@@ -79,26 +72,26 @@ export default function EventDetailScreen() {
   const handleOpenCamera = () => {
     setShowAddMenu(false);
     router.push("/events/camera");
-    // router.push("/bills/loading");
-    // TODO: Implement camera functionality
   };
 
   const handleCreateBill = () => {
     setShowAddMenu(false);
     router.push("/bills/add");
   };
-  // console.log(permission?.status);
 
   const fetchEventDetails = useCallback(async () => {
     const response = await api.get(`/events/${id}`);
     const data = response.data.data;
+
+    console.log(data);
 
     setEventName(data.name);
     setDate(format(data.createdAt, "dd-MM-yyyy"));
     setTotalAmount(data.totalAmount);
     setBills(data.bills);
     setParticipants(data?.participants ?? []);
-  }, [id, setParticipants]);
+    setEventId(id as string);
+  }, [id, setParticipants, setEventId]);
 
   useEffect(() => {
     fetchEventDetails();
