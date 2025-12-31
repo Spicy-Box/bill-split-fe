@@ -5,6 +5,7 @@ import {
   type Participant,
 } from "@/components/EventAdd";
 import { CurrencyObj, EventRequest } from "@/interfaces/api/event.api";
+import { useAuthStore } from "@/stores/useAuthStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import { isAxiosError } from "axios";
@@ -15,33 +16,66 @@ import { ActivityIndicator, Button } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
-const INITIAL_PARTICIPANTS: Participant[] = [
-  { id: 1, name: "Khánh Lê" },
-  { id: 2, name: "" },
-];
-
 export default function AddEventPage() {
   const router = useRouter();
+  const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [eventName, setEventName] = useState("");
   const [currency, setCurrency] = useState("");
   const [selectedEmoji] = useState("🤗");
+  
+  const INITIAL_PARTICIPANTS: Participant[] = [
+    { id: 1, name: user ? `${user.first_name} ${user.last_name}` : "You", isCurrentUser: true },
+    { id: 2, name: "", isCurrentUser: false },
+  ];
+  
   const [participants, setParticipants] = useState<Participant[]>(INITIAL_PARTICIPANTS);
+  const [errors, setErrors] = useState<{
+    eventName?: string;
+    currency?: string;
+  }>({});
 
   const removeParticipant = (id: number) => {
+    // Không cho phép xóa user hiện tại (participant đầu tiên)
+    const participant = participants.find((p) => p.id === id);
+    if (participant?.isCurrentUser) {
+      return;
+    }
     setParticipants(participants.filter((p) => p.id !== id));
   };
 
   const addParticipant = () => {
     const newId = Math.max(...participants.map((p) => p.id), 0) + 1;
-    setParticipants([...participants, { id: newId, name: "" }]);
+    setParticipants([...participants, { id: newId, name: "", isCurrentUser: false }]);
   };
 
   const updateParticipant = (id: number, name: string) => {
-    setParticipants(participants.map((p) => (p.id === id ? { ...p, name } : p)));
+    setParticipants(participants.map((p) => {
+      // Không cho phép đổi tên user hiện tại
+      if (p.id === id && !p.isCurrentUser) {
+        return { ...p, name };
+      }
+      return p;
+    }));
   };
 
   const handleCreateEvent = async () => {
+    // Validate event name and currency
+    const newErrors: { eventName?: string; currency?: string } = {};
+    
+    if (!eventName.trim()) {
+      newErrors.eventName = "Event name is required";
+    }
+    if (!currency.trim()) {
+      newErrors.currency = "Currency is required";
+    }
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    
+    setErrors({});
     setLoading(true);
     try {
       // TODO: Implement create event logic
@@ -107,6 +141,7 @@ export default function AddEventPage() {
             currency={currency}
             onEventNameChange={setEventName}
             onCurrencyChange={setCurrency}
+            errors={errors}
           />
 
           <ParticipantsList

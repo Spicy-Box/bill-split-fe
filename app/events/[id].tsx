@@ -18,6 +18,7 @@ import { useEventStore } from "@/stores/useEventStore";
 import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
 import { IconButton } from "react-native-paper";
 import { COLOR } from "@/utils/color";
+import { parseDataFromPhoto } from "@/utils/imageOCR";
 
 // const EVENT_DATA: EventNameAndCurrency = {
 //   name: "Camping Trip 2025",
@@ -65,6 +66,9 @@ export default function EventDetailScreen() {
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+    }
+    if (!result.canceled && result.assets?.[0]) {
+      parseDataFromPhoto(result.assets[0].uri, router);
     }
 
     setShowAddMenu(false);

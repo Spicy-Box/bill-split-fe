@@ -1,7 +1,7 @@
 import { COLOR } from "@/utils/color";
 import { UserPlus } from "lucide-react-native";
-import { Avatar, Button, IconButton, TextInput } from "react-native-paper";
 import { View } from "react-native";
+import { Avatar, Button, IconButton, TextInput } from "react-native-paper";
 import type { ParticipantsListProps } from "./types";
 
 export default function ParticipantsList({
@@ -50,11 +50,12 @@ export default function ParticipantsList({
               textColor={COLOR.dark1}
               cursorColor={COLOR.dark1}
               selectionColor={COLOR.primary1}
+              editable={!participant.isCurrentUser}
               style={{
                 backgroundColor: "transparent",
                 flex: 1,
                 fontSize: 14,
-                fontWeight: "500",
+                fontWeight: participant.isCurrentUser ? "600" : "500",
                 fontFamily: "inter",
                 marginLeft: 12,
               }}
@@ -63,9 +64,10 @@ export default function ParticipantsList({
             <IconButton
               icon="close"
               iconColor={COLOR.light1}
-              containerColor={COLOR.dark1}
+              containerColor={participant.isCurrentUser ? COLOR.primary2 : COLOR.dark1}
               size={16}
               onPress={() => onRemoveParticipant(participant.id)}
+              disabled={participant.isCurrentUser}
             />
           </View>
         ))}

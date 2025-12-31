@@ -118,7 +118,7 @@ export default function BillItemRow({
         {/* Total price */}
         <View className="flex-row items-center gap-2">
           <Text className="text-dark1 font-semibold text-base">
-            ${(item.unitPrice * item.quantity).toFixed(2)}
+            ${(item.unitPrice * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
           {/* Delete button */}
           <TouchableOpacity onPress={onRemove} className="w-6 h-6 items-center justify-center">

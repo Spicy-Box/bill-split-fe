@@ -2,7 +2,6 @@ import { COLOR } from "@/utils/color";
 import { ArrowRight } from "lucide-react-native";
 import { Image, Text, View } from "react-native";
 import type { DebtsListCardProps } from "./types";
-import { de } from "react-native-paper-dates";
 
 export default function DebtsListCard({ debts }: DebtsListCardProps) {
   console.log(debts);
@@ -15,7 +14,7 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
               <Text className="text-dark1 text-md font-semibold">Owes</Text>
               <View className="bg-dark1 rounded-lg px-2 py-0.5">
                 <Text className="text-primary1 text-md font-semibold">
-                  ${debt.amountOwed.toFixed(2)}
+                  ${debt.amountOwed.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               </View>
             </View>

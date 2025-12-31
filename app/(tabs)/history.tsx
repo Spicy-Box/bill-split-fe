@@ -1,12 +1,14 @@
 import EventIcon from "@/assets/images/event-icon.svg";
 import WelcomePanel from "@/components/HomePage/WelcomePanel";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import api from "@/utils/api";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Data interfaces
 interface HistoryItem {
-  id: number;
+  id: string | number;
   type: string;
   name: string;
   date: string;
@@ -52,7 +54,67 @@ const HISTORY_ITEMS: HistoryItem[] = [
 ];
 
 export default function HistoryPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("bill");
+  const [billHistory, setBillHistory] = useState<HistoryItem[]>([]);
+  const [eventHistory, setEventHistory] = useState<HistoryItem[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === "bill") {
+      fetchBillHistory();
+    } else if (activeTab === "event") {
+      fetchEventHistory();
+    }
+  }, [activeTab]);
+
+  const fetchBillHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/users/history/bills");
+      
+      if (response.data && response.data.data && response.data.data.bills) {
+        const mappedBills: HistoryItem[] = response.data.data.bills.map((bill: any) => ({
+          id: bill.id,
+          type: bill.note || "Bill",
+          name: bill.title,
+          date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+          amount: `VND ${bill.totalAmount.toLocaleString()}`,
+          imageUrl: "https://api.builder.io/api/v1/image/assets/TEMP/384e4eaae9514a2267a6095064835f2d0e0a621e?width=104",
+          participants: bill.perUserShares?.length || 0,
+        }));
+        setBillHistory(mappedBills);
+      }
+    } catch (error) {
+      console.error("Error fetching bill history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchEventHistory = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/users/history/events");
+      
+      if (response.data && response.data.data && response.data.data.events) {
+        const mappedEvents: HistoryItem[] = response.data.data.events.map((event: any) => ({
+          id: event.id,
+          type: "Event",
+          name: event.name,
+          date: new Date(event.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+          amount: `VND ${event.totalAmount.toLocaleString()}`,
+          imageUrl: "https://api.builder.io/api/v1/image/assets/TEMP/384e4eaae9514a2267a6095064835f2d0e0a621e?width=104",
+          participants: event.participantsCount,
+        }));
+        setEventHistory(mappedEvents);
+      }
+    } catch (error) {
+      console.error("Error fetching event history:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-light3">
@@ -117,10 +179,21 @@ export default function HistoryPage() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
           >
-            {HISTORY_ITEMS.map((item) => (
-              <View
+            {loading ? (
+              <View className="flex-1 items-center justify-center py-10">
+                <ActivityIndicator size="large" color="#6B7280" />
+              </View>
+            ) : (
+              (activeTab === "bill" ? billHistory : eventHistory).map((item) => (
+              <TouchableOpacity
                 key={item.id}
                 className="bg-light1 rounded-xl p-3 gap-2"
+                onPress={() =>
+                  activeTab === "bill"
+                    ? router.push(`/bills/${item.id}`)
+                    : router.push(`/events/${item.id}`)
+                }
+                activeOpacity={0.7}
               >
                 {/* Event Type Badge - Only show for Bill tab */}
                 {activeTab === "bill" && (
@@ -167,8 +240,9 @@ export default function HistoryPage() {
                     )}
                   </View>
                 </View>
-              </View>
-            ))}
+              </TouchableOpacity>
+              ))
+            )}
           </ScrollView>
         </View>
       </View>

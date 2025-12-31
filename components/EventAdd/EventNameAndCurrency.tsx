@@ -8,6 +8,7 @@ export default function EventNameAndCurrency({
   currency,
   onEventNameChange,
   onCurrencyChange,
+  errors,
 }: EventNameAndCurrencyProps) {
   return (
     <>
@@ -18,15 +19,15 @@ export default function EventNameAndCurrency({
           value={eventName}
           onChangeText={onEventNameChange}
           mode="flat"
-          underlineColor={COLOR.primary2}
-          activeUnderlineColor={COLOR.dark1}
+          underlineColor={errors?.eventName ? "#DC2626" : COLOR.primary2}
+          activeUnderlineColor={errors?.eventName ? "#DC2626" : COLOR.dark1}
           textColor={COLOR.dark1}
           cursorColor={COLOR.dark1}
           selectionColor={COLOR.primary1}
           placeholder="Enter event name"
           placeholderTextColor={COLOR.primary2}
           style={{
-            backgroundColor: COLOR.light3,
+            backgroundColor: errors?.eventName ? "#FEE2E2" : COLOR.light3,
           }}
           contentStyle={{ paddingLeft: 16 }}
           right={
@@ -34,11 +35,14 @@ export default function EventNameAndCurrency({
               <TextInput.Icon
                 icon="close-circle"
                 onPress={() => onEventNameChange("")}
-                color={COLOR.primary2}
+                color={errors?.eventName ? "#DC2626" : COLOR.primary2}
               />
             ) : null
           }
         />
+        {errors?.eventName && (
+          <Text className="text-red-600 text-xs font-inter mt-1 ml-1">{errors.eventName}</Text>
+        )}
       </View>
 
       {/* Currency Field */}
@@ -48,15 +52,15 @@ export default function EventNameAndCurrency({
           value={currency}
           onChangeText={onCurrencyChange}
           mode="flat"
-          underlineColor={COLOR.primary2}
-          activeUnderlineColor={COLOR.dark1}
+          underlineColor={errors?.currency ? "#DC2626" : COLOR.primary2}
+          activeUnderlineColor={errors?.currency ? "#DC2626" : COLOR.dark1}
           textColor={COLOR.dark1}
           cursorColor={COLOR.dark1}
           selectionColor={COLOR.primary1}
           placeholder="VND, USD, EUR..."
           placeholderTextColor={COLOR.primary2}
           style={{
-            backgroundColor: COLOR.light3,
+            backgroundColor: errors?.currency ? "#FEE2E2" : COLOR.light3,
           }}
           contentStyle={{ paddingLeft: 16 }}
           right={
@@ -64,11 +68,14 @@ export default function EventNameAndCurrency({
               <TextInput.Icon
                 icon="close-circle"
                 onPress={() => onCurrencyChange("")}
-                color={COLOR.primary2}
+                color={errors?.currency ? "#DC2626" : COLOR.primary2}
               />
             ) : null
           }
         />
+        {errors?.currency && (
+          <Text className="text-red-600 text-xs font-inter mt-1 ml-1">{errors.currency}</Text>
+        )}
       </View>
     </>
   );

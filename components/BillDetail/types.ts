@@ -59,5 +59,4 @@ export interface TabBarProps {
 }
 
 export interface ExportButtonProps {
-  onPress?: () => void;
-}
+  onPress?: () => void;  isLoading?: boolean;}

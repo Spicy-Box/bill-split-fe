@@ -6,6 +6,8 @@ import { Button, Text, TouchableOpacity, View } from "react-native";
 import { IconButton } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import api from "@/utils/api";
+import { parseDataFromPhoto } from "@/utils/imageOCR";
 
 export default function CameraScreen() {
   const router = useRouter();
@@ -24,6 +26,10 @@ export default function CameraScreen() {
 
   const handleCancle = () => {
     router.back();
+  };
+
+  const handleParseDataFromPhoto = (uri: string) => {
+    parseDataFromPhoto(uri, router);
   };
 
   const takePicture = async () => {
@@ -98,7 +104,7 @@ export default function CameraScreen() {
           <TouchableOpacity onPress={() => setPhotoUri(null)}>
             <Text className="text-xl">Retake</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={() => handleParseDataFromPhoto(photoUri)}>
             <Text className="text-xl">Use Photo</Text>
           </TouchableOpacity>
         </View>

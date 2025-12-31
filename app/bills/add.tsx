@@ -14,6 +14,7 @@ import {
   type SplitOption,
 } from "@/components/BillCreate";
 import { BillCreateRequest } from "@/interfaces/api/bill.api";
+import { useBillStore } from "@/stores/useBillStore";
 import { useEventStore } from "@/stores/useEventStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
@@ -22,7 +23,6 @@ import { ChevronDown } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Animated,
-  Alert,
   Dimensions,
   KeyboardAvoidingView,
   Platform,
@@ -65,6 +65,31 @@ export default function CreateBill() {
 
   const participants = useEventStore((state) => state.participants);
   const eventId = useEventStore((state) => state.event_id);
+
+  const parsedData = useBillStore((state) => state.parsedData);
+  
+
+  useEffect(() => {
+    if (parsedData) {
+      // setItems(parsedData);
+      // console.log("Parsed Data in Add Bill:", parsedData);
+
+      parsedData.forEach((data) => {  
+        setItems((prev) => [
+          ...prev,
+          {
+            id: data.id,
+            name: data.name,
+            unitPrice: data.unitPrice,
+            quantity: data.quantity,
+            participants: [EVERYONE_OPTION],
+          },
+        ]);
+      });
+    }
+  }, [parsedData]);
+
+
 
   // Initialize paidBy with the current user's identifier when participants are loaded
   // The current user is the participant who has user_id
@@ -124,24 +149,40 @@ export default function CreateBill() {
   // Add new item
   const addItem = useCallback(() => {
     const trimmedName = newItemName.trim();
-    if (trimmedName) {
-      setItems((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          name: trimmedName,
-          unitPrice: 0,
-          quantity: 1,
-          participants: [EVERYONE_OPTION],
-        },
-      ]);
-      setNewItemName("");
+    if (!trimmedName) {
+      Toast.show({
+        type: "error",
+        text1: "Item name cannot be empty",
+      });
+      return;
     }
+    setItems((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        name: trimmedName,
+        unitPrice: 0,
+        quantity: 1,
+        participants: [EVERYONE_OPTION],
+      },
+    ]);
+    setNewItemName("");
   }, [newItemName]);
 
   // Update item field
   const updateItem = useCallback(
     (id: string, field: keyof BillItem, value: string | number | string[]) => {
+      // Validate item name
+      if (field === "name" && typeof value === "string") {
+        const trimmedValue = value.trim();
+        if (trimmedValue === "") {
+          Toast.show({
+            type: "error",
+            text1: "Item name cannot be empty",
+          });
+          return;
+        }
+      }
       setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
     },
     []
@@ -268,18 +309,66 @@ export default function CreateBill() {
     try {
       setLoading(true);
 
+      // Validate bill name
+      const trimmedBillName = billName.trim();
+      if (!trimmedBillName) {
+        setLoading(false);
+        Toast.show({
+          type: "error",
+          text1: "Validation Error",
+          text2: "Bill name cannot be empty",
+        });
+        return;
+      }
+
+      // Validate items
+      if (splitMode !== "manual" && items.length === 0) {
+        setLoading(false);
+        Toast.show({
+          type: "error",
+          text1: "Validation Error",
+          text2: "Please add at least one item",
+        });
+        return;
+      }
+
+      // Validate each item
+      for (const item of items) {
+        const trimmedItemName = item.name.trim();
+        if (!trimmedItemName) {
+          setLoading(false);
+          Toast.show({
+            type: "error",
+            text1: "Validation Error",
+            text2: "All item names must be filled",
+          });
+          return;
+        }
+        if (item.unitPrice <= 0) {
+          setLoading(false);
+          Toast.show({
+            type: "error",
+            text1: "Validation Error",
+            text2: `Price for "${trimmedItemName}" must be greater than 0`,
+          });
+          return;
+        }
+      }
+
+      // Validate manual split
       if (!isManualSplitValid()) {
         setLoading(false);
-        Alert.alert(
-          "Invalid manual split",
-          "The sum of manual shares must equal the total bill amount."
-        );
+        Toast.show({
+          type: "error",
+          text1: "Invalid manual split",
+          text2: "The sum of manual shares must equal the total bill amount.",
+        });
         return;
       }
 
       const baseRequest = {
         event_id: eventId as string,
-        title: billName,
+        title: trimmedBillName,
         bill_split_type: splitMode,
         tax: taxRate,
         paid_by: paidBy,
@@ -289,7 +378,7 @@ export default function CreateBill() {
         if (splitMode === "equally" || splitMode === "manual") {
           return items.map((item) => {
             return {
-              name: item.name,
+              name: item.name.trim(),
               quantity: item.quantity,
               unit_price: item.unitPrice,
             };
@@ -298,7 +387,7 @@ export default function CreateBill() {
 
         return items.map((item) => {
           return {
-            name: item.name,
+            name: item.name.trim(),
             quantity: item.quantity,
             unit_price: item.unitPrice,
             split_type:

@@ -2,6 +2,7 @@
 export interface Participant {
   id: number;
   name: string;
+  isCurrentUser?: boolean;
 }
 
 // Props interfaces
@@ -16,6 +17,10 @@ export interface EventNameAndCurrencyProps {
   currency: string;
   onEventNameChange: (text: string) => void;
   onCurrencyChange: (text: string) => void;
+  errors?: {
+    eventName?: string;
+    currency?: string;
+  };
 }
 
 export interface ParticipantsListProps {
