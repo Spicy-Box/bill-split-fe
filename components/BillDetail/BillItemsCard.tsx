@@ -14,7 +14,7 @@ export default function BillItemsCard({ items, subTotal, tax, totalAmount }: Bil
                 <View className="flex-row gap-2 items-baseline mb-2">
                   <Text className="text-dark1 font-bold text-sm font-inter">{item.name}</Text>
                   <Text className="text-primary2 text-xs font-bold font-inter">
-                    ${(item.unitPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    VND {(item.unitPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </Text>
                 </View>
                 <View className="flex-row items-center gap-2">
@@ -32,7 +32,7 @@ export default function BillItemsCard({ items, subTotal, tax, totalAmount }: Bil
                 </View>
               </View>
               <Text className="text-dark1 font-semibold ml-2">
-                ${(item.totalPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                VND {(item.totalPrice ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </Text>
             </View>
             {idx < items.length - 1 && <View className="border-b border-primary2 mt-3" />}
@@ -43,7 +43,7 @@ export default function BillItemsCard({ items, subTotal, tax, totalAmount }: Bil
       <View className="border-t border-dark1 pt-3 gap-2">
         <View className="flex-row justify-between items-center">
           <Text className="text-dark1 font-bold text-sm font-inter">Sub Total</Text>
-          <Text className="text-dark1 font-semibold text-md">${(subTotal ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+          <Text className="text-dark1 font-semibold text-md">VND {(subTotal ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
         </View>
         <View className="flex-row justify-between items-center">
           <Text className="text-dark1 font-bold text-sm font-inter">Tax</Text>
@@ -51,7 +51,7 @@ export default function BillItemsCard({ items, subTotal, tax, totalAmount }: Bil
         </View>
         <View className="flex-row justify-between items-center">
           <Text className="text-dark1 font-bold text-sm font-inter">Total</Text>
-          <Text className="text-dark1 font-bold text-md">${(totalAmount ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+          <Text className="text-dark1 font-bold text-md">VND {(totalAmount ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
         </View>
       </View>
     </View>

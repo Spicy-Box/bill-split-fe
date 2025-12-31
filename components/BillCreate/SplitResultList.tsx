@@ -2,8 +2,8 @@ import { COLOR } from "@/utils/color";
 import { Text, View } from "react-native";
 import { Avatar, TextInput } from "react-native-paper";
 import type { ManualSplitItemProps, SplitResultListProps } from "./types";
-import { useCurrencyInput } from "./useCurrencyInput";
 import { getParticipantId } from "./types";
+import { useCurrencyInput } from "./useCurrencyInput";
 
 function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSplitItemProps) {
   const { text: amountText, handleChange } = useCurrencyInput(split.amount);
@@ -37,7 +37,7 @@ function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSpli
               fontWeight: "600",
             }}
           >
-            $
+            VND
           </Text>
         </View>
 

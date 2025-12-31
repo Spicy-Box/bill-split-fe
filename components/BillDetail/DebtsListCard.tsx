@@ -14,7 +14,7 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
               <Text className="text-dark1 text-md font-semibold">Owes</Text>
               <View className="bg-dark1 rounded-lg px-2 py-0.5">
                 <Text className="text-primary1 text-md font-semibold">
-                  ${debt.amountOwed.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  VND {debt.amountOwed.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               </View>
             </View>

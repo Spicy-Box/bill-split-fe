@@ -31,7 +31,7 @@ export default function OwedAmountCard({ balances }: { balances: BalancesRepsons
         </Text>
         <View className={`${amount < 0 ? "bg-alert" : "bg-primary4"} rounded-lg px-2 py-0.5`}>
           <Text className="text-light1 text-sm font-semibold font-inter">
-            ${(amount < 0 ? (amount * -1) : amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            VND {(amount < 0 ? (amount * -1) : amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </Text>
         </View>
       </View>

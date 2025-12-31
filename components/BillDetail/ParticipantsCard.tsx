@@ -1,5 +1,5 @@
-import { Image, Text, View } from "react-native";
 import { PerUserShare } from "@/interfaces/api/bill.api";
+import { Image, Text, View } from "react-native";
 
 export default function ParticipantsCard({ participants }: { participants: PerUserShare[] }) {
   return (
@@ -27,7 +27,7 @@ export default function ParticipantsCard({ participants }: { participants: PerUs
               <Text className="text-dark1 font-medium text-sm font-inter">{p.userName?.name}</Text>
             </View>
             <Text className="text-dark1 font-medium text-sm font-inter">
-              ${p.share?.toFixed(2)}
+              VND {p.share?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </Text>
           </View>
         ))}

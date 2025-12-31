@@ -46,7 +46,7 @@ export default function EventNameAndCurrency({
       </View>
 
       {/* Currency Field */}
-      <View>
+      {/* <View>
         <Text className="text-primary2 text-xs font-inter mb-1 ml-1">Currency</Text>
         <TextInput
           value={currency}
@@ -76,7 +76,7 @@ export default function EventNameAndCurrency({
         {errors?.currency && (
           <Text className="text-red-600 text-xs font-inter mt-1 ml-1">{errors.currency}</Text>
         )}
-      </View>
+      </View> */}
     </>
   );
 }

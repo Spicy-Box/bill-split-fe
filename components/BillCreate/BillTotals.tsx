@@ -34,7 +34,7 @@ export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: Bi
     <View className="border-t border-dark1 pt-4 gap-2 mt-4">
       <View className="flex-row justify-between">
         <Text className="text-dark1 font-medium font-inter">Subtotal</Text>
-        <Text className="text-dark1 font-medium">${subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+        <Text className="text-dark1 font-medium">VND {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
       </View>
       <View className="flex-row justify-between items-center">
         <Text className="text-dark1 font-medium font-inter">Tax</Text>
@@ -66,7 +66,7 @@ export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: Bi
       </View>
       <View className="flex-row justify-between">
         <Text className="text-dark1 font-semibold font-inter">Total</Text>
-        <Text className="text-dark1 font-semibold">${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+        <Text className="text-dark1 font-semibold">VND {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
       </View>
     </View>
   );

@@ -60,15 +60,13 @@ export default function AddEventPage() {
   };
 
   const handleCreateEvent = async () => {
-    // Validate event name and currency
+    // Validate event name
     const newErrors: { eventName?: string; currency?: string } = {};
     
     if (!eventName.trim()) {
       newErrors.eventName = "Event name is required";
     }
-    if (!currency.trim()) {
-      newErrors.currency = "Currency is required";
-    }
+    // Currency validation removed - always using VND
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -80,15 +78,10 @@ export default function AddEventPage() {
     try {
       // TODO: Implement create event logic
 
-      const currencyKey = (Object.keys(CurrencyObj) as (keyof typeof CurrencyObj)[]).find(
-        (code) => code === currency
-      );
-      console.log(currencyKey);
-      const defaultCurrency = currencyKey ? CurrencyObj[currencyKey] : CurrencyObj.VND;
-
+      // Always use VND currency
       const req: EventRequest = {
         name: eventName,
-        currency: defaultCurrency,
+        currency: CurrencyObj.VND,
         participants: participants.map((p) => p.name).filter(Boolean),
       };
 

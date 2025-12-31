@@ -18,28 +18,28 @@ const NOTIFICATIONS: NotificationItem[] = [
     eventType: "Company Trip",
     status: "Overdue",
     title: "Tacos's Bill",
-    amount: "$10",
+    amount: "VND 10,000",
   },
   {
     id: 2,
     eventType: "Company Trip",
     status: "Overdue",
     title: "Tacos's Bill",
-    amount: "$10",
+    amount: "VND 10,000",
   },
   {
     id: 3,
     eventType: "Company Trip",
     status: "Overdue",
     title: "Tacos's Bill",
-    amount: "$10",
+    amount: "VND 10,000",
   },
   {
     id: 4,
     eventType: "Company Trip",
     status: "Overdue",
     title: "Tacos's Bill",
-    amount: "$10",
+    amount: "VND 10,000",
   },
 ];
 
@@ -112,7 +112,7 @@ export default function NotificationPage() {
 
                   {/* Right side: amount centered vertically */}
                   <View className="items-center justify-center">
-                    <Text className="text-dark1 text-2xl font-medium font-inter">
+                    <Text className="text-dark1 text-xl mt-8 font-medium font-inter">
                       {notification.amount}
                     </Text>
                   </View>
