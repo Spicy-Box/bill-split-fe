@@ -34,17 +34,17 @@ describe("CreateBill Component Full Test", () => {
 
   afterEach(cleanup);
 
-  // 1. FIX: Sử dụng getAllByText vì 0.00 xuất hiện nhiều lần
+  // 1. FIX: Sử dụng getAllByText vì có nhiều element hiển thị "VND 0" (Subtotal và Total)
   it("nên hiển thị đúng trạng thái khởi tạo", () => {
     const { getByDisplayValue, getByText, getAllByText } = render(<CreateBill />);
     expect(getByDisplayValue("New Bill")).toBeTruthy();
     expect(getByText("Me")).toBeTruthy();
     expect(getByText(/Subtotal/)).toBeTruthy();
-    // Vì có cả Subtotal và Total đều là 0.00, ta dùng getAll
-    expect(getAllByText(/0\.00/)[0]).toBeTruthy();
+    // formatCurrency với vi-VN locale hiển thị "0" không có ".00", có nhiều element hiển thị "VND 0"
+    expect(getAllByText(/VND\s+0/)[0]).toBeTruthy();
   });
 
-  // 2. FIX: Xử lý trùng lặp 100,000
+  // 2. FIX: formatCurrency với vi-VN locale dùng dấu chấm (.) làm phân cách hàng nghìn
   it("nên tự động thêm items khi có dữ liệu từ OCR (parsedData)", async () => {
     const mockOcrData = [{ id: "1", name: "Phở Bò", unitPrice: 50000, quantity: 2 }];
     (useBillStore as any).mockImplementation((selector: any) =>
@@ -55,8 +55,9 @@ describe("CreateBill Component Full Test", () => {
 
     await waitFor(() => {
       expect(getByDisplayValue("Phở Bò")).toBeTruthy();
-      // Tìm tất cả các element chứa 100,000
-      expect(getAllByText(/100,000/)[0]).toBeTruthy();
+      // formatCurrency với vi-VN locale hiển thị "100.000" (dấu chấm, không phải dấu phẩy)
+      // Có thể xuất hiện nhiều lần (trong item row và subtotal)
+      expect(getAllByText(/100\.000/)[0]).toBeTruthy();
     });
   });
 
@@ -95,8 +96,10 @@ describe("CreateBill Component Full Test", () => {
     fireEvent.changeText(taxInput, "10");
 
     await waitFor(() => {
-      expect(getAllByText(/200,000/)[0]).toBeTruthy();
-      expect(getAllByText(/220,000/)[0]).toBeTruthy();
+      // formatCurrency với vi-VN locale dùng dấu chấm (.) làm phân cách hàng nghìn
+      // Có thể xuất hiện nhiều lần (trong item row và subtotal/total)
+      expect(getAllByText(/200\.000/)[0]).toBeTruthy();
+      expect(getAllByText(/220\.000/)[0]).toBeTruthy();
     });
   });
 
@@ -157,21 +160,21 @@ describe("CreateBill Component Full Test", () => {
     );
   });
 
-  it("nên báo lỗi nếu đơn giá item bằng 0", async () => {
-    const { getByPlaceholderText, getByText, getAllByPlaceholderText } = render(<CreateBill />);
+  // it("nên báo lỗi nếu đơn giá item bằng 0", async () => {
+  //   const { getByPlaceholderText, getByText, getAllByPlaceholderText } = render(<CreateBill />);
 
-    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Gà rán");
-    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+  //   fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Gà rán");
+  //   fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
 
-    // Không nhập giá (giá = 0)
-    fireEvent.press(getByText("Split Bill"));
+  //   // Không nhập giá (giá = 0)
+  //   fireEvent.press(getByText("Split Bill"));
 
-    expect(Toast.show).toHaveBeenCalledWith(
-      expect.objectContaining({
-        text2: expect.stringContaining("must be greater than 0"),
-      })
-    );
-  });
+  //   expect(Toast.show).toHaveBeenCalledWith(
+  //     expect.objectContaining({
+  //       text2: expect.stringContaining("must be greater than 0"),
+  //     })
+  //   );
+  // });
   it("nên xử lý logic chia thủ công (Manual Split) chính xác", async () => {
     const { getByText, getByPlaceholderText, getAllByPlaceholderText, getByDisplayValue } = render(
       <CreateBill />
@@ -423,5 +426,153 @@ describe("CreateBill Component Full Test", () => {
       // Nếu ID không khớp Eric/John, nó sẽ rơi vào nhánh Guest (Line 583)
       expect(payload.manual_shares).toBeDefined();
     });
+  });
+
+  it("nên hiển thị lỗi khi item name trống", async () => {
+    const { getByPlaceholderText, getByText, getAllByPlaceholderText, getByDisplayValue } = render(
+      <CreateBill />
+    );
+
+    // Thêm item với tên trống
+    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Item Test");
+    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+    fireEvent.changeText(getAllByPlaceholderText("0.00")[0], "10000");
+
+    // Tìm và xóa tên item (set thành empty string)
+    const itemNameInput = getByDisplayValue("Item Test");
+    fireEvent.changeText(itemNameInput, "   "); // Chỉ có spaces
+
+    fireEvent.press(getByText("Split Bill"));
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text1: "Validation Error",
+          text2: "All item names must be filled",
+        })
+      );
+    });
+  });
+
+  it("nên hiển thị lỗi khi giá item âm", async () => {
+    // Vì input component loại bỏ dấu trừ, ta dùng parsedData với giá trị âm
+    const mockOcrDataWithNegative = [
+      { id: "1", name: "Negative Price Item", unitPrice: -1000, quantity: 1 },
+    ];
+    (useBillStore as any).mockImplementation((selector: any) =>
+      selector({ parsedData: mockOcrDataWithNegative })
+    );
+
+    const { getByText } = render(<CreateBill />);
+
+    // Đợi item được thêm từ parsedData
+    await waitFor(() => {
+      expect(getByText("Split Bill")).toBeTruthy();
+    });
+
+    // Nhấn Split Bill - validation sẽ phát hiện giá âm
+    fireEvent.press(getByText("Split Bill"));
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text1: "Validation Error",
+          text2: expect.stringContaining("cannot be negative"),
+        })
+      );
+    });
+  });
+
+  it("nên hiển thị lưu ý khi giá item bằng 0", async () => {
+    const { getByPlaceholderText, getByText, getAllByPlaceholderText } = render(<CreateBill />);
+
+    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Free Item");
+    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+
+    // Giá mặc định là 0, không cần nhập
+    fireEvent.press(getByText("Split Bill"));
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "info",
+          text1: "Lưu ý",
+          text2: expect.stringContaining("item tặng kèm 0đ"),
+        })
+      );
+    });
+  });
+
+  it("nên hiển thị lỗi khi manual split không khớp với total", async () => {
+    const { getByText, getByPlaceholderText, getAllByPlaceholderText } = render(<CreateBill />);
+
+    // Thêm item 100k
+    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Test Item");
+    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+    fireEvent.changeText(getAllByPlaceholderText("0.00")[0], "100000");
+
+    // Chuyển sang manual
+    fireEvent.press(getByText("Manually"));
+
+    // Nhập manual split không khớp (tổng = 50000 thay vì 105000)
+    await waitFor(() => {
+      const manualInputs = getAllByPlaceholderText("0.00");
+      fireEvent.changeText(manualInputs[1], "50000");
+      fireEvent.changeText(manualInputs[2], "0");
+    });
+
+    fireEvent.press(getByText("Split Bill"));
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          text1: "Invalid manual split",
+          text2: "The sum of manual shares must equal the total bill amount.",
+        })
+      );
+    });
+  });
+
+  it("nên set tax rate từ parsedTax khi parsedTax > 0", async () => {
+    (useBillStore as any).mockImplementation((selector: any) =>
+      selector({ parsedData: null, tax: 10 })
+    );
+
+    const { getByDisplayValue } = render(<CreateBill />);
+
+    await waitFor(() => {
+      // Tax rate đã được set thành 10 từ parsedTax
+      expect(getByDisplayValue("10")).toBeTruthy();
+    });
+  });
+
+  it("nên xử lý khi chuyển từ equally sang by_item mode", async () => {
+    const { getByText, getByPlaceholderText } = render(<CreateBill />);
+
+    // Thêm item
+    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Test");
+    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+
+    // Mặc định là "Equally", chuyển sang "By Item"
+    fireEvent.press(getByText("By Item"));
+
+    // Verify mode đã được chuyển
+    expect(getByText("By Item")).toBeTruthy();
+  });
+
+  it("nên reset tất cả items về everyone khi chuyển về equally mode", async () => {
+    const { getByText, getByPlaceholderText } = render(<CreateBill />);
+
+    // Thêm item và chuyển sang by_item
+    fireEvent.changeText(getByPlaceholderText(/Create new item/i), "Test");
+    fireEvent(getByPlaceholderText(/Create new item/i), "submitEditing");
+    fireEvent.press(getByText("By Item"));
+
+    // Chuyển lại về Equally
+    fireEvent.press(getByText("Equally"));
+
+    // Verify mode đã được reset
+    expect(getByText("Equally")).toBeTruthy();
   });
 });

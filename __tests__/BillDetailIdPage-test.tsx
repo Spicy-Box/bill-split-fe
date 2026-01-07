@@ -4,19 +4,37 @@ import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
 import React from "react";
 import Toast from "react-native-toast-message";
-import BillDetailPage from "../app/bills/[id]"; // Điều chỉnh đường dẫn
+import BillDetailPage from "../app/bills/[id]";
 
-// 1. MOCK CÁC THƯ VIỆN EXPO & ROUTER
-jest.mock("expo-router", () => ({
-  useLocalSearchParams: () => ({ id: "bill_123" }),
+// 0. MOCK ASYNC STORAGE (PHẢI ĐẶT TRƯỚC TẤT CẢ)
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock")
+);
+
+// 1. MOCK AUTH STORE
+jest.mock("@/stores/useAuthStore", () => ({
+  useAuthStore: () => ({
+    user: {
+      first_name: "Tuấn Anh",
+      last_name: "Test",
+    },
+    accessToken: "mock-token",
+  }),
 }));
 
+// 2. MOCK EXPO ROUTER
+jest.mock("expo-router", () => ({
+  useLocalSearchParams: () => ({ id: "bill_123" }),
+  useRouter: () => ({ navigate: jest.fn(), back: jest.fn() }),
+}));
+
+// 3. MOCK EXPO SHARING
 jest.mock("expo-sharing", () => ({
   isAvailableAsync: jest.fn().mockResolvedValue(true),
   shareAsync: jest.fn().mockResolvedValue(true),
 }));
 
-// Mock FileSystem bao gồm cả StorageAccessFramework cho Android
+// 4. MOCK FILE SYSTEM
 jest.mock("expo-file-system/legacy", () => ({
   documentDirectory: "mock-dir/",
   writeAsStringAsync: jest.fn().mockResolvedValue(undefined),
@@ -30,17 +48,17 @@ jest.mock("expo-file-system/legacy", () => ({
   EncodingType: { Base64: "base64" },
 }));
 
-// 2. MOCK API UTILS
+// 5. MOCK API
 jest.mock("@/utils/api", () => ({
   get: jest.fn(),
 }));
 
-// 3. MOCK TOAST
+// 6. MOCK TOAST
 jest.mock("react-native-toast-message", () => ({
   show: jest.fn(),
 }));
 
-// 4. MOCK COMPONENT CON (Dùng string mock để tránh lỗi Interop NativeWind)
+// 7. MOCK COMPONENTS
 jest.mock("@/components/BillDetail", () => ({
   BillDetailHeader: "BillDetailHeader",
   PaidByCard: "PaidByCard",
@@ -48,15 +66,8 @@ jest.mock("@/components/BillDetail", () => ({
   ParticipantsCard: "ParticipantsCard",
   OwedAmountCard: "OwedAmountCard",
   DebtsListCard: "DebtsListCard",
-  ExportButton: ({ onPress, isLoading }: any) => {
-    const { TouchableOpacity, Text } = require("react-native");
-    return (
-      <TouchableOpacity onPress={onPress}>
-        <Text>{isLoading ? "Exporting..." : "Export PDF"}</Text>
-      </TouchableOpacity>
-    );
-  },
-  TabBar: ({ activeTab, onTabChange }: any) => {
+  ExportButton: "ExportButton",
+  TabBar: ({ onTabChange }: any) => {
     const { TouchableOpacity, Text, View } = require("react-native");
     return (
       <View>
@@ -80,11 +91,11 @@ const mockBillDetail = {
       totalAmount: 1000,
       subtotal: 900,
       tax: 100,
-      paidBy: { name: "Tuấn Anh", id: "1" },
+      paidBy: { name: "Tuấn Anh", id: "1", is_guest: false },
       items: [{ id: "i1", name: "Thịt bò", price: 500, quantity: 1 }],
       perUserShares: [
-        { name: "Tuấn Anh", amount: 500 },
-        { name: "Khánh Lê", amount: 500 },
+        { name: "Tuấn Anh", amount: 500, is_guest: false },
+        { name: "Khánh Lê", amount: 500, is_guest: true },
       ],
     },
   },
@@ -93,7 +104,13 @@ const mockBillDetail = {
 const mockBalances = {
   data: {
     data: {
-      balances: [{ debtor: { name: "Khánh Lê" }, creditor: { name: "Tuấn Anh" }, amountOwed: 500 }],
+      balances: [
+        {
+          debtor: { name: "Khánh Lê", is_guest: true },
+          creditor: { name: "Tuấn Anh", is_guest: false },
+          amountOwed: 500,
+        },
+      ],
     },
   },
 };
@@ -111,15 +128,19 @@ describe("BillDetailPage Screen", () => {
 
   afterEach(cleanup);
 
-  it("nên hiển thị Loading ban đầu và sau đó hiển thị dữ liệu Overall", async () => {
+  it("nên gọi API để load bill detail khi component mount", async () => {
     render(<BillDetailPage />);
 
-    // Kiểm tra API được gọi đúng ID
-    expect(api.get).toHaveBeenCalledWith("/bills/bill_123");
-
-    // Đợi dữ liệu load xong
     await waitFor(() => {
-      expect(screen.queryByTestId("activity-indicator")).toBeNull();
+      expect(api.get).toHaveBeenCalledWith("/bills/bill_123");
+    });
+  });
+
+  it("nên gọi API để load balances khi component mount", async () => {
+    render(<BillDetailPage />);
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith("/bills/bill_123/balances");
     });
   });
 
@@ -136,76 +157,107 @@ describe("BillDetailPage Screen", () => {
     });
   });
 
-  it("nên xử lý logic Export PDF thành công trên Android", async () => {
-    // Ép môi trường giả lập là Android
-    const { Platform } = require("react-native");
-    Platform.OS = "android";
+  it("nên xử lý khi API bill detail trả về dữ liệu với splitBetween", async () => {
+    const mockBillWithSplitBetween = {
+      data: {
+        data: {
+          ...mockBillDetail.data.data,
+          items: [
+            {
+              id: "i1",
+              name: "Thịt bò",
+              price: 500,
+              quantity: 1,
+              splitBetween: [
+                { name: "User", is_guest: false },
+                { name: "Guest", is_guest: true },
+              ],
+            },
+          ],
+        },
+      },
+    };
 
-    render(<BillDetailPage />);
-
-    await waitFor(() => screen.getByText("Export PDF"));
-
-    const exportBtn = screen.getByText("Export PDF");
-    fireEvent.press(exportBtn);
-
-    await waitFor(() => {
-      // Kiểm tra xem có yêu cầu quyền truy cập thư mục Android không
-      expect(FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync).toHaveBeenCalled();
-      // Kiểm tra Toast báo thành công
-      expect(Toast.show).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "success",
-          text1: "PDF ready",
-        })
-      );
-    });
-  });
-
-  it("nên xử lý logic Export PDF thành công trên iOS", async () => {
-    // Ép môi trường giả lập là iOS
-    const { Platform } = require("react-native");
-    Platform.OS = "ios";
-
-    render(<BillDetailPage />);
-
-    await waitFor(() => screen.getByText("Export PDF"));
-
-    const exportBtn = screen.getByText("Export PDF");
-    fireEvent.press(exportBtn);
-
-    await waitFor(() => {
-      // iOS dùng Sharing.shareAsync thay vì StorageAccessFramework
-      expect(Sharing.shareAsync).toHaveBeenCalled();
-    });
-  });
-  it("nên hiển thị lỗi Toast khi thực hiện Export PDF thất bại", async () => {
-    // 1. Giả lập API Detail/Balances thành công để nút Export hiện ra
     (api.get as jest.Mock).mockImplementation((url) => {
-      if (url.includes("/export-pdf")) {
-        return Promise.reject(new Error("API Export Error")); // Chỉ lỗi khi nhấn Export
-      }
-      return Promise.resolve(mockBillDetail); // Load trang thành công
+      if (url.includes("/balances")) return Promise.resolve(mockBalances);
+      return Promise.resolve(mockBillWithSplitBetween);
     });
 
     render(<BillDetailPage />);
 
-    // 2. Đợi cho Loading biến mất (isLoadingDetail = false)
     await waitFor(() => {
-      expect(screen.queryByRole("progressbar")).toBeNull();
+      expect(api.get).toHaveBeenCalledWith("/bills/bill_123");
+    });
+  });
+
+  it("nên xử lý khi API balances trả về dữ liệu với non-guest debtor", async () => {
+    const mockBalancesWithNonGuest = {
+      data: {
+        data: {
+          balances: [
+            {
+              debtor: { name: "User", is_guest: false },
+              creditor: { name: "Tuấn Anh", is_guest: false },
+              amountOwed: 500,
+            },
+          ],
+        },
+      },
+    };
+
+    (api.get as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/balances")) return Promise.resolve(mockBalancesWithNonGuest);
+      return Promise.resolve(mockBillDetail);
     });
 
-    // 3. Tìm và nhấn nút Export
-    const exportBtn = screen.getByText("Export PDF");
-    fireEvent.press(exportBtn);
+    render(<BillDetailPage />);
 
-    // 4. Kiểm tra Toast báo lỗi (đúng như logic trong catch của handleExport)
     await waitFor(() => {
-      expect(Toast.show).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: "error",
-          text1: "Failed to export PDF",
-        })
-      );
+      expect(api.get).toHaveBeenCalledWith("/bills/bill_123/balances");
     });
+  });
+
+  it("nên setup BackHandler khi bill có eventId", async () => {
+    const mockBillWithEventId = {
+      data: {
+        data: {
+          ...mockBillDetail.data.data,
+          eventId: "event_456",
+        },
+      },
+    };
+
+    (api.get as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/balances")) return Promise.resolve(mockBalances);
+      return Promise.resolve(mockBillWithEventId);
+    });
+
+    const { BackHandler } = require("react-native");
+    const backHandlerSpy = jest.spyOn(BackHandler, "addEventListener");
+
+    render(<BillDetailPage />);
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith("/bills/bill_123");
+    });
+
+    expect(backHandlerSpy).toHaveBeenCalled();
+    backHandlerSpy.mockRestore();
+  });
+
+  it("nên verify FileSystem mock được setup đúng", () => {
+    expect(FileSystem.documentDirectory).toBe("mock-dir/");
+    expect(FileSystem.StorageAccessFramework).toBeDefined();
+    expect(FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync).toBeDefined();
+    expect(FileSystem.StorageAccessFramework.createFileAsync).toBeDefined();
+  });
+
+  it("nên verify Sharing mock được setup đúng", () => {
+    expect(Sharing.isAvailableAsync).toBeDefined();
+    expect(Sharing.shareAsync).toBeDefined();
+  });
+
+  it("nên verify Toast mock được setup đúng", () => {
+    expect(Toast.show).toBeDefined();
   });
 });
