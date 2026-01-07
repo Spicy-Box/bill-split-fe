@@ -21,6 +21,7 @@ import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Crypto from "expo-crypto";
 import {
   Animated,
   Dimensions,
@@ -80,7 +81,7 @@ export default function CreateBill() {
           ...prev,
           {
             // id: Math.random().toString(10).substring(2, 8),
-            id: `${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`,
+            id: Crypto.randomUUID(),
             name: data.name,
             unitPrice: data.unitPrice,
             quantity: data.quantity,
