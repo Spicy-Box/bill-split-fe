@@ -1,4 +1,5 @@
 import EventIcon from "@/assets/images/event-icon.svg";
+import { formatCurrency } from "@/utils/formatCurrency";
 import { RelativePathString, useRouter } from "expo-router";
 
 import { Text, TouchableOpacity, View } from "react-native";
@@ -9,18 +10,20 @@ export default function ListItem({
   date = "15 Oct, 2025",
   price = 455000,
   people = 6,
+  onPress,
 }: {
   id: string;
   name: string;
   date: string;
   price: number;
   people: number;
+  onPress?: () => void;
 }) {
   const router = useRouter();
 
   return (
     <TouchableOpacity
-      onPress={() => router.push(`/events/${id}` as RelativePathString)}
+      onPress={onPress ?? (() => router.push(`/events/${id}` as RelativePathString))}
       className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
     >
       {/* Col 1 */}
@@ -35,12 +38,15 @@ export default function ListItem({
       {/* Col 3 */}
       <View className="gap-1">
         <Text
-          className="bg-primary3 text-light1 rounded-lg p-1 text-sm font-bold font-inter"
+          className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter"
           style={{ textAlign: "center" }}
         >
-          VND {price.toLocaleString()}
+          VND {formatCurrency(price)}
         </Text>
+        <View className="ml-auto">
         <Text className="text-primary2 font-semibold font-inter">{people} persons</Text>
+          
+        </View>
       </View>
     </TouchableOpacity>
   );

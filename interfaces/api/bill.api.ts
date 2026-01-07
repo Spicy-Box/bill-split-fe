@@ -34,6 +34,7 @@ export interface ItemReponse {
   id: string;
   name: string;
   quantity: number;
+  tax?: number;
   splitBetween: Participant[]; // danh sách userName
   splitType: "everyone" | "custom";
   totalPrice: number;

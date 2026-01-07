@@ -1,4 +1,5 @@
 import { Text, View } from "react-native";
+import { formatCurrency } from "@/utils/formatCurrency";
 import type { StatsCardProps } from "./types";
 
 export const StatsCard = ({ stats }: StatsCardProps) => {
@@ -10,7 +11,7 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
             My Expenses
           </Text>
           <Text className="text-dark2 text-center text-sm font-semibold font-inter">
-            VND {stats.myExpenses.toLocaleString()}
+            VND {formatCurrency(stats.myExpenses)}
           </Text>
         </View>
         <View className="flex-1 bg-secondary2 rounded-2xl py-4 items-center gap-1">
@@ -18,7 +19,7 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
             Total Expenses
           </Text>
           <Text className="text-dark2 text-center text-sm font-semibold font-inter">
-            VND {stats.totalExpenses.toLocaleString()}
+            VND {formatCurrency(stats.totalExpenses)}
           </Text>
         </View>
       </View>

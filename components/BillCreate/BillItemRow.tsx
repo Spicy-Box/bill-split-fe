@@ -4,6 +4,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import type { BillItemRowProps } from "./types";
 import { useCurrencyInput } from "./useCurrencyInput";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function BillItemRow({
   item,
@@ -16,63 +17,73 @@ export default function BillItemRow({
   mode,
 }: BillItemRowProps) {
   const { text: priceText, handleChange } = useCurrencyInput(item.unitPrice);
+  const totalPrice = item.unitPrice * item.quantity;
+  const totalPriceStr = formatCurrency(totalPrice);
+  const isLongPrice = totalPriceStr.replace(/\D/g, "").length >= 8;
 
   return (
     <View className="border-b border-light3 pb-3">
       {/* Main container with left and right columns */}
-      <View className="flex-row items-center gap-3">
+      <View className={`${isLongPrice ? "flex-col" : "flex-row"} items-start gap-3`}>
         {/* Left column: Item details and quantity controls */}
         <View className="flex-1">
           {/* Row 1: Item name and unit price */}
-          <View className="flex-row items-center gap-2 mb-2">
+          <View className="flex-row items-baseline gap-2 mb-2">
+                        
             <TextInput
-              value={item.name}
-              onChangeText={onUpdateName}
-              mode="flat"
-              underlineColor="transparent"
-              activeUnderlineColor="transparent"
-              textColor={COLOR.dark1}
-              cursorColor={COLOR.dark1}
-              selectionColor={COLOR.dark1}
-              placeholder="Item name"
-              placeholderTextColor={COLOR.primary2}
-              numberOfLines={1}
-              style={{
-                backgroundColor: "transparent",
-                maxWidth: "70%",
-                fontSize: 12,
-                fontWeight: "700",
-                fontFamily: "inter",
-                paddingHorizontal: 0,
-                height: 36,
-              }}
-              contentStyle={{ paddingHorizontal: 0 }}
-            />
-            <View className="flex-row items-center">
-              <Text className="text-primary2 text-xs font-inter">VND</Text>
+             value={item.name}
+             onChangeText={onUpdateName}
+             mode="flat"
+             underlineColor="transparent"
+             activeUnderlineColor="transparent"
+             textColor={COLOR.dark1}
+             cursorColor={COLOR.dark1}
+             selectionColor={COLOR.secondary3}
+             placeholder="Item name"
+             placeholderTextColor={COLOR.primary2}
+             multiline
+             style={{
+               backgroundColor: "transparent",
+               maxWidth: "65%",
+              //  width: "fit-content",
+              //  minWidth: "30%",
+               fontSize: 14,
+               fontWeight: "700",
+               fontFamily: "inter",
+               paddingHorizontal: 0,
+              //  minHeight: 36,
+             }}
+             contentStyle={{ paddingHorizontal: 0 }}
+            />    
+            <View className="flex-row items-baseline">
+              
+              <Text className="text-primary2 font-inter" style={{ marginRight: 2, fontSize: 10 }}>VND</Text>
+
               <TextInput
                 value={priceText}
                 onChangeText={(text) => handleChange(text, onUpdateUnitPrice)}
                 mode="flat"
                 keyboardType="decimal-pad"
+                multiline
                 underlineColor="transparent"
                 activeUnderlineColor="transparent"
                 textColor={COLOR.primary2}
-                selectionColor={COLOR.dark1}
+                selectionColor={COLOR.secondary3}
                 cursorColor={COLOR.primary2}
                 placeholder="0.00"
                 placeholderTextColor={COLOR.primary2}
                 style={{
                   backgroundColor: "transparent",
-                  width: 80,
-                  fontSize: 12,
-                  fontFamily: "inter",
+                  // width: 80,
+                  fontSize: 14,
+                  // fontFamily: "inter",
                   paddingHorizontal: 0,
-                  height: 36,
+                  // height: 36,
                 }}
                 contentStyle={{ paddingHorizontal: 0 }}
               />
-            </View>
+              
+            </View>   
           </View>
 
           {/* Row 2: Participant badge and quantity controls */}
@@ -115,11 +126,13 @@ export default function BillItemRow({
         </View>
 
         {/* Right column: Total price and delete button */}
-        {/* Total price */}
-        <View className="flex-row items-center gap-2">
-          <Text className="text-dark1 font-semibold text-base">
-            VND {(item.unitPrice * item.quantity).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </Text>
+         {/* Total price */}
+         <View className={`${isLongPrice ? "w-full" : ""} flex-row ${isLongPrice ? "justify-between" : ""} items-center gap-2`}>
+           <Text className="text-dark1 font-semibold text-sm">
+             VND {formatCurrency(item.unitPrice * item.quantity)}
+           </Text>
+
+
           {/* Delete button */}
           <TouchableOpacity onPress={onRemove} className="w-6 h-6 items-center justify-center">
             <X size={18} color={COLOR.dark1} />

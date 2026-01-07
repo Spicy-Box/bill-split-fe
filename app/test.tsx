@@ -18,6 +18,7 @@ export default function TestScreen() {
   // // Test 2: Capture message
   const testMessage = () => {
     Sentry.captureMessage("Test Message: User clicked button", "info");
+    console.log("Message captured");
   };
 
   // // Test 3: Manual transaction

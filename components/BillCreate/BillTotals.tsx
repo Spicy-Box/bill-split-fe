@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
 import { TextInput } from "react-native-paper";
 import type { BillTotalsProps } from "./types";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: BillTotalsProps) {
   const [taxRateText, setTaxRateText] = useState(tax_rate.toString());
@@ -33,9 +34,9 @@ export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: Bi
   return (
     <View className="border-t border-dark1 pt-4 gap-2 mt-4">
       <View className="flex-row justify-between">
-        <Text className="text-dark1 font-medium font-inter">Subtotal</Text>
-        <Text className="text-dark1 font-medium">VND {subtotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
-      </View>
+         <Text className="text-dark1 font-medium font-inter">Subtotal</Text>
+         <Text className="text-dark1 font-medium">VND {formatCurrency(subtotal)}</Text>
+       </View>
       <View className="flex-row justify-between items-center">
         <Text className="text-dark1 font-medium font-inter">Tax</Text>
         <TextInput
@@ -66,7 +67,7 @@ export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: Bi
       </View>
       <View className="flex-row justify-between">
         <Text className="text-dark1 font-semibold font-inter">Total</Text>
-        <Text className="text-dark1 font-semibold">VND {total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</Text>
+        <Text className="text-dark1 font-semibold">VND {formatCurrency(total)}</Text>
       </View>
     </View>
   );

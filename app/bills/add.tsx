@@ -67,6 +67,7 @@ export default function CreateBill() {
   const eventId = useEventStore((state) => state.event_id);
 
   const parsedData = useBillStore((state) => state.parsedData);
+  const parsedTax = useBillStore((state) => state.tax);
   
 
   useEffect(() => {
@@ -78,7 +79,7 @@ export default function CreateBill() {
         setItems((prev) => [
           ...prev,
           {
-            id: data.id,
+            id: Math.random().toString(10).substring(2, 8),
             name: data.name,
             unitPrice: data.unitPrice,
             quantity: data.quantity,
@@ -88,6 +89,13 @@ export default function CreateBill() {
       });
     }
   }, [parsedData]);
+
+  // Set tax rate from parsed data if available
+  useEffect(() => {
+    if (parsedTax > 0) {
+      setTaxRate(parsedTax);
+    }
+  }, [parsedTax]);
 
 
 
@@ -148,19 +156,11 @@ export default function CreateBill() {
 
   // Add new item
   const addItem = useCallback(() => {
-    const trimmedName = newItemName.trim();
-    if (!trimmedName) {
-      Toast.show({
-        type: "error",
-        text1: "Item name cannot be empty",
-      });
-      return;
-    }
     setItems((prev) => [
       ...prev,
       {
         id: Date.now().toString(),
-        name: trimmedName,
+        name: newItemName,
         unitPrice: 0,
         quantity: 1,
         participants: [EVERYONE_OPTION],
@@ -172,17 +172,6 @@ export default function CreateBill() {
   // Update item field
   const updateItem = useCallback(
     (id: string, field: keyof BillItem, value: string | number | string[]) => {
-      // Validate item name
-      if (field === "name" && typeof value === "string") {
-        const trimmedValue = value.trim();
-        if (trimmedValue === "") {
-          Toast.show({
-            type: "error",
-            text1: "Item name cannot be empty",
-          });
-          return;
-        }
-      }
       setItems((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: value } : item)));
     },
     []
@@ -344,12 +333,22 @@ export default function CreateBill() {
           });
           return;
         }
-        if (item.unitPrice <= 0) {
+        if (item.unitPrice < 0) {
           setLoading(false);
           Toast.show({
             type: "error",
             text1: "Validation Error",
-            text2: `Price for "${trimmedItemName}" must be greater than 0`,
+            text2: `Price for "${trimmedItemName}" cannot be negative`,
+          });
+          return;
+        }
+        if (item.unitPrice === 0) {
+          setLoading(false);
+          Toast.show({
+            type: "info",
+            text1: "Lưu ý",
+            // text2: "Nếu là item tặng kèm 0đ thì không cần nhập item đó, có thể xóa đi",
+            text2: "Nếu là item tặng kèm 0đ thì không cần nhập item đó",
           });
           return;
         }

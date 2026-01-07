@@ -40,7 +40,7 @@ export default function ParticipantsList({
               source={require("../../assets/images/avatar.png")}
             />
             <TextInput
-              value={participant.name}
+              value={participant.user_id ? `${participant.name} (Me)` : participant.name}
               onChangeText={(text) => onUpdateParticipant(participant.id, text)}
               placeholder="Participant name"
               placeholderTextColor={COLOR.primary2}

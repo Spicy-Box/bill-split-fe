@@ -12,13 +12,14 @@ import {
   type Participant,
 } from "@/components/BillDetail";
 import { BalancesRepsonse, BillByItemResponse } from "@/interfaces/api/bill.api";
+import { useAuthStore } from "@/stores/useAuthStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import * as FileSystem from 'expo-file-system/legacy';
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Platform, ScrollView, StatusBar, View } from "react-native";
+import { ActivityIndicator, BackHandler, Platform, ScrollView, StatusBar, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 
@@ -88,6 +89,8 @@ const OWED_DETAILS: DebtItem[] = [
 
 export default function BillDetailPage() {
   const { id } = useLocalSearchParams();
+  const { user } = useAuthStore();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<"overall" | "balances">("overall");
   const [billDetail, setBillDetail] = useState<BillByItemResponse | null>(null);
@@ -100,30 +103,97 @@ export default function BillDetailPage() {
     try {
       setIsLoadingDetail(true);
       const response = await api.get(`/bills/${id}`);
-      const data: BillByItemResponse = response.data.data;
+      let data: BillByItemResponse = response.data.data;
+      
+      // Replace names with current user name if is_guest is false
+      if (data.items && user) {
+        data.items = data.items.map((item: any) => {
+          if (item.splitBetween) {
+            item.splitBetween = item.splitBetween.map((person: any) => {
+              if (!person.is_guest) {
+                const userName = `${user.first_name} ${user.last_name}`.trim();
+                return { ...person, name: userName };
+              }
+              return person;
+            });
+          }
+          return item;
+        });
+      }
+      
+      if (data.paidBy && !data.paidBy.is_guest && user) {
+        const userName = `${user.first_name} ${user.last_name}`.trim();
+        data.paidBy = { ...data.paidBy, name: userName };
+      }
+      
+      if (data.perUserShares && user) {
+        data.perUserShares = data.perUserShares.map((person: any) => {
+          if (!person.is_guest) {
+            const userName = `${user.first_name} ${user.last_name}`.trim();
+            return { ...person, name: userName };
+          }
+          return person;
+        });
+      }
+      
       setBillDetail(data);
       console.log(data);
     } finally {
       setIsLoadingDetail(false);
     }
-  }, [id]);
+  }, [id, user]);
 
   const fetchBillBalances = useCallback(async () => {
     try {
       setIsLoadingBalance(true);
       const response = await api.get(`/bills/${id}/balances`);
       const data = response.data.data;
-      console.log(data);
-      setBalance(data.balances);
+
+      // Replace names with current user name if is_guest is false
+      const processedBalances = data.balances.map((balance: any) => {
+        const processedBalance = { ...balance };
+        
+        if (!balance.creditor.is_guest && user) {
+          const userName = `${user.first_name} ${user.last_name}`.trim();
+          processedBalance.creditor = { ...balance.creditor, name: userName };
+        }
+        
+        if (!balance.debtor.is_guest && user) {
+          const userName = `${user.first_name} ${user.last_name}`.trim();
+          processedBalance.debtor = { ...balance.debtor, name: userName };
+        }
+        
+        return processedBalance;
+      });
+
+      console.log(processedBalances);
+      setBalance(processedBalances);
     } finally {
       setIsLoadingBalance(false);
     }
-  }, [id]);
+  }, [id, user]);
 
   useEffect(() => {
     fetchBillDetail();
     fetchBillBalances();
   }, [fetchBillDetail, fetchBillBalances]);
+
+  // Handle hardware back button
+  useEffect(() => {
+    const backAction = () => {
+      if (billDetail?.eventId) {
+        router.navigate(`/events/${billDetail.eventId}`);
+      }
+      return true; // Prevent default back behavior
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction,
+    );
+
+    return () => backHandler.remove();
+  }, [billDetail?.eventId, router]);
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -235,36 +305,39 @@ export default function BillDetailPage() {
             <ActivityIndicator size="large" color={COLOR.primary3} />
           </View>
         ) : (
-          <ScrollView
-            className="bg-light3 flex-1"
-            contentContainerClassName="gap-4 pb-20"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: 24 }}
-          >
-            {activeTab === "overall" ? (
-              <>
-                {billDetail?.paidBy && <PaidByCard participant={billDetail.paidBy} />}
-                {billDetail?.items && billDetail.totalAmount && (
-                  <BillItemsCard
-                    items={billDetail.items}
-                    subTotal={billDetail.subtotal}
-                    tax={billDetail.tax}
-                    totalAmount={billDetail.totalAmount}
-                  />
-                )}
-                {billDetail?.perUserShares && (
-                  <ParticipantsCard participants={billDetail.perUserShares} />
-                )}
-                <ExportButton onPress={handleExport} isLoading={isExporting} />
-              </>
-            ) : (
-              <>
-                <OwedAmountCard balances={balance} />
-                <DebtsListCard debts={balance} />
-                <ExportButton onPress={handleExport} isLoading={isExporting} />
-              </>
-            )}
-          </ScrollView>
+          <View className="flex-1 flex-col">
+            <ScrollView
+              className="bg-light3 flex-1"
+              contentContainerClassName="gap-4"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingTop: 24 }}
+            >
+              {activeTab === "overall" ? (
+                <>
+                  {billDetail?.paidBy && <PaidByCard participant={billDetail.paidBy} />}
+                  {billDetail?.items && billDetail.totalAmount && (
+                    <BillItemsCard
+                      items={billDetail.items}
+                      subTotal={billDetail.subtotal}
+                      tax={billDetail.tax}
+                      totalAmount={billDetail.totalAmount}
+                    />
+                  )}
+                  {billDetail?.perUserShares && (
+                    <ParticipantsCard participants={billDetail.perUserShares} />
+                  )}
+                </>
+              ) : (
+                <>
+                  <OwedAmountCard balances={balance} />
+                  <DebtsListCard debts={balance} />
+                </>
+              )}
+            </ScrollView>
+            <View className="py-4">
+              <ExportButton onPress={handleExport} isLoading={isExporting} />
+            </View>
+          </View>
         )}
       </View>
     </SafeAreaView>

@@ -25,7 +25,7 @@ export default function AddEventPage() {
   const [selectedEmoji] = useState("🤗");
   
   const INITIAL_PARTICIPANTS: Participant[] = [
-    { id: 1, name: user ? `${user.first_name} ${user.last_name}` : "You", isCurrentUser: true },
+    { id: 1, name: user ? `${user.first_name} ${user.last_name}` : "You", isCurrentUser: true, user_id: user?.id },
     { id: 2, name: "", isCurrentUser: false },
   ];
   
@@ -46,10 +46,28 @@ export default function AddEventPage() {
 
   const addParticipant = () => {
     const newId = Math.max(...participants.map((p) => p.id), 0) + 1;
-    setParticipants([...participants, { id: newId, name: "", isCurrentUser: false }]);
+    setParticipants([...participants, { id: newId, name: "", isCurrentUser: false, user_id: undefined }]);
   };
 
   const updateParticipant = (id: number, name: string) => {
+    // Kiểm tra trùng tên với chủ sự kiện hoặc người tham gia khác
+    const trimmedName = name.trim();
+    
+    if (trimmedName) {
+      const isDuplicate = participants.some(p => 
+        p.id !== id && p.name.trim().toLowerCase() === trimmedName.toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        Toast.show({
+          type: "error",
+          text1: "Duplicate Name",
+          text2: "This name is already used by another participant",
+        });
+        return;
+      }
+    }
+    
     setParticipants(participants.map((p) => {
       // Không cho phép đổi tên user hiện tại
       if (p.id === id && !p.isCurrentUser) {
@@ -79,10 +97,16 @@ export default function AddEventPage() {
       // TODO: Implement create event logic
 
       // Always use VND currency
+      // Loại bỏ chủ sự kiện khỏi danh sách participants (backend tự động thêm dựa trên token)
+      const participantsWithoutOwner = participants
+        .filter(p => !p.isCurrentUser) // Loại bỏ chủ sự kiện
+        .map(p => p.name)
+        .filter(Boolean); // Loại bỏ tên rỗng
+      
       const req: EventRequest = {
         name: eventName,
         currency: CurrencyObj.VND,
-        participants: participants.map((p) => p.name).filter(Boolean),
+        participants: participantsWithoutOwner,
       };
 
       await api.post("/events/", req);
