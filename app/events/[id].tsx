@@ -5,6 +5,7 @@ import {
   StatsCard,
   type EventStats,
 } from "@/components/EventOverall";
+import EmptyState from "@/components/common/EmptyState";
 import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useEventStore } from "@/stores/useEventStore";
@@ -14,7 +15,7 @@ import { parseDataFromPhoto } from "@/utils/imageOCR";
 import { format } from "date-fns";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Plus } from "lucide-react-native";
+import { Plus, ReceiptText } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, BackHandler, Modal, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { IconButton } from "react-native-paper";
@@ -269,7 +270,24 @@ export default function EventDetailScreen() {
           }
         >
           <StatsCard stats={STATS_DATA} isLoading={isLoading} />
-          <BillsList bills={billList} onDeleteBill={handleDeleteBill} onEditBill={handleEditBill} isLoading={isLoading} />
+          {isLoading ? (
+            <BillsList
+              bills={billList}
+              onDeleteBill={handleDeleteBill}
+              onEditBill={handleEditBill}
+              isLoading
+            />
+          ) : billList.length === 0 ? (
+            <EmptyState
+              icon={ReceiptText}
+              title="No bills yet"
+              description="Add a bill to start tracking expenses in this event."
+              actionLabel="Add bill"
+              onActionPress={() => setShowAddMenu(true)}
+            />
+          ) : (
+            <BillsList bills={billList} onDeleteBill={handleDeleteBill} onEditBill={handleEditBill} />
+          )}
         </ScrollView>
 
         {/* Add Bill FAB */}

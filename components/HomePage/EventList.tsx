@@ -2,7 +2,7 @@ import { EventReponse } from "@/interfaces/api/event.api";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import { format } from "date-fns";
-import { Edit3, Trash2 } from "lucide-react-native";
+import { CalendarX2, Edit3, Trash2 } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
+import EmptyState from "../common/EmptyState";
 import ListItem from "../common/ListItem";
 
 type EventListProps = {
@@ -209,6 +210,8 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
       <FlatList
         contentContainerStyle={{
           gap: 20,
+          flexGrow: 1,
+          paddingBottom: 12,
         }}
         data={eventList}
         keyExtractor={(item) => item.id}
@@ -254,6 +257,15 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
           );
         }}
         showsVerticalScrollIndicator={false}
+        ListEmptyComponent={() => (
+          <EmptyState
+            icon={CalendarX2}
+            title="No events yet"
+            description="Create an event to start splitting bills with friends."
+            actionLabel="Refresh"
+            onActionPress={fetchEventList}
+          />
+        )}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
