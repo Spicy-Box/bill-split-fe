@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/common/Skeleton";
 import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { Router, useRouter } from "expo-router";
@@ -17,6 +18,19 @@ const BillIcon = () => (
     <Circle cx={16} cy={30} r={3} fill="#9D6BFF" />
     <Circle cx={28} cy={30} r={3} fill="#66FFB3" />
   </Svg>
+);
+
+const BillItemSkeleton = () => (
+  <View className="bg-light1 rounded-xl p-3 flex-row items-center justify-between">
+    <View className="flex-row items-center gap-2.5 flex-1">
+      <Skeleton variant="circle" width={44} height={44} />
+      <View className="gap-2 flex-1">
+        <Skeleton width="70%" height={20} />
+        <Skeleton width="40%" height={14} />
+      </View>
+    </View>
+    <Skeleton width={90} height={32} style={{ borderRadius: 8, marginLeft: 8 }} />
+  </View>
 );
 
 // Bill Item Component
@@ -98,8 +112,18 @@ const BillItem = ({
   );
 };
 
-export const BillsList = ({ bills, onDeleteBill, onEditBill }: BillsListProps) => {
+export const BillsList = ({ bills, onDeleteBill = () => {}, onEditBill = () => {}, isLoading = false }: BillsListProps) => {
   const router = useRouter();
+
+  if (isLoading) {
+    return (
+      <View className="gap-2.5 pb-24">
+        {[1, 2, 3, 4].map((i) => (
+          <BillItemSkeleton key={i} />
+        ))}
+      </View>
+    );
+  }
 
   return (
     <View className="gap-2.5 pb-24">
