@@ -63,11 +63,15 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView className="flex-1">
-      <View className="p-5 gap-5">
-        <WelcomePanel mode="home" />
-        <CreateNewEvent />
+      <View className="flex-1">
+        <View className="p-5 gap-5">
+          <WelcomePanel mode="home" />
+          <CreateNewEvent />
+        </View>
 
-        <EventList />
+        <View className="flex-1 px-5">
+          <EventList />
+        </View>
 
         {/* <Link href={"/auth/login"}>
           <Text>Login</Text>
