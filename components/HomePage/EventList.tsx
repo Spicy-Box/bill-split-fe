@@ -52,19 +52,20 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
       if (data.length > 0) {
         const summaries = await Promise.allSettled(
           data.map((item: any) =>
-            api.get(`/bills/events/${item.id}/summary`)
-              .then(res => res.data?.data || { totalAmount: 0 })
+            api
+              .get(`/bills/events/${item.id}/summary`)
+              .then((res) => res.data?.data || { totalAmount: 0 })
           )
         );
 
         // Update totalAmount từ summary
         dataWithSummary = data.map((item: any, index: number) => {
           const summary = summaries[index];
-          const totalAmount = 
-            summary.status === 'fulfilled' && summary.value?.totalAmount
+          const totalAmount =
+            summary.status === "fulfilled" && summary.value?.totalAmount
               ? summary.value.totalAmount
               : item.totalAmount || 0;
-          
+
           return {
             ...item,
             totalAmount,
