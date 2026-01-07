@@ -21,6 +21,7 @@ import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Crypto from "expo-crypto";
 import {
   Animated,
   Dimensions,
@@ -68,18 +69,19 @@ export default function CreateBill() {
 
   const parsedData = useBillStore((state) => state.parsedData);
   const parsedTax = useBillStore((state) => state.tax);
-  
+  const clearParsedData = useBillStore((state) => state.clearParsedData);
 
   useEffect(() => {
     if (parsedData) {
       // setItems(parsedData);
       // console.log("Parsed Data in Add Bill:", parsedData);
 
-      parsedData.forEach((data) => {  
+      parsedData.forEach((data, index) => {
         setItems((prev) => [
           ...prev,
           {
-            id: Math.random().toString(10).substring(2, 8),
+            // id: Math.random().toString(10).substring(2, 8),
+            id: Crypto.randomUUID(),
             name: data.name,
             unitPrice: data.unitPrice,
             quantity: data.quantity,
@@ -96,8 +98,6 @@ export default function CreateBill() {
       setTaxRate(parsedTax);
     }
   }, [parsedTax]);
-
-
 
   // Initialize paidBy with the current user's identifier when participants are loaded
   // The current user is the participant who has user_id
@@ -442,6 +442,7 @@ export default function CreateBill() {
 
       const response = await api.post("/bills/", billCreateRequest);
       const data = response.data.data;
+      clearParsedData();
       setLoading(false);
       Toast.show({
         type: "success",

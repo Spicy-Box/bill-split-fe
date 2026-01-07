@@ -150,11 +150,11 @@ export default function ProfilePage() {
               <View className="gap-1 flex-1">
                 <View className="bg-dark1 px-3 py-1 rounded-sm self-start">
                   <Text className="text-light1 font-medium text-sm font-inter">
-                    {USER_PROFILE.name}
+                    {user?.last_name + " " + user?.first_name}
                   </Text>
                 </View>
                 <Text className="text-xs italic font-medium text-dark1 font-inter">
-                  {USER_PROFILE.email}
+                  {user?.email}
                 </Text>
               </View>
             </View>

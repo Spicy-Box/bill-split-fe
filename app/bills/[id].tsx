@@ -15,14 +15,20 @@ import { BalancesRepsonse, BillByItemResponse } from "@/interfaces/api/bill.api"
 import { useAuthStore } from "@/stores/useAuthStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
-import * as FileSystem from 'expo-file-system/legacy';
+import * as FileSystem from "expo-file-system/legacy";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import * as Sharing from 'expo-sharing';
+import * as Sharing from "expo-sharing";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, BackHandler, Platform, ScrollView, StatusBar, View } from "react-native";
+import {
+  ActivityIndicator,
+  BackHandler,
+  Platform,
+  ScrollView,
+  StatusBar,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
-
 
 // Mock Data
 const BILL_ITEMS: BillItem[] = [
@@ -104,7 +110,7 @@ export default function BillDetailPage() {
       setIsLoadingDetail(true);
       const response = await api.get(`/bills/${id}`);
       let data: BillByItemResponse = response.data.data;
-      
+
       // Replace names with current user name if is_guest is false
       if (data.items && user) {
         data.items = data.items.map((item: any) => {
@@ -120,12 +126,12 @@ export default function BillDetailPage() {
           return item;
         });
       }
-      
+
       if (data.paidBy && !data.paidBy.is_guest && user) {
         const userName = `${user.first_name} ${user.last_name}`.trim();
         data.paidBy = { ...data.paidBy, name: userName };
       }
-      
+
       if (data.perUserShares && user) {
         data.perUserShares = data.perUserShares.map((person: any) => {
           if (!person.is_guest) {
@@ -135,7 +141,7 @@ export default function BillDetailPage() {
           return person;
         });
       }
-      
+
       setBillDetail(data);
       console.log(data);
     } finally {
@@ -152,17 +158,17 @@ export default function BillDetailPage() {
       // Replace names with current user name if is_guest is false
       const processedBalances = data.balances.map((balance: any) => {
         const processedBalance = { ...balance };
-        
+
         if (!balance.creditor.is_guest && user) {
           const userName = `${user.first_name} ${user.last_name}`.trim();
           processedBalance.creditor = { ...balance.creditor, name: userName };
         }
-        
+
         if (!balance.debtor.is_guest && user) {
           const userName = `${user.first_name} ${user.last_name}`.trim();
           processedBalance.debtor = { ...balance.debtor, name: userName };
         }
-        
+
         return processedBalance;
       });
 
@@ -187,10 +193,7 @@ export default function BillDetailPage() {
       return true; // Prevent default back behavior
     };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
 
     return () => backHandler.remove();
   }, [billDetail?.eventId, router]);
@@ -199,87 +202,80 @@ export default function BillDetailPage() {
     setIsExporting(true);
     try {
       const response = await api.get(`/bills/${id}/export-pdf`, {
-        responseType: 'arraybuffer'
+        responseType: "arraybuffer",
       });
-      
+
       // Convert arraybuffer to base64 (works in React Native)
       const bytes = new Uint8Array(response.data);
-      let binary = '';
+      let binary = "";
       for (let i = 0; i < bytes.byteLength; i++) {
         binary += String.fromCharCode(bytes[i]);
       }
       const base64 = btoa(binary);
-      
+
       const fileName = `bill ${billDetail?.title ?? "bill"}_ trả bởi ${billDetail?.paidBy?.name ?? ""}.pdf`;
       const fileUri = FileSystem.documentDirectory + fileName;
-      
+
       await FileSystem.writeAsStringAsync(fileUri, base64, {
-        encoding: 'base64',
+        encoding: "base64",
       });
-      
+
       // Share file - user can choose to save to Files/Downloads
       if (await Sharing.isAvailableAsync()) {
-        if (Platform.OS === 'android') {
-          const permission = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (Platform.OS === "android") {
+          const permission =
+            await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
           if (permission.granted) {
-            const base64Data = await FileSystem.readAsStringAsync(fileUri, { encoding: 'base64' });
+            const base64Data = await FileSystem.readAsStringAsync(fileUri, { encoding: "base64" });
             const newFileUri = await FileSystem.StorageAccessFramework.createFileAsync(
               permission.directoryUri,
               fileName,
-              'application/pdf' //mine type
+              "application/pdf" //mine type
             );
             await FileSystem.writeAsStringAsync(newFileUri, base64Data, {
               encoding: FileSystem.EncodingType.Base64,
             });
             // console.log('File saved to:', newFileUri);
-            const parts = newFileUri.split('/');
-            const displayPath = decodeURIComponent(parts.length >= 2 ? parts.slice(-2).join('/') : "").replace('primary:', '');
-            
+            const parts = newFileUri.split("/");
+            const displayPath = decodeURIComponent(
+              parts.length >= 2 ? parts.slice(-2).join("/") : ""
+            ).replace("primary:", "");
 
-            
-            
-
-
-            
             Toast.show({
-              type: 'success',
-              text1: 'PDF ready',
+              type: "success",
+              text1: "PDF ready",
               text2: `File saved to ${displayPath}`,
             });
           } else {
             // throw new Error('Permission to access storage was denied');
             Toast.show({
-              type: 'error',
-              text1: 'Permission to access storage was denied',
+              type: "error",
+              text1: "Permission to access storage was denied",
             });
           }
         }
 
         // iOS and others
-        else{
+        else {
           await Sharing.shareAsync(fileUri);
           Toast.show({
-            type: 'success',
-            text1: 'PDF ready',
+            type: "success",
+            text1: "PDF ready",
             text2: `File saved to ${fileUri[-1]}`,
           });
         }
-      } 
-      
-      
-      
-      else {
+      } else {
         Toast.show({
-          type: 'error',
-          text1: 'Sharing not available',
+          type: "error",
+          text1: "Sharing not available",
         });
       }
     } catch (error) {
       Toast.show({
-        type: 'error',
-        text1: 'Failed to export PDF',
+        type: "error",
+        text1: "Failed to export PDF",
       });
-      console.error('Export error:', error);
+      console.error("Export error:", error);
     } finally {
       setIsExporting(false);
     }
@@ -315,7 +311,7 @@ export default function BillDetailPage() {
               {activeTab === "overall" ? (
                 <>
                   {billDetail?.paidBy && <PaidByCard participant={billDetail.paidBy} />}
-                  {billDetail?.items && billDetail.totalAmount && (
+                  {billDetail?.items && !!billDetail.totalAmount && (
                     <BillItemsCard
                       items={billDetail.items}
                       subTotal={billDetail.subtotal}
