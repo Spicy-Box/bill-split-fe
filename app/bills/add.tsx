@@ -68,18 +68,18 @@ export default function CreateBill() {
 
   const parsedData = useBillStore((state) => state.parsedData);
   const parsedTax = useBillStore((state) => state.tax);
-  
 
   useEffect(() => {
     if (parsedData) {
       // setItems(parsedData);
       // console.log("Parsed Data in Add Bill:", parsedData);
 
-      parsedData.forEach((data) => {  
+      parsedData.forEach((data) => {
         setItems((prev) => [
           ...prev,
           {
-            id: Math.random().toString(10).substring(2, 8),
+            // id: Math.random().toString(10).substring(2, 8),
+            id: crypto.randomUUID(),
             name: data.name,
             unitPrice: data.unitPrice,
             quantity: data.quantity,
@@ -96,8 +96,6 @@ export default function CreateBill() {
       setTaxRate(parsedTax);
     }
   }, [parsedTax]);
-
-
 
   // Initialize paidBy with the current user's identifier when participants are loaded
   // The current user is the participant who has user_id
