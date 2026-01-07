@@ -13,7 +13,8 @@
     "test:coverage": "jest --coverage --watchAll=false",
     "test:onboarding": "jest OnboardingPage-test.tsx --coverage --watchAll=false",
     "test:auth": "jest LoginPage-test ForgotPasswordPage-test OtpPage-test NewPasswordPage-test SignUpPage-test AuthIndexPage-test --coverage --watchAll=false",
-    "test:bill": "jest BillDetailIdPage-test AddBillPage-test LoadingBillPage-test --coverage --watchAll=false"
+    "test:bill": "jest BillDetailIdPage-test AddBillPage-test LoadingBillPage-test --coverage --watchAll=false",
+    "test:event": "jest CameraEventPage-test EventAddPage-test EventDetailIdPage-test --coverage --watchAll=false"
   },
   "jest": {
     "preset": "jest-expo",

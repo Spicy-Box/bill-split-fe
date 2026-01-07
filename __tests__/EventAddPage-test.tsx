@@ -145,11 +145,13 @@ describe("AddEventPage", () => {
 
     await waitFor(() => {
       // Kiểm tra payload gửi lên API
+      // Lưu ý: Backend tự động thêm chủ sự kiện dựa trên token,
+      // nên participants chỉ chứa những người khác (không có "Eric Nguyễn")
       expect(api.post).toHaveBeenCalledWith(
         "/events/",
         expect.objectContaining({
           name: "Liên hoan cuối năm",
-          participants: ["Eric Nguyễn", "Khánh Lê"],
+          participants: ["Khánh Lê"], // Chỉ có người tham gia khác, không có current user
         })
       );
 

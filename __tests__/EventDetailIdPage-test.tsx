@@ -3,12 +3,30 @@ import { parseDataFromPhoto } from "@/utils/imageOCR";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react-native";
 import * as ImagePicker from "expo-image-picker";
 import React from "react";
-import { Alert } from "react-native";
-import EventDetailScreen from "../app/events/[id]"; // Điều chỉnh đường dẫn
+import { Alert, BackHandler } from "react-native";
+import Toast from "react-native-toast-message";
+import EventDetailScreen from "../app/events/[id]";
 
 // --- MOCKING ---
 
-// 1. Mock Expo Router
+// 0. Mock AsyncStorage (PHẢI ĐẶT TRƯỚC TẤT CẢ)
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock")
+);
+
+// 1. Mock Auth Store
+jest.mock("@/stores/useAuthStore", () => ({
+  useAuthStore: () => ({
+    user: {
+      id: "user_123",
+      first_name: "Eric",
+      last_name: "Nguyễn",
+    },
+    accessToken: "mock-token",
+  }),
+}));
+
+// 2. Mock Expo Router
 const mockPush = jest.fn();
 const mockNavigate = jest.fn();
 jest.mock("expo-router", () => ({
@@ -16,12 +34,19 @@ jest.mock("expo-router", () => ({
   useLocalSearchParams: () => ({ id: "event_999" }),
 }));
 
-// 2. Mock API
+// 3. Mock API
 jest.mock("@/utils/api", () => ({
   get: jest.fn(),
+  delete: jest.fn(),
+  put: jest.fn(),
 }));
 
-// 3. Mock Zustand Store
+// Mock Toast
+jest.mock("react-native-toast-message", () => ({
+  show: jest.fn(),
+}));
+
+// 4. Mock Zustand Event Store
 const mockSetParticipants = jest.fn();
 const mockSetEventId = jest.fn();
 jest.mock("@/stores/useEventStore", () => ({
@@ -32,7 +57,7 @@ jest.mock("@/stores/useEventStore", () => ({
     }),
 }));
 
-// 4. Mock Image Picker & OCR
+// 5. Mock Image Picker & OCR
 jest.mock("expo-image-picker", () => ({
   requestMediaLibraryPermissionsAsync: jest.fn(),
   launchImageLibraryAsync: jest.fn(),
@@ -42,6 +67,7 @@ jest.mock("@/utils/imageOCR", () => ({
   parseDataFromPhoto: jest.fn(),
 }));
 
+// 6. Mock react-native-paper
 jest.mock("react-native-paper", () => {
   const { TouchableOpacity, Text } = require("react-native");
   return {
@@ -58,16 +84,24 @@ jest.mock("react-native-paper", () => {
   };
 });
 
-// 5. Mock Component con bằng String (để tránh lỗi Interop/CSS)
+// 7. Mock Component con (để tránh lỗi Interop/CSS)
 jest.mock("@/components/EventOverall", () => ({
   EventHeader: "EventHeader",
   StatsCard: "StatsCard",
-  BillsList: ({ bills }: any) => {
-    const { Text, View } = require("react-native");
+  BillsList: ({ bills, onDeleteBill, onEditBill }: any) => {
+    const { Text, View, TouchableOpacity } = require("react-native");
     return (
       <View>
         {bills.map((b: any) => (
-          <Text key={b.id}>{b.title}</Text>
+          <View key={b.id}>
+            <Text>{b.title}</Text>
+            <TouchableOpacity onPress={() => onDeleteBill(b.id)}>
+              <Text>Delete {b.id}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => onEditBill(b.id, b.title)}>
+              <Text>Edit {b.id}</Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
     );
@@ -105,7 +139,25 @@ const mockEventData = {
 
 const mockBillsData = {
   data: {
-    data: [{ id: "b1", title: "Dinner", totalAmount: 1000, paidBy: "Eric" }],
+    data: [
+      { id: "b1", title: "Dinner", totalAmount: 1000, paidBy: { name: "Eric", is_guest: false } },
+    ],
+  },
+};
+
+const mockEventSummary = {
+  data: {
+    data: {
+      totalAmount: 5000,
+    },
+  },
+};
+
+const mockMyExpense = {
+  data: {
+    data: {
+      totalExpense: 2500,
+    },
   },
 };
 
@@ -113,9 +165,13 @@ describe("EventDetailScreen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (api.get as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/summary")) return Promise.resolve(mockEventSummary);
+      if (url.includes("/registered-users-expense")) return Promise.resolve(mockMyExpense);
       if (url.includes("/bills/")) return Promise.resolve(mockBillsData);
       return Promise.resolve(mockEventData);
     });
+    (api.delete as jest.Mock).mockResolvedValue({ data: { success: true } });
+    (api.put as jest.Mock).mockResolvedValue({ data: { success: true } });
   });
 
   afterEach(cleanup);
@@ -213,5 +269,235 @@ describe("EventDetailScreen", () => {
 
     // 4. Kiểm tra xem router.navigate có được gọi đúng không
     expect(mockNavigate).toHaveBeenCalledWith("/");
+  });
+
+  it("nên gọi API event summary khi component mount", async () => {
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalledWith("/bills/events/event_999/summary");
+      expect(api.get).toHaveBeenCalledWith("/bills/events/event_999/registered-users-expense");
+    });
+  });
+
+  it("nên xóa bill thành công khi nhấn nút Delete", async () => {
+    render(<EventDetailScreen />);
+
+    // Đợi dữ liệu load xong
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    // Nhấn nút Delete
+    const deleteBtn = screen.getByText("Delete b1");
+    fireEvent.press(deleteBtn);
+
+    await waitFor(() => {
+      // Kiểm tra API delete được gọi
+      expect(api.delete).toHaveBeenCalledWith("/bills/b1");
+      // Kiểm tra Toast thành công
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          text1: "Success",
+          text2: "Bill deleted successfully",
+        })
+      );
+    });
+  });
+
+  it("nên hiển thị Toast lỗi khi xóa bill thất bại", async () => {
+    (api.delete as jest.Mock).mockRejectedValueOnce(new Error("Delete failed"));
+
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    const deleteBtn = screen.getByText("Delete b1");
+    fireEvent.press(deleteBtn);
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to delete bill. Please try again.",
+        })
+      );
+    });
+  });
+
+  it("nên mở modal Edit Bill khi nhấn nút Edit", async () => {
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    // Nhấn nút Edit
+    const editBtn = screen.getByText("Edit b1");
+    fireEvent.press(editBtn);
+
+    // Kiểm tra modal hiển thị
+    await waitFor(() => {
+      expect(screen.getByText("Edit Bill")).toBeTruthy();
+      expect(screen.getByPlaceholderText("Enter bill title")).toBeTruthy();
+      expect(screen.getByPlaceholderText("Enter note")).toBeTruthy();
+    });
+  });
+
+  it("nên đóng modal Edit Bill khi nhấn Cancel", async () => {
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    // Mở modal
+    fireEvent.press(screen.getByText("Edit b1"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Bill")).toBeTruthy();
+    });
+
+    // Nhấn Cancel
+    fireEvent.press(screen.getByText("Cancel"));
+
+    // Modal đóng
+    await waitFor(() => {
+      expect(screen.queryByText("Edit Bill")).toBeNull();
+    });
+  });
+
+  it("nên lưu thay đổi bill thành công khi nhấn Save", async () => {
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    // Mở modal
+    fireEvent.press(screen.getByText("Edit b1"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Bill")).toBeTruthy();
+    });
+
+    // Nhập title mới
+    const titleInput = screen.getByPlaceholderText("Enter bill title");
+    fireEvent.changeText(titleInput, "Updated Dinner");
+
+    // Nhập note
+    const noteInput = screen.getByPlaceholderText("Enter note");
+    fireEvent.changeText(noteInput, "Test note");
+
+    // Nhấn Save
+    fireEvent.press(screen.getByText("Save"));
+
+    await waitFor(() => {
+      expect(api.put).toHaveBeenCalledWith("/bills/b1", {
+        title: "Updated Dinner",
+        note: "Test note",
+      });
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "success",
+          text1: "Success",
+          text2: "Bill updated successfully",
+        })
+      );
+    });
+  });
+
+  it("nên hiển thị Toast lỗi khi cập nhật bill thất bại", async () => {
+    (api.put as jest.Mock).mockRejectedValueOnce(new Error("Update failed"));
+
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("Dinner")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText("Edit b1"));
+
+    await waitFor(() => {
+      expect(screen.getByText("Edit Bill")).toBeTruthy();
+    });
+
+    fireEvent.press(screen.getByText("Save"));
+
+    await waitFor(() => {
+      expect(Toast.show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to update bill. Please try again.",
+        })
+      );
+    });
+  });
+
+  it("nên setup BackHandler để quay về trang chủ", async () => {
+    const backHandlerSpy = jest.spyOn(BackHandler, "addEventListener");
+
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      expect(api.get).toHaveBeenCalled();
+    });
+
+    expect(backHandlerSpy).toHaveBeenCalledWith("hardwareBackPress", expect.any(Function));
+
+    backHandlerSpy.mockRestore();
+  });
+
+  it("nên không làm gì khi user hủy chọn ảnh", async () => {
+    (ImagePicker.requestMediaLibraryPermissionsAsync as jest.Mock).mockResolvedValue({
+      granted: true,
+    });
+    (ImagePicker.launchImageLibraryAsync as jest.Mock).mockResolvedValue({
+      canceled: true,
+      assets: [],
+    });
+
+    render(<EventDetailScreen />);
+    fireEvent.press(screen.getByText("Add Bill"));
+    fireEvent.press(screen.getByText("Upload Photo"));
+
+    await waitFor(() => {
+      // OCR không được gọi vì user đã cancel
+      expect(parseDataFromPhoto).not.toHaveBeenCalled();
+    });
+  });
+
+  it("nên thay thế tên paidBy bằng tên user hiện tại khi is_guest = false", async () => {
+    const mockBillsWithGuest = {
+      data: {
+        data: [
+          {
+            id: "b1",
+            title: "Dinner",
+            totalAmount: 1000,
+            paidBy: { name: "Someone", is_guest: false },
+          },
+        ],
+      },
+    };
+
+    (api.get as jest.Mock).mockImplementation((url) => {
+      if (url.includes("/summary")) return Promise.resolve(mockEventSummary);
+      if (url.includes("/registered-users-expense")) return Promise.resolve(mockMyExpense);
+      if (url.includes("/bills/")) return Promise.resolve(mockBillsWithGuest);
+      return Promise.resolve(mockEventData);
+    });
+
+    render(<EventDetailScreen />);
+
+    await waitFor(() => {
+      // Component sẽ thay thế tên bằng "Eric Nguyễn" từ auth store
+      expect(api.get).toHaveBeenCalledWith("/bills/?event_id=event_999");
+    });
   });
 });
