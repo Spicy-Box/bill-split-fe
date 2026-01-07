@@ -1,9 +1,11 @@
 import EventIcon from "@/assets/images/event-icon.svg";
 import WelcomePanel from "@/components/HomePage/WelcomePanel";
+import EmptyState from "@/components/common/EmptyState";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { useRouter } from "expo-router";
+import { CalendarX2, ReceiptText } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -62,6 +64,8 @@ export default function HistoryPage() {
   const [eventHistory, setEventHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  const displayedHistory = activeTab === "bill" ? billHistory : eventHistory;
 
   useEffect(() => {
     if (activeTab === "bill") {
@@ -193,7 +197,7 @@ export default function HistoryPage() {
           <ScrollView
             className="flex-1"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
+            contentContainerStyle={{ gap: 20, paddingBottom: 20, flexGrow: 1 }}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -207,67 +211,71 @@ export default function HistoryPage() {
               <View className="flex-1 items-center justify-center py-10">
                 <ActivityIndicator size="large" color={COLOR.primary3} />
               </View>
-            ) : (
-              (activeTab === "bill" ? billHistory : eventHistory).map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                className="bg-light1 rounded-xl p-3 gap-2"
-                onPress={() =>
+            ) : displayedHistory.length === 0 ? (
+              <EmptyState
+                icon={activeTab === "bill" ? ReceiptText : CalendarX2}
+                title={activeTab === "bill" ? "No bills yet" : "No events yet"}
+                description={
                   activeTab === "bill"
-                    ? router.push(`/bills/${item.id}`)
-                    : router.push(`/events/${item.id}`)
+                    ? "Recent bills you create or join will appear here."
+                    : "Your event history will show up once you start splitting bills."
                 }
-                activeOpacity={0.7}
-              >
-                {/* Event Type Badge - Only show for Bill tab */}
-                {activeTab === "bill" && (
-                  <View className="flex-row items-center">
-                    <View className="bg-primary1 rounded-lg px-3 py-1">
-                      <Text className="text-dark1 text-sm font-medium font-inter">
-                        {item.type}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-
-                {/* Item Content */}
-                <View className="flex-row items-center justify-between gap-3">
-                  {/* Image and Info */}
-                  <View className="flex-row items-center gap-2 flex-1">
-                    {/* <View className="w-[52px] h-[52px]">
-                      <Image
-                        source={{ uri: item.imageUrl }}
-                        className="w-full h-full rounded"
-                        contentFit="cover"
-                      />
-                    </View> */}
-                    <EventIcon width={52} height={52} />
-                    <View className="flex-1 gap-1">
-                      <Text className="text-dark1 font-semibold text-base font-inter">
-                        {item.name}
-                      </Text>
-                      <Text className="text-dark1 text-base font-medium font-inter opacity-40">
-                        {item.date}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Amount Badge with Participants (for Event tab) */}
-                  <View className="gap-1">
-                    <Text className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter text-center">
-                      {item.amount}
-                    </Text>
-                    {activeTab === "event" && item.participants && (
-                      <View className="ml-auto">
-
-                      <Text className="text-primary2 font-semibold font-inter text-center">
-                        {item.participants} persons
-                      </Text>
+                actionLabel="Refresh"
+                onActionPress={onRefresh}
+              />
+            ) : (
+              displayedHistory.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  className="bg-light1 rounded-xl p-3 gap-2"
+                  onPress={() =>
+                    activeTab === "bill"
+                      ? router.push(`/bills/${item.id}`)
+                      : router.push(`/events/${item.id}`)
+                  }
+                  activeOpacity={0.7}
+                >
+                  {/* Event Type Badge - Only show for Bill tab */}
+                  {activeTab === "bill" && (
+                    <View className="flex-row items-center">
+                      <View className="bg-primary1 rounded-lg px-3 py-1">
+                        <Text className="text-dark1 text-sm font-medium font-inter">
+                          {item.type}
+                        </Text>
                       </View>
-                    )}
+                    </View>
+                  )}
+
+                  {/* Item Content */}
+                  <View className="flex-row items-center justify-between gap-3">
+                    {/* Image and Info */}
+                    <View className="flex-row items-center gap-2 flex-1">
+                      <EventIcon width={52} height={52} />
+                      <View className="flex-1 gap-1">
+                        <Text className="text-dark1 font-semibold text-base font-inter">
+                          {item.name}
+                        </Text>
+                        <Text className="text-dark1 text-base font-medium font-inter opacity-40">
+                          {item.date}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Amount Badge with Participants (for Event tab) */}
+                    <View className="gap-1">
+                      <Text className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter text-center">
+                        {item.amount}
+                      </Text>
+                      {activeTab === "event" && item.participants && (
+                        <View className="ml-auto">
+                          <Text className="text-primary2 font-semibold font-inter text-center">
+                            {item.participants} persons
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                   </View>
-                </View>
-              </TouchableOpacity>
+                </TouchableOpacity>
               ))
             )}
           </ScrollView>
