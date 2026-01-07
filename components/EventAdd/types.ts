@@ -3,6 +3,7 @@ export interface Participant {
   id: number;
   name: string;
   isCurrentUser?: boolean;
+  user_id?: string;
 }
 
 // Props interfaces

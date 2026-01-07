@@ -74,14 +74,14 @@ export default function HomeScreen() {
         </Link>
         <Link href={"/test"}>Test</Link> */}
 
-        <Button
+        {/* <Button
           mode="outlined"
           buttonColor={COLOR.alert}
           textColor={COLOR.light1}
           onPress={handleClearAppData}
         >
           Clear App Data
-        </Button>
+        </Button> */}
       </View>
     </SafeAreaView>
   );

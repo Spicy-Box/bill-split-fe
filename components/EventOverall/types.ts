@@ -28,6 +28,8 @@ export interface StatsCardProps {
 
 export interface BillsListProps {
   bills: BillOverallItemRequest[];
+  onDeleteBill: (billId: string) => void;
+  onEditBill: (billId: string, currentTitle: string) => void;
 }
 
 export interface AddBillMenuModalProps {

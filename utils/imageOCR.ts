@@ -24,6 +24,9 @@ export const parseDataFromPhoto = (uri: string, router: ReturnType<typeof useRou
         },
     })
         .then((response) => {
+            // Get tax from the first item as default for the entire bill
+            const defaultTax = response.data.items.length > 0 ? response.data.items[0].tax || 0 : 0;
+            
             // change splittype to "everyone" for each item, change splitbetween to empty array
             const parsedData: ItemReponse[] = response.data.items.map((item: any) => ({
                 ...item,
@@ -34,6 +37,10 @@ export const parseDataFromPhoto = (uri: string, router: ReturnType<typeof useRou
             console.log("Parsed Data from OCR:", parsedData);
         
             useBillStore.getState().setParsedData(parsedData);
+            
+            // Store the default tax from the first item
+            useBillStore.getState().setTax(defaultTax);
+            
             router.replace({
                 pathname: "/bills/add",
             }); 

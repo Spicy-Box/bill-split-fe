@@ -1,6 +1,7 @@
 import { BalancesRepsonse } from "@/interfaces/api/bill.api";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Image, Text, View } from "react-native";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function OwedAmountCard({ balances }: { balances: BalancesRepsonse[] }) {
   const user = useAuthStore((state) => state.user);
@@ -31,7 +32,7 @@ export default function OwedAmountCard({ balances }: { balances: BalancesRepsons
         </Text>
         <View className={`${amount < 0 ? "bg-alert" : "bg-primary4"} rounded-lg px-2 py-0.5`}>
           <Text className="text-light1 text-sm font-semibold font-inter">
-            VND {(amount < 0 ? (amount * -1) : amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            VND {formatCurrency(amount < 0 ? (amount * -1) : amount)}
           </Text>
         </View>
       </View>

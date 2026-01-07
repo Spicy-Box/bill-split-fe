@@ -1,5 +1,6 @@
 import { PerUserShare } from "@/interfaces/api/bill.api";
 import { Image, Text, View } from "react-native";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function ParticipantsCard({ participants }: { participants: PerUserShare[] }) {
   return (
@@ -27,7 +28,7 @@ export default function ParticipantsCard({ participants }: { participants: PerUs
               <Text className="text-dark1 font-medium text-sm font-inter">{p.userName?.name}</Text>
             </View>
             <Text className="text-dark1 font-medium text-sm font-inter">
-              VND {p.share?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              VND {formatCurrency(p.share ?? 0)}
             </Text>
           </View>
         ))}

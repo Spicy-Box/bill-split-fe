@@ -85,21 +85,28 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        try {
-          await api.post(`${apiUrl}/users/logout`, null, {
-            params: {
-              refresh_token: get().refreshToken,
-            },
-          });
+        const refreshToken = get().refreshToken;
+        
+        // Clear state trước để tránh interceptor retry
+        set({
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          error: null,
+        });
 
-          set({
-            user: null,
-            accessToken: null,
-            refreshToken: null,
-            error: null,
-          });
-        } catch (err: any) {
-          console.log("Error at logout in useAuthStore.ts", err);
+        // Chỉ gọi API logout nếu có refresh token (có thể đã bị clear ở trên)
+        if (refreshToken) {
+          try {
+            await api.post(`${apiUrl}/users/logout`, null, {
+              params: {
+                refresh_token: refreshToken,
+              },
+            });
+          } catch (err: any) {
+            console.log("Error at logout in useAuthStore.ts", err);
+            // Ignore error vì đã clear state rồi
+          }
         }
       },
 
@@ -122,7 +129,14 @@ export const useAuthStore = create<AuthState>()(
 
           return newAccessToken;
         } catch {
-          get().logout();
+          // Clear tokens trước khi logout để tránh vòng lặp
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            error: null,
+          });
+          // Không gọi logout() nữa vì nó sẽ trigger API call và có thể gây loop
           return null;
         }
       },

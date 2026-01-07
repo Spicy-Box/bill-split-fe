@@ -18,9 +18,7 @@ export default function ParticipantsList({
         onPress={onAddParticipant}
         buttonColor={COLOR.dark1}
         textColor={COLOR.light1}
-        icon={({ size, color }) => (
-          <UserPlus size={size} color={color} />
-        )}
+        icon={({ size, color }) => <UserPlus size={size} color={color} />}
         contentStyle={{ paddingVertical: 4 }}
         labelStyle={{ fontSize: 14, fontWeight: "600", fontFamily: "inter" }}
         className="rounded-xl"
@@ -35,12 +33,9 @@ export default function ParticipantsList({
             key={participant.id}
             className="bg-light3 rounded-2xl py-2 pl-4 pr-2 flex-row items-center"
           >
-            <Avatar.Image
-              size={48}
-              source={require("../../assets/images/avatar.png")}
-            />
+            <Avatar.Image size={48} source={require("../../assets/images/avatar.png")} />
             <TextInput
-              value={participant.name}
+              value={participant.user_id ? `${participant.name} (Me)` : participant.name}
               onChangeText={(text) => onUpdateParticipant(participant.id, text)}
               placeholder="Participant name"
               placeholderTextColor={COLOR.primary2}

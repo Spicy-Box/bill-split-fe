@@ -1,9 +1,11 @@
 import EventIcon from "@/assets/images/event-icon.svg";
 import WelcomePanel from "@/components/HomePage/WelcomePanel";
 import api from "@/utils/api";
+import { COLOR } from "@/utils/color";
+import { formatCurrency } from "@/utils/formatCurrency";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // Data interfaces
@@ -59,6 +61,7 @@ export default function HistoryPage() {
   const [billHistory, setBillHistory] = useState<HistoryItem[]>([]);
   const [eventHistory, setEventHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (activeTab === "bill") {
@@ -79,7 +82,7 @@ export default function HistoryPage() {
           type: bill.note || "Bill",
           name: bill.title,
           date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-          amount: `VND ${bill.totalAmount.toLocaleString()}`,
+          amount: `VND ${formatCurrency(bill.totalAmount)}`,
           imageUrl: "https://api.builder.io/api/v1/image/assets/TEMP/384e4eaae9514a2267a6095064835f2d0e0a621e?width=104",
           participants: bill.perUserShares?.length || 0,
         }));
@@ -103,7 +106,7 @@ export default function HistoryPage() {
           type: "Event",
           name: event.name,
           date: new Date(event.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-          amount: `VND ${event.totalAmount.toLocaleString()}`,
+          amount: `VND ${formatCurrency(event.totalAmount)}`,
           imageUrl: "https://api.builder.io/api/v1/image/assets/TEMP/384e4eaae9514a2267a6095064835f2d0e0a621e?width=104",
           participants: event.participantsCount,
         }));
@@ -113,6 +116,19 @@ export default function HistoryPage() {
       console.error("Error fetching event history:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      if (activeTab === "bill") {
+        await fetchBillHistory();
+      } else {
+        await fetchEventHistory();
+      }
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -178,10 +194,18 @@ export default function HistoryPage() {
             className="flex-1"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ gap: 20, paddingBottom: 20 }}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={COLOR.primary3}
+                colors={[COLOR.primary3]}
+              />
+            }
           >
-            {loading ? (
+            {loading && !refreshing ? (
               <View className="flex-1 items-center justify-center py-10">
-                <ActivityIndicator size="large" color="#6B7280" />
+                <ActivityIndicator size="large" color={COLOR.primary3} />
               </View>
             ) : (
               (activeTab === "bill" ? billHistory : eventHistory).map((item) => (
@@ -230,13 +254,16 @@ export default function HistoryPage() {
 
                   {/* Amount Badge with Participants (for Event tab) */}
                   <View className="gap-1">
-                    <Text className="bg-primary3 text-light1 rounded-lg p-1 text-sm font-bold font-inter text-center">
+                    <Text className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter text-center">
                       {item.amount}
                     </Text>
                     {activeTab === "event" && item.participants && (
+                      <View className="ml-auto">
+
                       <Text className="text-primary2 font-semibold font-inter text-center">
                         {item.participants} persons
                       </Text>
+                      </View>
                     )}
                   </View>
                 </View>
