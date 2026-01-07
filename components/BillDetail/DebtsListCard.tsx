@@ -10,7 +10,7 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
     <View className="bg-light1 rounded-3xl p-4 gap-4">
       {debts.length === 0 ? (
         <View className="items-center justify-center py-4">
-          <Text className="text-dark1 text-md font-semibold">Không có người nợ</Text>
+          <Text className="text-dark1 text-base font-semibold">Không có người nợ</Text>
         </View>
       ) : (
         debts.map((debt, idx) => (

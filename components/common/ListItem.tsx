@@ -26,27 +26,27 @@ export default function ListItem({
       onPress={onPress ?? (() => router.push(`/events/${id}` as RelativePathString))}
       className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
     >
-      {/* Col 1 */}
-      <EventIcon width={52} height={52} />
+      {/* Col 1 & Col 2 */}
+      <View className="flex-row gap-3 items-center">
+        {/* Col 1 */}
+        <EventIcon width={52} height={52} />
 
-      {/* Col 2 */}
-      <View className="gap-1">
-        <Text className="font-bold font-inter">{name}</Text>
-        <Text className="text-primary2 font-bold font-inter">{date}</Text>
+        {/* Col 2 */}
+        <View className="gap-1">
+          <Text className="font-bold text-base font-inter">{name}</Text>
+          <Text className="text-primary2 font-semibold font-inter">{date}</Text>
+        </View>
       </View>
 
       {/* Col 3 */}
-      <View className="gap-1">
+      <View className="gap-1 items-end">
         <Text
           className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter"
           style={{ textAlign: "center" }}
         >
           VND {formatCurrency(price)}
         </Text>
-        <View className="ml-auto">
         <Text className="text-primary2 font-semibold font-inter">{people} persons</Text>
-          
-        </View>
       </View>
     </TouchableOpacity>
   );

@@ -92,12 +92,12 @@ const BillItem = ({
         onPress={() => router.navigate(`/bills/${bill.id}`)}
       >
         <View className="flex-row items-center gap-2.5 flex-1">
-          <View className="w-11 h-11 items-center justify-center">
+          <View className="w-11 items-center justify-center">
             <BillIcon />
           </View>
-          <View className="gap-1 flex-1">
+          <View className="gap-1 flex-1 h-fit">
             <Text className="text-dark1 font-medium text-base font-inter">{bill.title}</Text>
-            <Text className="text-dark1 text-xs font-medium font-inter opacity-40">
+            <Text className="text-dark1 text-xs font-medium font-inter opacity-40 break-words max-w-[100%]">
               Paid by {bill.paidBy.name}
             </Text>
           </View>

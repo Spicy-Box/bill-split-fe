@@ -1,13 +1,32 @@
 import { PerUserShare } from "@/interfaces/api/bill.api";
+import { SplitMode } from "@/components/BillCreate";
 import { Image, Text, View } from "react-native";
 import { formatCurrency } from "@/utils/formatCurrency";
 
-export default function ParticipantsCard({ participants }: { participants: PerUserShare[] }) {
+interface ParticipantsCardProps {
+  participants: PerUserShare[];
+  billSplitType?: SplitMode;
+}
+
+const getSplitTypeLabel = (splitType?: SplitMode): string => {
+  switch (splitType) {
+    case "by_item":
+      return "Split By Item";
+    case "manual":
+      return "Split By Amount";
+    case "equally":
+      return "Split Equally";
+    default:
+      return "Split Equally";
+  }
+};
+
+export default function ParticipantsCard({ participants, billSplitType }: ParticipantsCardProps) {
   return (
     <View className="bg-primary1 rounded-3xl p-4 gap-3">
       <View className="bg-dark1 rounded-lg px-3 py-1 self-start">
         <Text className="text-light1 text-sm font-semibold font-inter">
-          Participants (Split Equally)
+          Participants ({getSplitTypeLabel(billSplitType)})
         </Text>
       </View>
       <View className="gap-3">
@@ -25,9 +44,9 @@ export default function ParticipantsCard({ participants }: { participants: PerUs
                 }
                 className="w-12 h-12 rounded-full"
               />
-              <Text className="text-dark1 font-medium text-sm font-inter">{p.userName?.name}</Text>
+              <Text className="text-dark1 font-medium text-sm font-inter break-words max-w-[60%]">{p.userName?.name}</Text>
             </View>
-            <Text className="text-dark1 font-medium text-sm font-inter">
+            <Text className="text-dark1 font-medium text-sm font-inter break-words max-w-[40%]">
               VND {formatCurrency(p.share ?? 0)}
             </Text>
           </View>

@@ -105,7 +105,35 @@ export default function HistoryPage() {
       const response = await api.get("/users/history/events");
       
       if (response.data && response.data.data && response.data.data.events) {
-        const mappedEvents: HistoryItem[] = response.data.data.events.map((event: any) => ({
+        let data = response.data.data.events;
+        let dataWithSummary = data;
+        
+        // Fetch summary cho từng event chỉ khi có dữ liệu
+        if (data.length > 0) {
+          const summaries = await Promise.allSettled(
+            data.map((item: any) =>
+              api
+                .get(`/bills/events/${item.id}/summary`)
+                .then((res) => res.data?.data || { totalAmount: 0 })
+            )
+          );
+
+          // Update totalAmount từ summary
+          dataWithSummary = data.map((item: any, index: number) => {
+            const summary = summaries[index];
+            const totalAmount =
+              summary.status === "fulfilled" && summary.value?.totalAmount
+                ? summary.value.totalAmount
+                : item.totalAmount || 0;
+
+            return {
+              ...item,
+              totalAmount,
+            };
+          });
+        }
+
+        const mappedEvents: HistoryItem[] = dataWithSummary.map((event: any) => ({
           id: event.id,
           type: "Event",
           name: event.name,

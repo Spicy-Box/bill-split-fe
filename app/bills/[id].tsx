@@ -320,7 +320,10 @@ export default function BillDetailPage() {
                     />
                   )}
                   {billDetail?.perUserShares && (
-                    <ParticipantsCard participants={billDetail.perUserShares} />
+                    <ParticipantsCard
+                      participants={billDetail.perUserShares}
+                      billSplitType={billDetail.billSplitType}
+                    />
                   )}
                 </>
               ) : (

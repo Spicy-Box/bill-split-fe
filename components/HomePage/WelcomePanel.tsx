@@ -13,8 +13,8 @@ export default function WelcomePanel({ mode }: WelcomePanelProps) {
   return (
     <View className="flex-row justify-between items-center">
       {/* Left */}
-      <View>
-        <Text className="mb-[10px] font-inter">Hello, {userName}</Text>
+      <View className="max-w-[80%]">
+        <Text className="mb-[10px] font-inter break-words max-w-[100%]">Hello, {userName}</Text>
         {mode === "home" ? (
           <Text className="font-bold font-inter">Let&apos;s Divvy The Bill</Text>
         ) : (
@@ -24,7 +24,8 @@ export default function WelcomePanel({ mode }: WelcomePanelProps) {
       {/* Right */}
       <View>
         <View
-          className={`${mode === "home" ? "w-[60px]" : "w-[40px]"} aspect-square rounded-full overflow-hidden border`}
+          // className={`${mode === "home" ? "w-[60px]" : "w-[40px]"} aspect-square rounded-full overflow-hidden border`}
+          className="w-[50px] aspect-square rounded-full overflow-hidden border"
         >
           <Link href={"/users/profile"}>
             <Image className="w-full h-full" source={require("../../assets/images/avatar.png")} />

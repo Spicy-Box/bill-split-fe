@@ -19,12 +19,11 @@ export default function BillItemRow({
   const { text: priceText, handleChange } = useCurrencyInput(item.unitPrice);
   const totalPrice = item.unitPrice * item.quantity;
   const totalPriceStr = formatCurrency(totalPrice);
-  const isLongPrice = totalPriceStr.replace(/\D/g, "").length >= 8;
 
   return (
     <View className="border-b border-light3 pb-3">
       {/* Main container with left and right columns */}
-      <View className={`${isLongPrice ? "flex-col" : "flex-row"} items-start gap-3`}>
+      <View className={`flex-row items-center gap-3`}>
         {/* Left column: Item details and quantity controls */}
         <View className="flex-1">
           {/* Row 1: Item name and unit price */}
@@ -127,7 +126,7 @@ export default function BillItemRow({
 
         {/* Right column: Total price and delete button */}
          {/* Total price */}
-         <View className={`${isLongPrice ? "w-full" : ""} flex-row ${isLongPrice ? "justify-between" : ""} items-center gap-2`}>
+         <View className={`flex-row items-center gap-2`}>
            <Text className="text-dark1 font-semibold text-sm">
              VND {formatCurrency(item.unitPrice * item.quantity)}
            </Text>

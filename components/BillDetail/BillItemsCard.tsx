@@ -12,12 +12,12 @@ export default function BillItemsCard({ items, subTotal, tax, totalAmount }: Bil
           <View key={item.id}>
             <View className="flex-row justify-between items-center">
               <View className="flex-1">
-                <View className="flex-row gap-2 items-baseline mb-2">
-                   <Text className="text-dark1 font-bold text-sm font-inter">{item.name}</Text>
-                   <Text className="text-primary2 text-xs font-bold font-inter">
-                     VND {formatCurrency(item.unitPrice ?? 0)}
-                   </Text>
-                 </View>
+                <View className="flex-row gap-2 items-baseline mb-2 flex-wrap">
+                    <Text className="text-dark1 font-bold text-sm font-inter">{item.name}</Text>
+                    <Text className="text-primary2 text-xs font-bold font-inter">
+                      VND {formatCurrency(item.unitPrice ?? 0)}
+                    </Text>
+                  </View>
                 <View className="flex-row items-center gap-2">
                   <TouchableOpacity className="flex-row items-center gap-1 bg-primary1 rounded-full px-2 py-0.5">
                     <User size={14} color={COLOR.dark1} />

@@ -17,17 +17,17 @@ export default function OwedAmountCard({ balances }: { balances: BalancesRepsons
 
   return (
     <View className="bg-primary1 rounded-2xl p-4 flex-row items-center justify-between">
-      <View className="flex-row items-center gap-3">
+      <View className="flex-row items-center gap-3 max-w-[50%]">
         <Image
           source={require("../../assets/images/avatar-1.png")}
           className="w-8 h-8 rounded-full"
         />
-        <Text className="text-dark1 font-medium text-base">
+        <Text className="text-dark1 font-medium text-sm break-words">
           {user?.first_name + " " + user?.last_name}
         </Text>
       </View>
       <View className="flex-row items-center gap-2">
-        <Text className="text-dark1 text-sm font-bold font-inter">
+        <Text className="text-dark1 text-sm font-bold">
           {amount < 0 ? "" : "are"} owed
         </Text>
         <View className={`${amount < 0 ? "bg-alert" : "bg-primary4"} rounded-lg px-2 py-0.5`}>

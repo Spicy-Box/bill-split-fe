@@ -19,7 +19,7 @@ export default function PaidByCard({ participant }: { participant?: Participant 
         }
         className="w-8 h-8 rounded-full"
       />
-      <Text className="text-dark1 font-medium flex-1">{participant.name}</Text>
+      <Text className="text-dark1 font-medium flex-1 break-words max-w-[70%]">{participant.name}</Text>
     </View>
   );
 }
