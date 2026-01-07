@@ -34,12 +34,15 @@ api.interceptors.response.use(
     console.log(status);
     const isAuthEndpoint = config?.url?.includes("/users/login");
     const isRefreshEndpoint = config?.url?.includes("/users/refresh");
+    const isLogoutEndpoint = config?.url?.includes("/users/logout");
     const alreadyRetried = (config as typeof config & { _retry?: boolean })?._retry;
 
+    // Không retry cho các endpoint auth, refresh, logout hoặc đã retry rồi
     if (
       (status === 401 || status === 403) &&
       !isAuthEndpoint &&
       !isRefreshEndpoint &&
+      !isLogoutEndpoint &&
       !alreadyRetried
     ) {
       const authStore = getAuthStore();

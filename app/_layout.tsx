@@ -51,13 +51,21 @@ export default Sentry.wrap(function RootLayout() {
   }, [ref]);
 
   useEffect(() => {
-    Sentry.setUser({
-      id: "divvy_test_2025",
-      email: "anhnguyentuan073@gmail.com",
-      username: "tuanemtramtinh",
-    });
     Sentry.setTag("group", "divvy");
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      Sentry.setUser({
+        id: user.id,
+        email: user.email,
+        username: `${user.first_name} ${user.last_name}`.trim() || user.email,
+      });
+    } else {
+      // Clear user khi logout
+      Sentry.setUser(null);
+    }
+  }, [user]);
 
   if (!loaded || !hasHydrated) {
     return (
