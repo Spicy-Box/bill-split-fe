@@ -3,7 +3,6 @@ import {
   BillsList,
   EventHeader,
   StatsCard,
-  type Bill,
   type EventStats,
 } from "@/components/EventOverall";
 import { BillOverallItemRequest } from "@/interfaces/api/bill.api";
@@ -33,21 +32,12 @@ import Toast from "react-native-toast-message";
 //   totalExpenses: 20.5,
 // };
 
-const BILLS_DATA: Bill[] = [
-  { id: "1", name: "Oyasumi Punpun", amount: 455000, paidBy: "John" },
-  { id: "2", name: "Oyasumi Punpun", amount: 455000, paidBy: "Jane" },
-  { id: "3", name: "Oyasumi Punpun", amount: 455000, paidBy: "Mike" },
-  { id: "4", name: "Oyasumi Punpun", amount: 455000, paidBy: "Sarah" },
-];
-
 export default function EventDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const { user } = useAuthStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
-  const [image, setImage] = useState<string | null>(null);
   const [eventName, setEventName] = useState<string>("");
-  const [totalAmount, setTotalAmount] = useState<number>(0);
   const [billList, setBillList] = useState<BillOverallItemRequest[]>([]);
   const [date, setDate] = useState<string>("");
   const setParticipants = useEventStore((state) => state.setParticipants);
@@ -59,6 +49,7 @@ export default function EventDetailScreen() {
   const [editTitle, setEditTitle] = useState<string>("");
   const [editNote, setEditNote] = useState<string>("");
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [STATS_DATA, setStatsData] = useState<EventStats>({
     myExpenses: 0,
@@ -79,9 +70,6 @@ export default function EventDetailScreen() {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
     if (!result.canceled && result.assets?.[0]) {
       parseDataFromPhoto(result.assets[0].uri, router);
     }
@@ -107,57 +95,51 @@ export default function EventDetailScreen() {
 
     setEventName(data.name);
     setDate(format(data.createdAt, "dd-MM-yyyy"));
-    setTotalAmount(data.totalAmount);
     setParticipants(data?.participants ?? []);
     setEventId(id as string);
   }, [id, setParticipants, setEventId]);
 
-  const fetchBillList = useCallback(async () => {
-    const response = await api.get(`/bills/?event_id=${id}`);
-    const data = response.data.data;
-
-    const bills: BillOverallItemRequest[] = data.map((item: BillOverallItemRequest) => {
-      let paidBy = item.paidBy;
-      
-      // Replace name with current user name if is_guest is false
-      if (paidBy && !paidBy.is_guest && user) {
-        const userName = `${user.first_name} ${user.last_name}`.trim();
-        paidBy = { ...paidBy, name: userName };
-      }
-      
-      return { id: item.id, title: item.title, totalAmount: item.totalAmount, paidBy };
-    });
-
-    setBillList(bills);
-
-    console.log(bills);
-  }, [id, user]);
-
-  const fetchEventSummary = useCallback(async () => {
+  const fetchBillAndSummary = useCallback(async () => {
     try {
-      const eventSummaryTotalAmount = await api.get(`/bills/events/${id}/summary`);
-      const myExpense = await api.get(`/bills/events/${id}/registered-users-expense`);
-      
-      
+      const [billResponse, eventSummaryResponse, myExpenseResponse] = await Promise.all([
+        api.get(`/bills/?event_id=${id}`),
+        api.get(`/bills/events/${id}/summary`),
+        api.get(`/bills/events/${id}/registered-users-expense`),
+      ]);
+
+      // Process bill list
+      const billData = billResponse.data.data;
+      const bills: BillOverallItemRequest[] = billData.map((item: BillOverallItemRequest) => {
+        let paidBy = item.paidBy;
+        
+        // Replace name with current user name if is_guest is false
+        if (paidBy && !paidBy.is_guest && user) {
+          const userName = `${user.first_name} ${user.last_name}`.trim();
+          paidBy = { ...paidBy, name: userName };
+        }
+        
+        return { id: item.id, title: item.title, totalAmount: item.totalAmount, paidBy };
+      });
+
+      setBillList(bills);
+      console.log(bills);
+
+      // Process stats
       setStatsData((prevStats) => ({
         ...prevStats,
-        myExpenses: myExpense.data.data.totalExpense,
-        totalExpenses: eventSummaryTotalAmount.data.data.totalAmount,
+        myExpenses: myExpenseResponse.data.data.totalExpense,
+        totalExpenses: eventSummaryResponse.data.data.totalAmount,
       }));
-      
     } catch (error) {
-      console.error("Failed to fetch event summary:", error);
-    }}, [id]);
+      console.error("Failed to fetch bill and summary:", error);
+    }
+  }, [id, user]);
 
   const handleDeleteBill = useCallback(async (billId: string) => {
     try {
       await api.delete(`/bills/${billId}`);
       // Refresh data after deletion
-      await Promise.all([
-        fetchBillList(),
-        fetchEventSummary(),
-        fetchEventDetails(),
-      ]);
+      await fetchBillAndSummary();
       Toast.show({
         type: "success",
         text1: "Success",
@@ -171,7 +153,7 @@ export default function EventDetailScreen() {
         text2: "Failed to delete bill. Please try again.",
       });
     }
-  }, [fetchBillList, fetchEventSummary, fetchEventDetails]);
+  }, [fetchBillAndSummary]);
 
   const handleEditBill = useCallback((billId: string, currentTitle: string) => {
     setEditingBillId(billId);
@@ -194,8 +176,8 @@ export default function EventDetailScreen() {
       setEditTitle("");
       setEditNote("");
       
-      // Refresh bill list
-      await fetchBillList();
+      // Refresh bill and summary data
+      await fetchBillAndSummary();
       Toast.show({
         type: "success",
         text1: "Success",
@@ -209,28 +191,34 @@ export default function EventDetailScreen() {
         text2: "Failed to update bill. Please try again.",
       });
     }
-  }, [editingBillId, editTitle, editNote, fetchBillList]);
+  }, [editingBillId, editTitle, editNote, fetchBillAndSummary]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
+    setIsLoading(true);
     try {
-      await Promise.all([
-        fetchEventDetails(),
-        fetchEventSummary(),
-        fetchBillList(),
-      ]);
+      await fetchBillAndSummary();
     } catch (error) {
       console.error("Failed to refresh:", error);
     } finally {
       setRefreshing(false);
+      setIsLoading(false);
     }
-  }, [fetchEventDetails, fetchEventSummary, fetchBillList]);
+  }, [fetchBillAndSummary]);
 
   useEffect(() => {
-    fetchEventDetails();
-    fetchEventSummary();
-    fetchBillList();
-  }, [fetchEventDetails, fetchBillList, fetchEventSummary]);
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        await Promise.all([fetchEventDetails(), fetchBillAndSummary()]);
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadData();
+  }, [fetchEventDetails, fetchBillAndSummary]);
 
   // Handle hardware back button
   useEffect(() => {
@@ -260,6 +248,7 @@ export default function EventDetailScreen() {
           />
         </View>
         <EventHeader
+          isLoading={isLoading}
           eventNameAndCurrency={{
             name: eventName,
             date: date,
@@ -279,8 +268,8 @@ export default function EventDetailScreen() {
             />
           }
         >
-          <StatsCard stats={STATS_DATA} />
-          <BillsList bills={billList} onDeleteBill={handleDeleteBill} onEditBill={handleEditBill} />
+          <StatsCard stats={STATS_DATA} isLoading={isLoading} />
+          <BillsList bills={billList} onDeleteBill={handleDeleteBill} onEditBill={handleEditBill} isLoading={isLoading} />
         </ScrollView>
 
         {/* Add Bill FAB */}

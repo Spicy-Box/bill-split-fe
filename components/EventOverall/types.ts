@@ -20,16 +20,19 @@ export interface EventNameAndCurrency {
 
 export interface EventHeaderProps {
   eventNameAndCurrency: EventNameAndCurrency;
+  isLoading?: boolean;
 }
 
 export interface StatsCardProps {
   stats: EventStats;
+  isLoading?: boolean;
 }
 
 export interface BillsListProps {
   bills: BillOverallItemRequest[];
-  onDeleteBill: (billId: string) => void;
-  onEditBill: (billId: string, currentTitle: string) => void;
+  isLoading?: boolean;
+  onDeleteBill?: (id: string) => void;
+  onEditBill?: (id: string, title: string) => void;
 }
 
 export interface AddBillMenuModalProps {

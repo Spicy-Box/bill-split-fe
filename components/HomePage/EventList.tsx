@@ -47,20 +47,30 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
 
       const data = (res.data?.data || []) as unknown[];
 
-      // Fetch summary cho từng event
-      const summaries = await Promise.all(
-        data.map((item: any) =>
-          api.get(`/bills/events/${item.id}/summary`)
-            .then(res => res.data?.data || { totalAmount: 0 })
-            .catch(() => ({ totalAmount: 0 }))
-        )
-      );
+      // Fetch summary cho từng event chỉ khi có dữ liệu
+      let dataWithSummary = data;
+      if (data.length > 0) {
+        const summaries = await Promise.allSettled(
+          data.map((item: any) =>
+            api.get(`/bills/events/${item.id}/summary`)
+              .then(res => res.data?.data || { totalAmount: 0 })
+          )
+        );
 
-      // Update totalAmount từ summary
-      const dataWithSummary = data.map((item: any, index: number) => ({
-        ...item,
-        totalAmount: summaries[index]?.totalAmount || item.totalAmount || 0,
-      }));
+        // Update totalAmount từ summary
+        dataWithSummary = data.map((item: any, index: number) => {
+          const summary = summaries[index];
+          const totalAmount = 
+            summary.status === 'fulfilled' && summary.value?.totalAmount
+              ? summary.value.totalAmount
+              : item.totalAmount || 0;
+          
+          return {
+            ...item,
+            totalAmount,
+          };
+        });
+      }
 
       const mappedData: EventReponse[] = dataWithSummary.map((item: any) => ({
         id: item.id || "",

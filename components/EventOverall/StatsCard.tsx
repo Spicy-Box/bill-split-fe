@@ -1,8 +1,9 @@
-import { Text, View } from "react-native";
+import { Skeleton } from "@/components/common/Skeleton";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { Text, View } from "react-native";
 import type { StatsCardProps } from "./types";
 
-export const StatsCard = ({ stats }: StatsCardProps) => {
+export const StatsCard = ({ stats, isLoading = false }: StatsCardProps) => {
   return (
     <View className="bg-light1 rounded-2xl p-4 mb-5">
       <View className="flex-row gap-2.5">
@@ -10,17 +11,25 @@ export const StatsCard = ({ stats }: StatsCardProps) => {
           <Text className="text-dark1 text-center text-sm font-medium font-inter">
             My Expenses
           </Text>
-          <Text className="text-dark2 text-center text-sm font-semibold font-inter">
-            VND {formatCurrency(stats.myExpenses)}
-          </Text>
+          {isLoading ? (
+            <Skeleton width={80} height={20} style={{ marginTop: 4 }} />
+          ) : (
+            <Text className="text-dark2 text-center text-sm font-semibold font-inter">
+              VND {formatCurrency(stats.myExpenses)}
+            </Text>
+          )}
         </View>
         <View className="flex-1 bg-secondary2 rounded-2xl py-4 items-center gap-1">
           <Text className="text-dark1 text-center text-sm font-medium font-inter">
             Total Expenses
           </Text>
-          <Text className="text-dark2 text-center text-sm font-semibold font-inter">
-            VND {formatCurrency(stats.totalExpenses)}
-          </Text>
+          {isLoading ? (
+            <Skeleton width={80} height={20} style={{ marginTop: 4 }} />
+          ) : (
+            <Text className="text-dark2 text-center text-sm font-semibold font-inter">
+              VND {formatCurrency(stats.totalExpenses)}
+            </Text>
+          )}
         </View>
       </View>
     </View>
