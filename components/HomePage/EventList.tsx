@@ -124,18 +124,18 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
   const openEditModal = useCallback(async (event: EventReponse) => {
     setEditingEventId(event.id);
     setShowEditModal(true);
-    
+
     try {
       const response = await api.get(`/events/${event.id}`);
       const data = response.data.data;
-      
+
       setEditName(data.name || "");
       setEditCurrency(String(data.currency ?? ""));
-      
+
       // Find and store event owner's name
       const owner = data.participants?.find((p: any) => p.user_id);
       setEventOwnerName(owner ? `${owner.name} (Me)` : "");
-      
+
       // Convert participants array to array of objects
       // Exclude the event owner (those with user_id) from the editable list
       const participantsList = data.participants
@@ -163,7 +163,7 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
     if (!editingEventId) return;
 
     const currencyNumber = Number(editCurrency);
-    const participantsArray = editParticipants.map(p => p.name).filter(Boolean);
+    const participantsArray = editParticipants.map((p) => p.name).filter(Boolean);
 
     try {
       await api.patch(`/events/${editingEventId}`, {
@@ -207,9 +207,11 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
   return (
     <>
       <FlatList
+        style={{ flex: 1 }}
         contentContainerStyle={{
           gap: 20,
         }}
+        scrollEnabled={true}
         data={eventList}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => {
@@ -219,7 +221,11 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
               onPress={() => {
                 Alert.alert("Delete Event", "Are you sure you want to delete this event?", [
                   { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive", onPress: () => handleDeleteEvent(item.id) },
+                  {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => handleDeleteEvent(item.id),
+                  },
                 ]);
               }}
             >
@@ -242,6 +248,9 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
               renderRightActions={renderRightActions}
               overshootLeft={false}
               overshootRight={false}
+              friction={2}
+              leftThreshold={60}
+              rightThreshold={60}
             >
               <ListItem
                 id={item.id}
@@ -294,21 +303,28 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
             />
 
             <Text className="text-dark1 text-sm font-medium font-inter mb-2">Participants</Text>
-            
+
             {/* Event Owner Badge - Gray */}
             {eventOwnerName && (
               <View className="mb-2">
                 <View className="bg-gray-300 rounded-lg px-3 py-2 flex-row items-center self-start">
-                  <Text className="text-dark1 font-medium font-inter text-sm">{eventOwnerName}</Text>
+                  <Text className="text-dark1 font-medium font-inter text-sm">
+                    {eventOwnerName}
+                  </Text>
                 </View>
               </View>
             )}
-            
+
             {/* Other Participants Badges - Secondary3 */}
             {editParticipants.map((participant, index) => (
               <View key={index} className="mb-2">
-                <View className="rounded-lg px-3 py-2 flex-row items-center self-start" style={{ backgroundColor: COLOR.secondary3 }}>
-                  <Text className="text-dark1 font-medium font-inter text-sm mr-2">{participant.name}</Text>
+                <View
+                  className="rounded-lg px-3 py-2 flex-row items-center self-start"
+                  style={{ backgroundColor: COLOR.secondary3 }}
+                >
+                  <Text className="text-dark1 font-medium font-inter text-sm mr-2">
+                    {participant.name}
+                  </Text>
                   <TouchableOpacity
                     onPress={() => {
                       setEditParticipants(editParticipants.filter((_, i) => i !== index));
@@ -319,7 +335,7 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                 </View>
               </View>
             ))}
-            
+
             {/* Add New Participant Input */}
             <View className="flex-row items-center mb-6">
               <TextInput
@@ -329,7 +345,10 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                 placeholder="Add participant name"
                 onSubmitEditing={() => {
                   if (newParticipantInput.trim()) {
-                    setEditParticipants([...editParticipants, { name: newParticipantInput.trim() }]);
+                    setEditParticipants([
+                      ...editParticipants,
+                      { name: newParticipantInput.trim() },
+                    ]);
                     setNewParticipantInput("");
                   }
                 }}
@@ -339,7 +358,10 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                 style={{ backgroundColor: COLOR.primary3 }}
                 onPress={() => {
                   if (newParticipantInput.trim()) {
-                    setEditParticipants([...editParticipants, { name: newParticipantInput.trim() }]);
+                    setEditParticipants([
+                      ...editParticipants,
+                      { name: newParticipantInput.trim() },
+                    ]);
                     setNewParticipantInput("");
                   }
                 }}
