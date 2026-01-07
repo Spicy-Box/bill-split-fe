@@ -1,9 +1,23 @@
-import React from "react";
-import { fireEvent, render, waitFor } from "@testing-library/react-native";
-import OnboardingPage from "../app/onboarding";
 import { storeData } from "@/utils/asyncStorage";
+import { fireEvent, render, waitFor } from "@testing-library/react-native";
+import React from "react";
+import OnboardingPage from "../app/onboarding";
 
 const mockReplace = jest.fn();
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  __esModule: true,
+  default: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+    getAllKeys: jest.fn(),
+    multiGet: jest.fn(),
+    multiSet: jest.fn(),
+    multiRemove: jest.fn(),
+  },
+}));
 
 jest.mock("@/utils/asyncStorage", () => ({
   storeData: jest.fn(),
@@ -21,6 +35,15 @@ jest.mock("@/utils/color", () => ({
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     replace: mockReplace,
+  }),
+}));
+
+jest.mock("@/stores/useAuthStore", () => ({
+  useAuthStore: jest.fn((selector) => {
+    const state = {
+      user: { id: 1, name: "Test User" }, // Mock a logged-in user
+    };
+    return selector ? selector(state) : state;
   }),
 }));
 
@@ -199,5 +222,45 @@ describe("OnboardingPage", () => {
     fireEvent.press(getByText("Next"));
     dotsContainer = getByTestId("pagination-dots");
     expect(dotsContainer.children.length).toBe(5);
+  });
+
+  it("redirects to login page when user is not logged in on skip", async () => {
+    // Mock useAuthStore to return no user
+    const { useAuthStore } = require("@/stores/useAuthStore");
+    (useAuthStore as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        user: null, // No user logged in
+      };
+      return selector ? selector(state) : state;
+    });
+
+    const { getByText } = render(<OnboardingPage />);
+
+    fireEvent.press(getByText("Skip"));
+
+    await waitFor(() => {
+      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+    });
+    expect(mockReplace).toHaveBeenCalledWith("/auth/login");
+  });
+
+  it("redirects to login page when user is not logged in on done", async () => {
+    // Mock useAuthStore to return no user
+    const { useAuthStore } = require("@/stores/useAuthStore");
+    (useAuthStore as jest.Mock).mockImplementation((selector) => {
+      const state = {
+        user: null, // No user logged in
+      };
+      return selector ? selector(state) : state;
+    });
+
+    const { getByText } = render(<OnboardingPage />);
+
+    fireEvent.press(getByText("Done"));
+
+    await waitFor(() => {
+      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+    });
+    expect(mockReplace).toHaveBeenCalledWith("/auth/login");
   });
 });
