@@ -2,9 +2,54 @@ import HomeScreen from "@/app/(tabs)";
 import { getData } from "@/utils/asyncStorage";
 import { render, waitFor } from "@testing-library/react-native";
 
+jest.mock("axios", () => ({
+  create: jest.fn(() => ({
+    interceptors: {
+      request: { use: jest.fn() },
+      response: { use: jest.fn() },
+    },
+    get: jest.fn().mockResolvedValue({ data: { data: [] } }),
+    post: jest.fn().mockResolvedValue({ data: {} }),
+    put: jest.fn().mockResolvedValue({ data: {} }),
+    delete: jest.fn().mockResolvedValue({ data: {} }),
+  })),
+}));
+
+jest.mock("@react-native-async-storage/async-storage", () => ({
+  __esModule: true,
+  default: {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+    getAllKeys: jest.fn(),
+    multiGet: jest.fn(),
+    multiSet: jest.fn(),
+    multiRemove: jest.fn(),
+  },
+}));
+
 jest.mock("@/utils/asyncStorage", () => ({
   getData: jest.fn(),
   removeData: jest.fn(),
+}));
+
+jest.mock("@/stores/useAuthStore", () => ({
+  useAuthStore: Object.assign(
+    jest.fn((selector) => {
+      const state = {
+        user: { id: 1, name: "Test User" },
+        accessToken: "mock-token",
+      };
+      return selector ? selector(state) : state;
+    }),
+    {
+      getState: jest.fn(() => ({
+        user: { id: 1, name: "Test User" },
+        accessToken: "mock-token",
+      })),
+    }
+  ),
 }));
 
 const mockReplace = jest.fn();
