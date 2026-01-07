@@ -68,18 +68,19 @@ export default function CreateBill() {
 
   const parsedData = useBillStore((state) => state.parsedData);
   const parsedTax = useBillStore((state) => state.tax);
+  const clearParsedData = useBillStore((state) => state.clearParsedData);
 
   useEffect(() => {
     if (parsedData) {
       // setItems(parsedData);
       // console.log("Parsed Data in Add Bill:", parsedData);
 
-      parsedData.forEach((data) => {
+      parsedData.forEach((data, index) => {
         setItems((prev) => [
           ...prev,
           {
             // id: Math.random().toString(10).substring(2, 8),
-            id: crypto.randomUUID(),
+            id: `${Date.now()}-${index}-${Math.random().toString(36).substring(2, 9)}`,
             name: data.name,
             unitPrice: data.unitPrice,
             quantity: data.quantity,
@@ -440,6 +441,7 @@ export default function CreateBill() {
 
       const response = await api.post("/bills/", billCreateRequest);
       const data = response.data.data;
+      clearParsedData();
       setLoading(false);
       Toast.show({
         type: "success",
