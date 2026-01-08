@@ -14,14 +14,14 @@ export default function SearchPage() {
       <View className="flex-1 p-5 gap-5">
         <WelcomePanel />
         <Searchbar
-          placeholder="Search"
-          onChangeText={(text) => setSearchQuery(text)}
-          value={searchQuery}
-          style={{ backgroundColor: COLOR.secondary1 }}
-          inputStyle={{ color: COLOR.dark1 }}
-          iconColor={COLOR.dark1}
-          rippleColor={COLOR.secondary1}
-        />
+           placeholder="Search by event, creator or participant"
+           onChangeText={(text) => setSearchQuery(text)}
+           value={searchQuery}
+           style={{ backgroundColor: COLOR.secondary1 }}
+           inputStyle={{ color: COLOR.dark1, fontSize: 14 }}
+           iconColor={COLOR.dark1}
+           rippleColor={COLOR.secondary1}
+         />
         <EventList searchQuery={searchQuery} />
       </View>
     </SafeAreaView>

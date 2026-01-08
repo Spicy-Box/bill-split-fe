@@ -3,7 +3,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { COLOR } from "@/utils/color";
 import { Link, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Text, View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import Toast from "react-native-toast-message";
 import { ActivityIndicator, Button, Checkbox, TextInput } from "react-native-paper";
 import { getData } from "@/utils/asyncStorage";
@@ -65,9 +65,14 @@ export default function LoginPage() {
     );
 
   return (
-    <View className="flex-1 gap-10">
-      <TitleAuth title="Get Started Now" desc="Created an account or login to explore" />
-      <View className="gap-4">
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView className="flex-1">
+        <View className="flex-1 gap-10">
+          <TitleAuth title="Get Started Now" desc="Created an account or login to explore" />
+          <View className="gap-4">
         <TextInput
           label="Email"
           underlineColor={COLOR.primary2}
@@ -117,12 +122,14 @@ export default function LoginPage() {
         </Button>
       </View>
 
-      <View className="flex-row gap-2 justify-center">
+      <View className="flex-row gap-2 justify-center items-center">
         <Text className="text-lg">Don&apos;t have an account?</Text>
         <Link href={"/auth/signup"} className="text-primary3 text-xl">
           Sign up
         </Link>
       </View>
-    </View>
-  );
-}
+      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
+      );
+      }

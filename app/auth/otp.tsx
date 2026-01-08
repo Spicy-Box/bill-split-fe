@@ -5,7 +5,7 @@ import api, { apiUrl } from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
 import { ActivityIndicator, Button } from "react-native-paper";
 
@@ -52,13 +52,18 @@ export default function OtpPage() {
   }
 
   return (
-    <View className="gap-10">
-      <TitleAuth
-        title="Check your email"
-        desc="We sent an otp code to tuananhdeptrai@gmail.com Enter 5 digit code that mentioned in the email"
-      />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView className="flex-1">
+        <View className="gap-10">
+          <TitleAuth
+            title="Check your email"
+            desc="We sent an otp code to tuananhdeptrai@gmail.com Enter 5 digit code that mentioned in the email"
+          />
 
-      <OtpInput
+          <OtpInput
         numberOfDigits={6}
         onTextChange={(text) => setOtpText(text)}
         focusColor={COLOR.primary3}
@@ -73,6 +78,8 @@ export default function OtpPage() {
       <Button buttonColor={COLOR.dark1} textColor={COLOR.light1} onPress={handleVerifyOtp}>
         Verify Code
       </Button>
-    </View>
-  );
-}
+      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
+      );
+      }

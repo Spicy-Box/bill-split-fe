@@ -24,8 +24,8 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
                   </Text>
                 </View>
               </View>
-              <View className="flex-row items-center gap-2">
-                <View className="flex-1 bg-primary1 rounded-2xl px-3 py-2 flex-row items-center gap-2">
+              <View className="flex-row items-center gap-2 max-w-[100%]">
+                <View className="flex-1 bg-primary1 rounded-2xl px-3 py-2 flex-row items-center gap-2 max-w-[50%]">
                   <Image
                     source={
                       debt.debtor.user_id
@@ -34,12 +34,12 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
                     }
                     className="w-7 h-7 rounded-full"
                   />
-                  <Text className="text-dark1 font-medium text-xs font-inter" numberOfLines={1}>
+                  <Text className="text-dark1 font-medium text-xs font-inter break-words max-w-[80%]">
                     {debt.debtor.name}
                   </Text>
                 </View>
                 <ArrowRight size={24} color={COLOR.dark1} />
-                <View className="flex-1 bg-primary1 rounded-2xl px-3 py-2 flex-row items-center gap-2">
+                <View className="flex-1 bg-primary1 rounded-2xl px-3 py-2 flex-row items-center gap-2 max-w-[50%]">
                   <Image
                     source={
                       debt.creditor.user_id
@@ -48,7 +48,7 @@ export default function DebtsListCard({ debts }: DebtsListCardProps) {
                     }
                     className="w-7 h-7 rounded-full"
                   />
-                  <Text className="text-dark1 font-medium text-xs font-inter" numberOfLines={1}>
+                  <Text className="text-dark1 font-medium text-xs font-inter break-words max-w-[80%]">
                     {debt.creditor.name}
                   </Text>
                 </View>

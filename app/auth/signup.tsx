@@ -1,7 +1,7 @@
 import TitleAuth from "@/components/AuthPage/TitleAuth";
 import { COLOR } from "@/utils/color";
 import { RelativePathString, useRouter } from "expo-router";
-import { View } from "react-native";
+import { View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import { DatePickerInput } from "react-native-paper-dates";
 import { useState } from "react";
@@ -44,15 +44,20 @@ export default function SignUpPage() {
     );
 
   return (
-    <View className="gap-10">
-      <TitleAuth
-        title="Sign Up"
-        desc="Already have an account?"
-        href={"/auth/login" as RelativePathString}
-        hrefDesc="Sign in"
-      />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView className="flex-1">
+        <View className="gap-10">
+          <TitleAuth
+            title="Sign Up"
+            desc="Already have an account?"
+            href={"/auth/login" as RelativePathString}
+            hrefDesc="Sign in"
+          />
 
-      <View className="gap-4">
+          <View className="gap-4">
         <View className="flex-row gap-4">
           <TextInput
             label="First Name"
@@ -133,6 +138,8 @@ export default function SignUpPage() {
       <Button mode="contained" buttonColor={COLOR.dark1} onPress={handleRegister}>
         Signup
       </Button>
-    </View>
-  );
-}
+      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
+      );
+      }

@@ -5,7 +5,7 @@ import { COLOR } from "@/utils/color";
 import { isAxiosError } from "axios";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { View } from "react-native";
+import { View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { ActivityIndicator, Button, TextInput } from "react-native-paper";
 import Toast from "react-native-toast-message";
 
@@ -49,10 +49,15 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <View className="gap-10">
-      <TitleAuth title="Forgot password" desc="Please enter your email to reset password" />
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1"
+    >
+      <ScrollView className="flex-1">
+        <View className="gap-10">
+          <TitleAuth title="Forgot password" desc="Please enter your email to reset password" />
 
-      <TextInput
+          <TextInput
         label="Email"
         underlineColor={COLOR.primary2}
         textColor={COLOR.dark1}
@@ -67,6 +72,8 @@ export default function ForgotPasswordPage() {
       <Button mode="contained" buttonColor={COLOR.dark1} onPress={handleResetPassword}>
         Reset Password
       </Button>
-    </View>
-  );
-}
+      </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
+      );
+      }

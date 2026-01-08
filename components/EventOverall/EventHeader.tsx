@@ -20,7 +20,7 @@ export const EventHeader = ({ eventNameAndCurrency, isLoading = false }: EventHe
             <Skeleton width={120} height={16} />
           </View>
         ) : (
-          <View className="bg-dark1 rounded-2xl px-4 py-1">
+          <View className="bg-dark1 rounded-2xl px-4 py-1 max-w-[70%]">
             <Text className="text-light1 text-center font-semibold text-base font-inter">
               {eventNameAndCurrency.name}
             </Text>

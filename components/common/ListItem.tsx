@@ -27,12 +27,12 @@ export default function ListItem({
       className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
     >
       {/* Col 1 & Col 2 */}
-      <View className="flex-row gap-3 items-center">
+      <View className="flex-row gap-3 items-center max-w-[30%]">
         {/* Col 1 */}
         <EventIcon width={52} height={52} />
 
         {/* Col 2 */}
-        <View className="gap-1">
+        <View className="gap-1 max-w-[100%]">
           <Text className="font-bold text-base font-inter">{name}</Text>
           <Text className="text-primary2 font-semibold font-inter">{date}</Text>
         </View>

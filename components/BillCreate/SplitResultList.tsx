@@ -10,65 +10,54 @@ function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSpli
 
   return (
     <View
-      className="bg-white py-1 px-2 flex-row items-center justify-between"
+      className="bg-white py-1 px-1 flex-row items-center justify-between"
       style={{ borderRadius: 16 }}
     >
-      <View className="flex-row items-center gap-3">
+      <View className="flex-row items-center gap-3 max-w-[35%]">
         <Avatar.Image size={40} source={require("../../assets/images/avatar.png")} />
         <Text className="text-dark1 font-medium font-inter">
           {participant?.user_id ? `${participant.name} (Me)` : participant?.name}
         </Text>
       </View>
-      <View className="flex flex-row items-center relative">
-        <View
-          style={{
-            position: "absolute",
-            left: "3%",
-            top: 0,
-            bottom: 0, // chiếm full chiều cao => canh giữa bằng flex được
-            justifyContent: "center",
-            zIndex: 10,
-            elevation: 10,
-          }}
-        >
+      <View className="flex flex-row items-baseline max-w-[50%]">
+
           <Text
             style={{
               fontSize: 14,
-              fontWeight: "600",
+              fontWeight: "600",  
+              marginRight: -12
             }}
           >
             VND
           </Text>
-        </View>
+          <TextInput
+            value={amountText}
+            onChangeText={(text) =>
+              handleChange(text, (value) => onUpdateManualSplit(split.participantId, value))
+            }
+            mode="flat"
+            keyboardType="decimal-pad"
+            underlineColor="transparent"
+            activeUnderlineColor="transparent"
+            textColor={COLOR.dark1}
+            placeholder="0.00"
+            placeholderTextColor={COLOR.dark1}
+            selectionColor={COLOR.primary1}
+            cursorColor={COLOR.dark1}
+            multiline
+            // right={<TextInput.Affix text="$" />}
+            style={{
+              backgroundColor: "transparent",          
+              flex: 1,
+              fontSize: 14,
+              fontWeight: "600",
+              fontFamily: "inter",
+              textAlign: "left",
+              borderRadius: 8,
+            }}
+          />
+        
 
-        <TextInput
-          value={amountText}
-          onChangeText={(text) =>
-            handleChange(text, (value) => onUpdateManualSplit(split.participantId, value))
-          }
-          mode="flat"
-          keyboardType="decimal-pad"
-          underlineColor="transparent"
-          activeUnderlineColor="transparent"
-          textColor={COLOR.dark1}
-          placeholder="0.00"
-          placeholderTextColor={COLOR.dark1}
-          selectionColor={COLOR.primary1}
-          cursorColor={COLOR.dark1}
-          multiline
-          numberOfLines={2}
-          // right={<TextInput.Affix text="$" />}
-          style={{
-            backgroundColor: COLOR.light1,
-            // width: 80,
-            fontSize: 14,
-            fontWeight: "600",
-            fontFamily: "inter",
-            textAlign: "right",
-            borderRadius: 8,
-          }}
-          contentStyle={{ paddingHorizontal: 8 }}
-        />
       </View>
     </View>
   );
