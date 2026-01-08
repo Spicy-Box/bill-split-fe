@@ -17,7 +17,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Plus, ReceiptText } from "lucide-react-native";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, BackHandler, Modal, RefreshControl, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  BackHandler,
+  Modal,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { IconButton } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
@@ -112,13 +122,13 @@ export default function EventDetailScreen() {
       const billData = billResponse.data.data;
       const bills: BillOverallItemRequest[] = billData.map((item: BillOverallItemRequest) => {
         let paidBy = item.paidBy;
-        
+
         // Replace name with current user name if is_guest is false
         if (paidBy && !paidBy.is_guest && user) {
           const userName = `${user.first_name} ${user.last_name}`.trim();
           paidBy = { ...paidBy, name: userName };
         }
-        
+
         return { id: item.id, title: item.title, totalAmount: item.totalAmount, paidBy };
       });
 
@@ -136,25 +146,28 @@ export default function EventDetailScreen() {
     }
   }, [id, user]);
 
-  const handleDeleteBill = useCallback(async (billId: string) => {
-    try {
-      await api.delete(`/bills/${billId}`);
-      // Refresh data after deletion
-      await fetchBillAndSummary();
-      Toast.show({
-        type: "success",
-        text1: "Success",
-        text2: "Bill deleted successfully",
-      });
-    } catch (error) {
-      console.error("Failed to delete bill:", error);
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to delete bill. Please try again.",
-      });
-    }
-  }, [fetchBillAndSummary]);
+  const handleDeleteBill = useCallback(
+    async (billId: string) => {
+      try {
+        await api.delete(`/bills/${billId}`);
+        // Refresh data after deletion
+        await fetchBillAndSummary();
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: "Bill deleted successfully",
+        });
+      } catch (error) {
+        console.error("Failed to delete bill:", error);
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: "Failed to delete bill. Please try again.",
+        });
+      }
+    },
+    [fetchBillAndSummary]
+  );
 
   const handleEditBill = useCallback((billId: string, currentTitle: string) => {
     setEditingBillId(billId);
@@ -171,12 +184,12 @@ export default function EventDetailScreen() {
         title: editTitle,
         note: editNote,
       });
-      
+
       setShowEditModal(false);
       setEditingBillId(null);
       setEditTitle("");
       setEditNote("");
-      
+
       // Refresh bill and summary data
       await fetchBillAndSummary();
       Toast.show({
@@ -228,10 +241,7 @@ export default function EventDetailScreen() {
       return true; // Prevent default back behavior
     };
 
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    );
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
 
     return () => backHandler.remove();
   }, [router]);
@@ -286,12 +296,16 @@ export default function EventDetailScreen() {
               onActionPress={() => setShowAddMenu(true)}
             />
           ) : (
-            <BillsList bills={billList} onDeleteBill={handleDeleteBill} onEditBill={handleEditBill} />
+            <BillsList
+              bills={billList}
+              onDeleteBill={handleDeleteBill}
+              onEditBill={handleEditBill}
+            />
           )}
         </ScrollView>
 
         {/* Add Bill FAB */}
-        <View className="absolute bottom-8 left-0 right-0 items-center z-10">
+        <View className="absolute bottom-10 left-0 right-0 items-center z-10">
           <TouchableOpacity
             onPress={() => setShowAddMenu(true)}
             className="items-center gap-1"
@@ -318,7 +332,7 @@ export default function EventDetailScreen() {
           <View className="flex-1 bg-black/50 justify-center items-center px-5">
             <View className="bg-light1 rounded-2xl p-6 w-full max-w-md">
               <Text className="text-dark1 text-xl font-bold font-inter mb-4">Edit Bill</Text>
-              
+
               <Text className="text-dark1 text-sm font-medium font-inter mb-2">Title</Text>
               <TextInput
                 className="bg-white border border-gray-300 rounded-lg px-4 py-3 mb-4 text-dark1 font-inter"
@@ -326,8 +340,10 @@ export default function EventDetailScreen() {
                 onChangeText={setEditTitle}
                 placeholder="Enter bill title"
               />
-              
-              <Text className="text-dark1 text-sm font-medium font-inter mb-2">Note (Optional)</Text>
+
+              <Text className="text-dark1 text-sm font-medium font-inter mb-2">
+                Note (Optional)
+              </Text>
               <TextInput
                 className="bg-white border border-gray-300 rounded-lg px-4 py-3 mb-6 text-dark1 font-inter"
                 value={editNote}
@@ -337,7 +353,7 @@ export default function EventDetailScreen() {
                 numberOfLines={3}
                 textAlignVertical="top"
               />
-              
+
               <View className="flex-row gap-3">
                 <TouchableOpacity
                   className="flex-1 bg-gray-300 rounded-lg py-3 items-center"
@@ -350,7 +366,7 @@ export default function EventDetailScreen() {
                 >
                   <Text className="text-dark1 font-semibold font-inter">Cancel</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity
                   className="flex-1 bg-primary3 rounded-lg py-3 items-center"
                   onPress={handleSaveEdit}

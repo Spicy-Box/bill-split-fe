@@ -8,10 +8,13 @@ import { IconButton } from "react-native-paper";
 import Logo from "@/assets/images/Logo.svg";
 import { useAuthStore } from "@/stores/useAuthStore";
 import Toast from "react-native-toast-message";
+import path from "path";
 
 export default function AuthLayout() {
   const pathname = usePathname();
   const router = useRouter();
+
+  console.log(pathname);
 
   return (
     <LinearGradient
@@ -24,14 +27,16 @@ export default function AuthLayout() {
         <View className="flex-1 gap-5">
           <View className="flex-row justify-between">
             <View className="w-[50px] h-[50px] items-center justify-center">
-              <IconButton
-                mode="contained"
-                icon={"arrow-left"}
-                iconColor={COLOR.light1}
-                containerColor={COLOR.dark1}
-                size={24}
-                onPress={() => router.back()}
-              />
+              {pathname !== "/auth/login" && (
+                <IconButton
+                  mode="contained"
+                  icon={"arrow-left"}
+                  iconColor={COLOR.light1}
+                  containerColor={COLOR.dark1}
+                  size={24}
+                  onPress={() => router.back()}
+                />
+              )}
             </View>
             <TouchableOpacity onPress={() => router.replace("/")}>
               <Logo width={50} height={50} />
