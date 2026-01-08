@@ -8,6 +8,7 @@ import { useState } from "react";
 import { View, KeyboardAvoidingView, Platform, ScrollView } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
 import { ActivityIndicator, Button } from "react-native-paper";
+import Toast from "react-native-toast-message";
 
 export default function OtpPage() {
   const router = useRouter();
@@ -39,7 +40,15 @@ export default function OtpPage() {
 
       router.navigate("/auth/new_password");
     } catch (err: any) {
-      console.log(err);
+      setLoading(false);
+      Toast.show({
+        type: "error",
+        text1: err.response.data.detail,
+      });
+      router.navigate("/auth/forgot_password");
+      // console.log("hello error");
+      // console.log(err);
+      // console.log(err.response.data.detail);
     }
   };
 
@@ -64,22 +73,22 @@ export default function OtpPage() {
           />
 
           <OtpInput
-        numberOfDigits={6}
-        onTextChange={(text) => setOtpText(text)}
-        focusColor={COLOR.primary3}
-        theme={{
-          pinCodeTextStyle: {
-            fontFamily: "inter",
-          },
-        }}
-        autoFocus={true}
-      />
+            numberOfDigits={6}
+            onTextChange={(text) => setOtpText(text)}
+            focusColor={COLOR.primary3}
+            theme={{
+              pinCodeTextStyle: {
+                fontFamily: "inter",
+              },
+            }}
+            autoFocus={true}
+          />
 
-      <Button buttonColor={COLOR.dark1} textColor={COLOR.light1} onPress={handleVerifyOtp}>
-        Verify Code
-      </Button>
-      </View>
+          <Button buttonColor={COLOR.dark1} textColor={COLOR.light1} onPress={handleVerifyOtp}>
+            Verify Code
+          </Button>
+        </View>
       </ScrollView>
-      </KeyboardAvoidingView>
-      );
-      }
+    </KeyboardAvoidingView>
+  );
+}
