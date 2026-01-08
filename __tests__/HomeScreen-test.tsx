@@ -1,74 +1,55 @@
 import HomeScreen from "@/app/(tabs)";
 import { getData } from "@/utils/asyncStorage";
 import { render, waitFor } from "@testing-library/react-native";
+import React from "react";
 
-jest.mock("axios", () => ({
-  create: jest.fn(() => ({
-    interceptors: {
-      request: { use: jest.fn() },
-      response: { use: jest.fn() },
-    },
-    get: jest.fn().mockResolvedValue({ data: { data: [] } }),
-    post: jest.fn().mockResolvedValue({ data: {} }),
-    put: jest.fn().mockResolvedValue({ data: {} }),
-    delete: jest.fn().mockResolvedValue({ data: {} }),
-  })),
-}));
+// Mock child components to avoid complex dependencies
+jest.mock("@/components/HomePage/WelcomePanel", () => {
+  const { View, Text } = jest.requireActual("react-native");
+  return function MockWelcomePanel() {
+    return (
+      <View testID="mock-welcome-panel">
+        <Text>Welcome Panel</Text>
+      </View>
+    );
+  };
+});
 
-jest.mock("@react-native-async-storage/async-storage", () => ({
-  __esModule: true,
-  default: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
-    getAllKeys: jest.fn(),
-    multiGet: jest.fn(),
-    multiSet: jest.fn(),
-    multiRemove: jest.fn(),
-  },
-}));
+jest.mock("@/components/HomePage/CreateNewEvent", () => {
+  const { View, Text } = jest.requireActual("react-native");
+  return function MockCreateNewEvent() {
+    return (
+      <View testID="mock-create-new-event">
+        <Text>Create New Event</Text>
+      </View>
+    );
+  };
+});
+
+jest.mock("@/components/HomePage/EventList", () => {
+  const { View, Text } = jest.requireActual("react-native");
+  return function MockEventList() {
+    return (
+      <View testID="mock-event-list">
+        <Text>Event List</Text>
+      </View>
+    );
+  };
+});
 
 jest.mock("@/utils/asyncStorage", () => ({
   getData: jest.fn(),
   removeData: jest.fn(),
 }));
 
-jest.mock("@/stores/useAuthStore", () => ({
-  useAuthStore: Object.assign(
-    jest.fn((selector) => {
-      const state = {
-        user: { id: 1, name: "Test User" },
-        accessToken: "mock-token",
-      };
-      return selector ? selector(state) : state;
-    }),
-    {
-      getState: jest.fn(() => ({
-        user: { id: 1, name: "Test User" },
-        accessToken: "mock-token",
-      })),
-    }
-  ),
-}));
-
 const mockReplace = jest.fn();
+const mockPush = jest.fn();
 jest.mock("expo-router", () => ({
   useRouter: () => ({
     replace: mockReplace,
-    push: jest.fn(),
+    push: mockPush,
   }),
-
-  Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
-
-jest.mock("@/assets/images/event-icon.svg", () => {
-  const React = jest.requireActual("react");
-  const { View } = jest.requireActual("react-native");
-  return function MockEventIcon(props: any) {
-    return <View testID="mock-event-icon" {...props} />;
-  };
-});
 
 jest.mock("react-native-safe-area-context", () => {
   const { View } = jest.requireActual("react-native");
@@ -83,7 +64,7 @@ jest.mock("react-native-safe-area-context", () => {
   };
 });
 
-describe("<HomeScree/>", () => {
+describe("<HomeScreen />", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -94,7 +75,38 @@ describe("<HomeScree/>", () => {
     render(<HomeScreen />);
 
     await waitFor(() => {
+      expect(getData).toHaveBeenCalledWith("onboarded");
       expect(mockReplace).toHaveBeenCalledWith("/onboarding");
+    });
+  });
+
+  test("Does not redirect when user is already onboarded", async () => {
+    (getData as jest.Mock).mockResolvedValue("1");
+
+    const { getByTestId } = render(<HomeScreen />);
+
+    await waitFor(() => {
+      expect(getData).toHaveBeenCalledWith("onboarded");
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    expect(getByTestId("mock-welcome-panel")).toBeTruthy();
+    expect(getByTestId("mock-create-new-event")).toBeTruthy();
+    expect(getByTestId("mock-event-list")).toBeTruthy();
+  });
+
+  test("Renders all child components", async () => {
+    (getData as jest.Mock).mockResolvedValue("1");
+
+    const { getByTestId, getByText } = render(<HomeScreen />);
+
+    await waitFor(() => {
+      expect(getByTestId("mock-welcome-panel")).toBeTruthy();
+      expect(getByTestId("mock-create-new-event")).toBeTruthy();
+      expect(getByTestId("mock-event-list")).toBeTruthy();
+      expect(getByText("Welcome Panel")).toBeTruthy();
+      expect(getByText("Create New Event")).toBeTruthy();
+      expect(getByText("Event List")).toBeTruthy();
     });
   });
 });
