@@ -1,4 +1,4 @@
-import { BalancesRepsonse, ItemReponse } from "@/interfaces/api/bill.api";
+import { BalancesRepsonse, ItemReponse, PerUserShare } from "@/interfaces/api/bill.api";
 
 // Data interfaces
 export interface BillItem {
@@ -35,6 +35,7 @@ export interface BillItemsCardProps {
   subTotal: number;
   tax: number;
   totalAmount: number;
+  perUserShares?: PerUserShare[];
 }
 
 export interface DebtsListCardProps {
@@ -59,4 +60,25 @@ export interface TabBarProps {
 }
 
 export interface ExportButtonProps {
-  onPress?: () => void;  isLoading?: boolean;}
+  onPress?: () => void;
+  isLoading?: boolean;
+}
+
+export interface ParticipantDropdownProps {
+  visible: boolean;
+  itemId: string;
+  items: ItemReponse[];
+  participants: {
+    name: string;
+    user_id?: string | null;
+    is_guest: boolean;
+  }[];
+  everyoneOption: string;
+  onClose: () => void;
+  onSelectParticipant: (itemId: string, participantId: string) => void;
+}
+
+// Helper function to get participant identifier
+export function getParticipantId(participant: { name: string; user_id?: string | null; is_guest: boolean }): string {
+  return participant.user_id || participant.name;
+}

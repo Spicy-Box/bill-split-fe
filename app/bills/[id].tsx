@@ -317,6 +317,7 @@ export default function BillDetailPage() {
                       subTotal={billDetail.subtotal}
                       tax={billDetail.tax}
                       totalAmount={billDetail.totalAmount}
+                      perUserShares={billDetail.perUserShares}
                     />
                   )}
                   {billDetail?.perUserShares && (
