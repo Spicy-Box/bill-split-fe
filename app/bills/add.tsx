@@ -18,13 +18,14 @@ import { useBillStore } from "@/stores/useBillStore";
 import { useEventStore } from "@/stores/useEventStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
+import * as Crypto from "expo-crypto";
 import { useRouter } from "expo-router";
 import { ChevronDown } from "lucide-react-native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import * as Crypto from "expo-crypto";
 import {
   Animated,
   Dimensions,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Text,
@@ -53,6 +54,7 @@ const HEADER_SCROLL_THRESHOLD = 50;
 export default function CreateBill() {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollViewRef = useRef<Animated.ScrollView>(null);
   const [billName, setBillName] = useState("New Bill");
   const [items, setItems] = useState<BillItem[]>([]);
   const [newItemName, setNewItemName] = useState("");
@@ -63,6 +65,7 @@ export default function CreateBill() {
   const [showParticipantDropdown, setShowParticipantDropdown] = useState<string | null>(null);
   const [showPaidByDropdown, setShowPaidByDropdown] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const participants = useEventStore((state) => state.participants);
   const eventId = useEventStore((state) => state.event_id);
@@ -70,6 +73,28 @@ export default function CreateBill() {
   const parsedData = useBillStore((state) => state.parsedData);
   const parsedTax = useBillStore((state) => state.tax);
   const clearParsedData = useBillStore((state) => state.clearParsedData);
+
+  // Keyboard event listeners
+  useEffect(() => {
+    const keyboardWillShow = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+      }
+    );
+
+    const keyboardWillHide = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => {
+        setKeyboardHeight(0);
+      }
+    );
+
+    return () => {
+      keyboardWillShow.remove();
+      keyboardWillHide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (parsedData) {
@@ -464,15 +489,17 @@ export default function CreateBill() {
 
       <SafeAreaView className="flex-1 bg-primary1" edges={["top"]}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          behavior="padding"
           className="flex-1"
-          keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+          keyboardVerticalOffset={0}
         >
           <Animated.ScrollView
+            ref={scrollViewRef}
             className="flex-1 px-4"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: 100 }}
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={{ paddingBottom:  0 }}
             scrollEventThrottle={16}
             onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
               useNativeDriver: false,

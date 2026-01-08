@@ -38,7 +38,7 @@ export default function BillTotals({ subtotal, tax_rate, total, setTaxRate }: Bi
          <Text className="text-dark1 font-medium">VND {formatCurrency(subtotal)}</Text>
        </View>
       <View className="flex-row justify-between items-center">
-        <Text className="text-dark1 font-medium font-inter">Tax</Text>
+        <Text className="text-dark1 font-medium font-inter">Tax (%)</Text>
         <TextInput
           value={taxRateText}
           onChangeText={(text) => handleTaxRate(text)}
