@@ -3,6 +3,7 @@ import { useForgotPasswordStore } from "@/stores/useForgotPasswordStore";
 import api from "@/utils/api";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
+import Toast from "react-native-toast-message";
 import OtpPage from "../app/auth/otp";
 
 const mockNavigate = jest.fn();
@@ -138,7 +139,7 @@ describe("<OtpPage />", () => {
     });
   });
 
-  it("handles API error gracefully and navigates to forgot password", async () => {
+  it("handles API error gracefully and shows error toast", async () => {
     (api.post as jest.Mock).mockRejectedValue({
       response: {
         data: {
@@ -157,7 +158,11 @@ describe("<OtpPage />", () => {
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith("/auth/forgot_password");
+      expect(Toast.show).toHaveBeenCalledWith({
+        type: "error",
+        text1: "Invalid OTP",
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

@@ -41,11 +41,12 @@ export default function OtpPage() {
       router.navigate("/auth/new_password");
     } catch (err: any) {
       setLoading(false);
+      setOtpText("");
       Toast.show({
         type: "error",
         text1: err?.response?.data?.detail || "Invalid OTP code",
       });
-      router.navigate("/auth/forgot_password");
+      // router.navigate("/auth/forgot_password");
     }
   };
 
