@@ -95,7 +95,7 @@ const BillItem = ({
           <View className="w-11 items-center justify-center">
             <BillIcon />
           </View>
-          <View className="gap-1 flex-1 h-fit">
+          <View className="gap-1 flex-1 h-fit max-w-[60%]">
             <Text className="text-dark1 font-medium text-base font-inter">{bill.title}</Text>
             <Text className="text-dark1 text-xs font-medium font-inter opacity-40 break-words max-w-[100%]">
               Paid by {bill.paidBy.name}
