@@ -27,7 +27,7 @@ export default function ListItem({
       className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
     >
       {/* Col 1 & Col 2 */}
-      <View className="flex-row gap-3 items-center max-w-[30%]">
+      <View className="flex-row gap-3 items-center max-w-[35%]">
         {/* Col 1 */}
         <EventIcon width={52} height={52} />
 
