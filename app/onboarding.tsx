@@ -1,10 +1,11 @@
-import { storeData } from "@/utils/asyncStorage";
+import { getData, storeData } from "@/utils/asyncStorage";
 import { COLOR } from "@/utils/color";
 import { useRouter } from "expo-router";
 import { Image, TouchableOpacity, View, Text } from "react-native";
 import Onboarding from "react-native-onboarding-swiper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useEffect } from "react";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -71,6 +72,20 @@ export default function OnboardingPage() {
       router.replace("/auth/login");
     }
   };
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      const onboarded = await getData("onboarded");
+      if (onboarded === "1") {
+        if (user) {
+          router.replace("/");
+        } else {
+          router.replace("/auth/login");
+        }
+      }
+    };
+    checkOnboardingStatus();
+  }, [user, router]);
 
   return (
     <>

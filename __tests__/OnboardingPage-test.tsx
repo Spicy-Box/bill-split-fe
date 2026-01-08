@@ -1,4 +1,4 @@
-import { storeData } from "@/utils/asyncStorage";
+import { getData, storeData } from "@/utils/asyncStorage";
 import { fireEvent, render, waitFor } from "@testing-library/react-native";
 import React from "react";
 import OnboardingPage from "../app/onboarding";
@@ -21,6 +21,7 @@ jest.mock("@react-native-async-storage/async-storage", () => ({
 
 jest.mock("@/utils/asyncStorage", () => ({
   storeData: jest.fn(),
+  getData: jest.fn(),
 }));
 
 jest.mock("@/utils/color", () => ({
@@ -112,155 +113,207 @@ jest.mock("react-native-safe-area-context", () => {
 });
 
 const storeDataMock = storeData as jest.MockedFunction<typeof storeData>;
+const getDataMock = getData as jest.MockedFunction<typeof getData>;
 
 describe("OnboardingPage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     storeDataMock.mockResolvedValue(undefined);
-  });
+    getDataMock.mockResolvedValue(null); // Default: not onboarded yet
 
-  it("stores onboarding flag and redirects when skipping", async () => {
-    const { getByText } = render(<OnboardingPage />);
-
-    fireEvent.press(getByText("Skip"));
-
-    await waitFor(() => {
-      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
-    });
-    expect(mockReplace).toHaveBeenCalledWith("/");
-  });
-
-  it("stores onboarding flag and redirects when completing onboarding", async () => {
-    const { getByText } = render(<OnboardingPage />);
-
-    fireEvent.press(getByText("Done"));
-
-    await waitFor(() => {
-      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
-    });
-    expect(mockReplace).toHaveBeenCalledWith("/");
-  });
-
-  it("advances content when pressing Next without finishing onboarding", () => {
-    const { getByText } = render(<OnboardingPage />);
-
-    expect(getByText("Divvy")).toBeTruthy();
-    fireEvent.press(getByText("Next"));
-    expect(getByText("Nhanh, Chuẩn, Không ai thiệt!")).toBeTruthy();
-
-    expect(storeDataMock).not.toHaveBeenCalled();
-    expect(mockReplace).not.toHaveBeenCalled();
-  });
-
-  it("renders Dot component for pagination", () => {
-    const { getByTestId } = render(<OnboardingPage />);
-
-    const dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer).toBeTruthy();
-    expect(dotsContainer.children.length).toBe(5); // 5 pages = 5 dots
-  });
-
-  it("renders Dot component with selected state on first page", () => {
-    const { getByTestId } = render(<OnboardingPage />);
-
-    const dotsContainer = getByTestId("pagination-dots");
-    // First dot should be selected (index 0)
-    expect(dotsContainer.children[0]).toBeTruthy();
-  });
-
-  it("updates Dot selected state when navigating pages", () => {
-    const { getByText, getByTestId } = render(<OnboardingPage />);
-
-    // Initially on page 1 (index 0)
-    let dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-
-    // Navigate to page 2
-    fireEvent.press(getByText("Next"));
-
-    // Re-query after navigation
-    dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-
-    // Navigate to page 3
-    fireEvent.press(getByText("Next"));
-    dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-  });
-
-  it("renders Dot component for pagination", () => {
-    const { getByTestId } = render(<OnboardingPage />);
-
-    const dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer).toBeTruthy();
-    expect(dotsContainer.children.length).toBe(5); // 5 pages = 5 dots
-  });
-
-  it("renders Dot component with selected state on first page", () => {
-    const { getByTestId } = render(<OnboardingPage />);
-
-    const dotsContainer = getByTestId("pagination-dots");
-    // First dot should be selected (index 0)
-    expect(dotsContainer.children[0]).toBeTruthy();
-  });
-
-  it("updates Dot selected state when navigating pages", () => {
-    const { getByText, getByTestId } = render(<OnboardingPage />);
-
-    // Initially on page 1 (index 0)
-    let dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-
-    // Navigate to page 2
-    fireEvent.press(getByText("Next"));
-
-    // Re-query after navigation
-    dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-
-    // Navigate to page 3
-    fireEvent.press(getByText("Next"));
-    dotsContainer = getByTestId("pagination-dots");
-    expect(dotsContainer.children.length).toBe(5);
-  });
-
-  it("redirects to login page when user is not logged in on skip", async () => {
-    // Mock useAuthStore to return no user
+    // Reset useAuthStore to default (logged-in user)
     const { useAuthStore } = require("@/stores/useAuthStore");
     (useAuthStore as jest.Mock).mockImplementation((selector) => {
       const state = {
-        user: null, // No user logged in
+        user: { id: 1, name: "Test User" },
       };
       return selector ? selector(state) : state;
     });
-
-    const { getByText } = render(<OnboardingPage />);
-
-    fireEvent.press(getByText("Skip"));
-
-    await waitFor(() => {
-      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
-    });
-    expect(mockReplace).toHaveBeenCalledWith("/auth/login");
   });
 
-  it("redirects to login page when user is not logged in on done", async () => {
-    // Mock useAuthStore to return no user
-    const { useAuthStore } = require("@/stores/useAuthStore");
-    (useAuthStore as jest.Mock).mockImplementation((selector) => {
-      const state = {
-        user: null, // No user logged in
-      };
-      return selector ? selector(state) : state;
+  describe("useEffect - check onboarding status on mount", () => {
+    it("redirects to home when already onboarded and user is logged in", async () => {
+      getDataMock.mockResolvedValue("1"); // Already onboarded
+
+      render(<OnboardingPage />);
+
+      await waitFor(() => {
+        expect(getDataMock).toHaveBeenCalledWith("onboarded");
+        expect(mockReplace).toHaveBeenCalledWith("/");
+      });
     });
 
-    const { getByText } = render(<OnboardingPage />);
+    it("redirects to login when already onboarded but user is not logged in", async () => {
+      getDataMock.mockResolvedValue("1"); // Already onboarded
 
-    fireEvent.press(getByText("Done"));
+      // Mock no user
+      const { useAuthStore } = require("@/stores/useAuthStore");
+      (useAuthStore as jest.Mock).mockImplementation((selector) => {
+        const state = { user: null };
+        return selector ? selector(state) : state;
+      });
 
-    await waitFor(() => {
-      expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+      render(<OnboardingPage />);
+
+      await waitFor(() => {
+        expect(getDataMock).toHaveBeenCalledWith("onboarded");
+        expect(mockReplace).toHaveBeenCalledWith("/auth/login");
+      });
     });
-    expect(mockReplace).toHaveBeenCalledWith("/auth/login");
+
+    it("does not redirect when not onboarded yet", async () => {
+      getDataMock.mockResolvedValue(null); // Not onboarded
+
+      render(<OnboardingPage />);
+
+      await waitFor(() => {
+        expect(getDataMock).toHaveBeenCalledWith("onboarded");
+      });
+
+      // Should NOT redirect - user needs to see onboarding
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+
+    it("does not redirect when onboarded value is not '1'", async () => {
+      getDataMock.mockResolvedValue("0"); // Invalid onboarded value
+
+      render(<OnboardingPage />);
+
+      await waitFor(() => {
+        expect(getDataMock).toHaveBeenCalledWith("onboarded");
+      });
+
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("handleFinish - Skip button", () => {
+    it("stores onboarding flag and redirects to home when user is logged in", async () => {
+      const { getByText } = render(<OnboardingPage />);
+
+      fireEvent.press(getByText("Skip"));
+
+      await waitFor(() => {
+        expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+      });
+      expect(mockReplace).toHaveBeenCalledWith("/");
+    });
+
+    it("stores onboarding flag and redirects to login when user is not logged in", async () => {
+      const { useAuthStore } = require("@/stores/useAuthStore");
+      (useAuthStore as jest.Mock).mockImplementation((selector) => {
+        const state = { user: null };
+        return selector ? selector(state) : state;
+      });
+
+      const { getByText } = render(<OnboardingPage />);
+
+      fireEvent.press(getByText("Skip"));
+
+      await waitFor(() => {
+        expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+      });
+      expect(mockReplace).toHaveBeenCalledWith("/auth/login");
+    });
+  });
+
+  describe("handleFinish - Done button", () => {
+    it("stores onboarding flag and redirects to home when user is logged in", async () => {
+      const { getByText } = render(<OnboardingPage />);
+
+      fireEvent.press(getByText("Done"));
+
+      await waitFor(() => {
+        expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+      });
+      expect(mockReplace).toHaveBeenCalledWith("/");
+    });
+
+    it("stores onboarding flag and redirects to login when user is not logged in", async () => {
+      const { useAuthStore } = require("@/stores/useAuthStore");
+      (useAuthStore as jest.Mock).mockImplementation((selector) => {
+        const state = { user: null };
+        return selector ? selector(state) : state;
+      });
+
+      const { getByText } = render(<OnboardingPage />);
+
+      fireEvent.press(getByText("Done"));
+
+      await waitFor(() => {
+        expect(storeDataMock).toHaveBeenCalledWith("onboarded", "1");
+      });
+      expect(mockReplace).toHaveBeenCalledWith("/auth/login");
+    });
+  });
+
+  describe("Navigation - Next button", () => {
+    it("advances content when pressing Next without finishing onboarding", async () => {
+      const { getByText } = render(<OnboardingPage />);
+
+      expect(getByText("Divvy")).toBeTruthy();
+      fireEvent.press(getByText("Next"));
+      expect(getByText("Nhanh, Chuẩn, Không ai thiệt!")).toBeTruthy();
+
+      expect(storeDataMock).not.toHaveBeenCalled();
+    });
+
+    it("navigates through all pages correctly", async () => {
+      const { getByText } = render(<OnboardingPage />);
+
+      // Page 1
+      expect(getByText("Divvy")).toBeTruthy();
+
+      // Page 2
+      fireEvent.press(getByText("Next"));
+      expect(getByText("Nhanh, Chuẩn, Không ai thiệt!")).toBeTruthy();
+
+      // Page 3
+      fireEvent.press(getByText("Next"));
+      expect(getByText("Không cần nhập tay — App tự đọc và chia!")).toBeTruthy();
+
+      // Page 4
+      fireEvent.press(getByText("Next"));
+      expect(getByText("Ai trả bao nhiêu? Ai còn nợ ai?")).toBeTruthy();
+
+      // Page 5
+      fireEvent.press(getByText("Next"));
+      expect(getByText("Quét hoá đơn bằng AI")).toBeTruthy();
+    });
+  });
+
+  describe("Pagination dots", () => {
+    it("renders correct number of dots for pagination", () => {
+      const { getByTestId } = render(<OnboardingPage />);
+
+      const dotsContainer = getByTestId("pagination-dots");
+      expect(dotsContainer).toBeTruthy();
+      expect(dotsContainer.children.length).toBe(5); // 5 pages = 5 dots
+    });
+
+    it("renders Dot component with selected state on first page", () => {
+      const { getByTestId } = render(<OnboardingPage />);
+
+      const dotsContainer = getByTestId("pagination-dots");
+      expect(dotsContainer.children[0]).toBeTruthy();
+    });
+
+    it("maintains dot count when navigating pages", () => {
+      const { getByText, getByTestId } = render(<OnboardingPage />);
+
+      // Initially on page 1
+      let dotsContainer = getByTestId("pagination-dots");
+      expect(dotsContainer.children.length).toBe(5);
+
+      // Navigate to page 2
+      fireEvent.press(getByText("Next"));
+      dotsContainer = getByTestId("pagination-dots");
+      expect(dotsContainer.children.length).toBe(5);
+
+      // Navigate to page 3
+      fireEvent.press(getByText("Next"));
+      dotsContainer = getByTestId("pagination-dots");
+      expect(dotsContainer.children.length).toBe(5);
+    });
   });
 });

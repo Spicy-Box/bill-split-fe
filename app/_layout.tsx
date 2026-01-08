@@ -103,8 +103,8 @@ export default Sentry.wrap(function RootLayout() {
                   }}
                 />
               </Stack.Protected>
-              <Stack.Screen name="onboarding" />
               <Stack.Screen name="auth" />
+              <Stack.Screen name="onboarding" />
             </Stack>
             <Toast
             // config={{
@@ -145,7 +145,7 @@ export default Sentry.wrap(function RootLayout() {
             //     </View>
             //   ),
             // }}
-          />
+            />
           </SafeAreaProvider>
         </PaperProvider>
       </GestureHandlerRootView>
