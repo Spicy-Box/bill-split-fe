@@ -13,6 +13,11 @@ jest.mock("expo-router", () => ({
   useRouter: () => ({ back: mockBack, push: mockPush }),
 }));
 
+// Mock AsyncStorage for Jest environment
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock")
+);
+
 jest.mock("@/utils/api", () => ({ post: jest.fn() }));
 jest.mock("react-native-toast-message", () => ({ show: jest.fn() }));
 jest.mock("@/stores/useEventStore");
