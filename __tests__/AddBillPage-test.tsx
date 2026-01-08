@@ -520,8 +520,8 @@ describe("CreateBill Component Full Test", () => {
       expect(Toast.show).toHaveBeenCalledWith(
         expect.objectContaining({
           type: "info",
-          text1: "Lưu ý",
-          text2: expect.stringContaining("item tặng kèm 0đ"),
+          text1: "Note",
+          text2: "If it is a free bonus item, there is no need to enter that item",
         })
       );
     });
