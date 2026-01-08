@@ -27,7 +27,7 @@ export default function ListItem({
       className="flex-row justify-between bg-light1 p-3 rounded-xl items-center"
     >
       {/* Col 1 & Col 2 */}
-      <View className="flex-row gap-3 items-center max-w-[35%]">
+      <View className="flex-row gap-3 items-center max-w-[45%]">
         {/* Col 1 */}
         <EventIcon width={52} height={52} />
 
@@ -39,9 +39,9 @@ export default function ListItem({
       </View>
 
       {/* Col 3 */}
-      <View className="gap-1 items-end">
+      <View className="gap-1 items-end max-w-[35%]">
         <Text
-          className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter"
+          className="bg-primary3 text-light1 rounded-lg px-3 py-1 text-sm font-bold font-inter break-words"
           style={{ textAlign: "center" }}
         >
           VND {formatCurrency(price)}

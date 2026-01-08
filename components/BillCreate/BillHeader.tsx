@@ -14,10 +14,9 @@ export default function BillHeader({ title, onBack, setBillName }: BillHeaderPro
       </TouchableOpacity>
       <TextInput
         onChangeText={(text) => setBillName(text)}
-        className="text-dark1 font-semibold text-base font-inter flex-1 h-full text-center"
+        className="text-dark1 font-semibold text-base font-inter h-full text-center"
         value={title}
-        placeholder="New Bill"
-        placeholderTextColor={COLOR.dark1}
+        placeholder={"Enter bill's name..."}        
         selectionColor={COLOR.secondary4}
       />
 
