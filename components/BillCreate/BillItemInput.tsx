@@ -65,7 +65,7 @@ export default function BillItemInput({
         contentStyle={{ paddingHorizontal: 0 }}
       />
       {value.trim() && (
-        <TouchableOpacity onPress={onAdd} className="bg-primary1 px-3 py-1 rounded-full">
+        <TouchableOpacity onPress={onAdd} className="bg-primary1 px-3 py-1 rounded-lg">
           <Text className="text-dark1 text-xs font-semibold font-inter">Add</Text>
         </TouchableOpacity>
       )}
