@@ -29,6 +29,10 @@ jest.mock("@/stores/useAuthStore", () => ({
   useAuthStore: jest.fn(),
 }));
 
+jest.mock("react-native-toast-message", () => ({
+  show: jest.fn(),
+}));
+
 jest.mock("react-native-otp-entry", () => {
   const React = jest.requireActual("react");
   const { TextInput } = jest.requireActual("react-native");

@@ -43,12 +43,9 @@ export default function OtpPage() {
       setLoading(false);
       Toast.show({
         type: "error",
-        text1: err.response.data.detail,
+        text1: err?.response?.data?.detail || "Invalid OTP code",
       });
       router.navigate("/auth/forgot_password");
-      // console.log("hello error");
-      // console.log(err);
-      // console.log(err.response.data.detail);
     }
   };
 
