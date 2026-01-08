@@ -1,8 +1,8 @@
 import {
-  EventHeader,
-  EventNameAndCurrency,
-  ParticipantsList,
-  type Participant,
+    EventHeader,
+    EventNameAndCurrency,
+    ParticipantsList,
+    type Participant,
 } from "@/components/EventAdd";
 import { CurrencyObj, EventRequest } from "@/interfaces/api/event.api";
 import { useAuthStore } from "@/stores/useAuthStore";

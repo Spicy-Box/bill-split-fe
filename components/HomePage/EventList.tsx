@@ -1,4 +1,5 @@
 import { EventReponse } from "@/interfaces/api/event.api";
+import { useAuthStore } from "@/stores/useAuthStore";
 import api from "@/utils/api";
 import { COLOR } from "@/utils/color";
 import { format } from "date-fns";
@@ -26,6 +27,7 @@ type EventListProps = {
 };
 
 export default function EventList({ searchQuery = "" }: EventListProps) {
+  const user = useAuthStore((state) => state.user);
   const [loading, setLoading] = useState<boolean>(false);
   const [eventList, setEventList] = useState<EventReponse[]>([]);
   const [refreshing, setRefreshing] = useState<boolean>(false);
@@ -36,8 +38,44 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
   const [editParticipants, setEditParticipants] = useState<{ name: string }[]>([]);
   const [newParticipantInput, setNewParticipantInput] = useState<string>("");
   const [eventOwnerName, setEventOwnerName] = useState<string>("");
+  const [duplicateNames, setDuplicateNames] = useState<Set<string>>(new Set());
 
   const endpoint = useMemo(() => (searchQuery ? "/events/search" : "/events/"), [searchQuery]);
+
+  // Validate for duplicate participants
+  const validateParticipants = useCallback(() => {
+    const currentUserName = user ? `${user.first_name} ${user.last_name}`.trim() : "";
+    const participantNames = editParticipants.map((p) => p.name.trim().toLowerCase());
+    const duplicates = new Set<string>();
+
+    // Check for duplicates among participants
+    const nameCount = new Map<string, number>();
+    participantNames.forEach((name) => {
+      const count = (nameCount.get(name) || 0) + 1;
+      nameCount.set(name, count);
+      if (count > 1) {
+        duplicates.add(name);
+      }
+    });
+
+    // Check if any participant name matches event owner
+    if (currentUserName) {
+      const ownerNameLower = currentUserName.toLowerCase();
+      participantNames.forEach((name) => {
+        if (name === ownerNameLower) {
+          duplicates.add(name);
+        }
+      });
+    }
+
+    setDuplicateNames(duplicates);
+    return duplicates.size === 0;
+  }, [editParticipants, user]);
+
+  // Update duplicates whenever participants change
+  useEffect(() => {
+    validateParticipants();
+  }, [editParticipants, validateParticipants]);
 
   const fetchEventList = useCallback(async () => {
     try {
@@ -189,6 +227,7 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
         text1: "Success",
         text2: "Event updated successfully",
       });
+      setDuplicateNames(new Set());
     } catch (error) {
       console.error("Failed to update event:", error);
       Toast.show({
@@ -331,25 +370,38 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
             )}
 
             {/* Other Participants Badges - Secondary3 */}
-            {editParticipants.map((participant, index) => (
-              <View key={index} className="mb-2">
-                <View
-                  className="rounded-lg px-3 py-2 flex-row items-center self-start"
-                  style={{ backgroundColor: COLOR.secondary3 }}
-                >
-                  <Text className="text-dark1 font-medium font-inter text-sm mr-2">
-                    {participant.name}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => {
-                      setEditParticipants(editParticipants.filter((_, i) => i !== index));
-                    }}
+            {editParticipants.map((participant, index) => {
+              const isDuplicate = duplicateNames.has(participant.name.trim().toLowerCase());
+              return (
+                <View key={index} className="mb-2">
+                  <View
+                    className="rounded-lg px-3 py-2 flex-row items-center self-start"
+                    style={{ backgroundColor: isDuplicate ? "#fee2e2" : COLOR.secondary3 }}
                   >
-                    <Text className="text-dark1 font-bold text-base">×</Text>
-                  </TouchableOpacity>
+                    <Text
+                      className="text-sm font-medium font-inter mr-2"
+                      style={{ color: isDuplicate ? "#dc2626" : "#1F2937" }}
+                    >
+                      {participant.name}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => {
+                        setEditParticipants(editParticipants.filter((_, i) => i !== index));
+                      }}
+                    >
+                      <Text style={{ color: isDuplicate ? "#dc2626" : "#1F2937" }} className="font-bold text-base">
+                        ×
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                  {isDuplicate && (
+                    <Text className="text-red-600 text-xs font-inter mt-1">
+                      Duplicated name or same as event owner
+                    </Text>
+                  )}
                 </View>
-              </View>
-            ))}
+              );
+            })}
 
             {/* Add New Participant Input */}
             <View className="flex-row items-center mb-6">
@@ -396,16 +448,26 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                   setEditParticipants([]);
                   setNewParticipantInput("");
                   setEventOwnerName("");
+                  setDuplicateNames(new Set());
                 }}
               >
                 <Text className="text-dark1 font-semibold font-inter">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="flex-1 bg-primary3 rounded-lg py-3 items-center"
+                className="flex-1 rounded-lg py-3 items-center"
+                style={{
+                  backgroundColor: duplicateNames.size > 0 ? "#d1d5db" : COLOR.primary3,
+                }}
+                disabled={duplicateNames.size > 0}
                 onPress={handleSaveEdit}
               >
-                <Text className="text-light1 font-semibold font-inter">Save</Text>
+                <Text
+                  className="font-semibold font-inter"
+                  style={{ color: duplicateNames.size > 0 ? "#6b7280" : "#f5f5f5" }}
+                >
+                  Save
+                </Text>
               </TouchableOpacity>
             </View>
             </View>
