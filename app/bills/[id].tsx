@@ -332,10 +332,10 @@ export default function BillDetailPage() {
                   <DebtsListCard debts={balance} />
                 </>
               )}
+              <View className="py-4">
+                <ExportButton onPress={handleExport} isLoading={isExporting} />
+              </View>
             </ScrollView>
-            <View className="py-4">
-              <ExportButton onPress={handleExport} isLoading={isExporting} />
-            </View>
           </View>
         )}
       </View>
