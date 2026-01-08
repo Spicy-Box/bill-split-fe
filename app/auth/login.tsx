@@ -124,7 +124,7 @@ export default function LoginPage() {
 
       <View className="flex-row gap-2 justify-center items-center">
         <Text className="text-lg">Don&apos;t have an account?</Text>
-        <Link href={"/auth/signup"} className="text-primary3 text-xl">
+        <Link href={"/auth/signup"} className="text-primary3 text-base">
           Sign up
         </Link>
       </View>
