@@ -22,13 +22,13 @@ function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSpli
       className="bg-white py-1 px-1 flex-row items-center justify-between"
       style={{ borderRadius: 16 }}
     >
-      <View className="flex-row items-center gap-3 max-w-[35%]">
+      <View className="flex-row items-center gap-3 max-w-[40%]">
         <Avatar.Image size={40} source={require("../../assets/images/avatar.png")} />
         <Text className="text-dark1 font-medium font-inter">
           {isMe ? `${overriddenName} (Me)` : overriddenName}
         </Text>
       </View>
-      <View className="flex flex-row items-baseline max-w-[45%]">
+      <View className="flex flex-row items-baseline max-w-[40%]">
 
           <Text
             style={{
