@@ -38,7 +38,7 @@ export default function ParticipantsCard({ participants, billSplitType }: Partic
             key={p.userName?.name}
             className="bg-light1 rounded-3xl px-4 py-3 flex-row items-center justify-between"
           >
-            <View className="flex-row items-center gap-3 max-w-[60%]">
+            <View className="flex-row items-center gap-3 max-w-[50%]">
               <Image
                 source={
                   p.userName?.user_id
@@ -51,7 +51,7 @@ export default function ParticipantsCard({ participants, billSplitType }: Partic
                 {p.userName?.user_id ? `${user?.first_name} ${user?.last_name}` : p.userName.name}
               </Text>
             </View>
-            <Text className="text-dark1 font-medium text-sm font-inter break-words max-w-[40%]">
+            <Text className="text-dark1 font-medium text-sm font-inter break-words max-w-[35%]">
               VND {formatCurrency(p.share ?? 0)}
             </Text>
           </View>

@@ -175,14 +175,26 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
 
       // Find and store event owner's name
       const owner = data.participants?.find((p: any) => p.user_id);
-      setEventOwnerName(owner ? `${owner.name} (Me)` : "");
+      if (owner && user) {
+        const userNameFromStore = `${user.first_name} ${user.last_name}`.trim();
+        setEventOwnerName(`${userNameFromStore} (Me)`);
+      } else {
+        setEventOwnerName("");
+      }
 
       // Convert participants array to array of objects
       // Exclude the event owner (those with user_id) from the editable list
       const participantsList = data.participants
         ? data.participants
             .filter((p: any) => !p.user_id) // Only show guests, not the owner
-            .map((p: any) => ({ name: p.name }))
+            .map((p: any) => {
+              // If participant has user_id, use the name from userStore
+              if (p.user_id && user) {
+                const userNameFromStore = `${user.first_name} ${user.last_name}`.trim();
+                return { name: userNameFromStore };
+              }
+              return { name: p.name };
+            })
         : [];
       setEditParticipants(participantsList);
     } catch (error) {
