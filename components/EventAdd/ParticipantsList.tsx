@@ -46,6 +46,7 @@ export default function ParticipantsList({
               cursorColor={COLOR.dark1}
               selectionColor={COLOR.primary1}
               editable={!participant.isCurrentUser}
+              multiline
               style={{
                 backgroundColor: "transparent",
                 flex: 1,

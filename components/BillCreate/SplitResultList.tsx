@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/useAuthStore";
 import { COLOR } from "@/utils/color";
 import { Text, View } from "react-native";
 import { Avatar, TextInput } from "react-native-paper";
@@ -7,6 +8,14 @@ import { useCurrencyInput } from "./useCurrencyInput";
 
 function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSplitItemProps) {
   const { text: amountText, handleChange } = useCurrencyInput(split.amount);
+  const currentUser = useAuthStore((s) => s.user);
+
+  const isMe = Boolean(
+    participant?.user_id && currentUser && participant.user_id === currentUser.id
+  );
+  const overriddenName = isMe
+    ? [currentUser?.first_name, currentUser?.last_name].filter(Boolean).join(" ")
+    : participant?.name;
 
   return (
     <View
@@ -16,7 +25,7 @@ function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSpli
       <View className="flex-row items-center gap-3 max-w-[35%]">
         <Avatar.Image size={40} source={require("../../assets/images/avatar.png")} />
         <Text className="text-dark1 font-medium font-inter">
-          {participant?.user_id ? `${participant.name} (Me)` : participant?.name}
+          {isMe ? `${overriddenName} (Me)` : overriddenName}
         </Text>
       </View>
       <View className="flex flex-row items-baseline max-w-[50%]">

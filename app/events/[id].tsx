@@ -282,7 +282,7 @@ export default function EventDetailScreen() {
               icon={ReceiptText}
               title="No bills yet"
               description="Add a bill to start tracking expenses in this event."
-              actionLabel="Add bill"
+              // actionLabel="Add bill"
               onActionPress={() => setShowAddMenu(true)}
             />
           ) : (

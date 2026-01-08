@@ -31,7 +31,7 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
   const [showEditModal, setShowEditModal] = useState<boolean>(false);
   const [editingEventId, setEditingEventId] = useState<string | null>(null);
   const [editName, setEditName] = useState<string>("");
-  const [editCurrency, setEditCurrency] = useState<string>("");
+  const [editCurrency, setEditCurrency] = useState<string>("1");
   const [editParticipants, setEditParticipants] = useState<{ name: string }[]>([]);
   const [newParticipantInput, setNewParticipantInput] = useState<string>("");
   const [eventOwnerName, setEventOwnerName] = useState<string>("");
@@ -306,14 +306,14 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
               placeholder="Event name"
             />
 
-            <Text className="text-dark1 text-sm font-medium font-inter mb-2">Currency</Text>
+            {/* <Text className="text-dark1 text-sm font-medium font-inter mb-2">Currency</Text>
             <TextInput
               className="bg-white border border-gray-300 rounded-lg px-4 py-3 mb-4 text-dark1 font-inter"
               value={editCurrency}
               onChangeText={setEditCurrency}
               placeholder="Currency (number)"
               keyboardType="numeric"
-            />
+            /> */}
 
             <Text className="text-dark1 text-sm font-medium font-inter mb-2">Participants</Text>
 
@@ -367,7 +367,7 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                 }}
               />
               <TouchableOpacity
-                className="rounded-lg px-4 py-3 items-center justify-center"
+                className="rounded-lg px-4 py-2 items-center justify-center"
                 style={{ backgroundColor: COLOR.primary3 }}
                 onPress={() => {
                   if (newParticipantInput.trim()) {
