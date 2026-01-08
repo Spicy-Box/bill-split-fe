@@ -2,6 +2,7 @@ import { PerUserShare } from "@/interfaces/api/bill.api";
 import { SplitMode } from "@/components/BillCreate";
 import { Image, Text, View } from "react-native";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface ParticipantsCardProps {
   participants: PerUserShare[];
@@ -22,6 +23,8 @@ const getSplitTypeLabel = (splitType?: SplitMode): string => {
 };
 
 export default function ParticipantsCard({ participants, billSplitType }: ParticipantsCardProps) {
+  const user = useAuthStore((state) => state.user);
+
   return (
     <View className="bg-primary1 rounded-3xl p-4 gap-3">
       <View className="bg-dark1 rounded-lg px-3 py-1 self-start">
@@ -44,7 +47,9 @@ export default function ParticipantsCard({ participants, billSplitType }: Partic
                 }
                 className="w-12 h-12 rounded-full"
               />
-              <Text className="text-dark1 font-medium text-sm font-inter break-words">{p.userName?.name}</Text>
+              <Text className="text-dark1 font-medium text-sm font-inter break-words">
+                {p.userName?.user_id ? `${user?.first_name} ${user?.last_name}` : p.userName.name}
+              </Text>
             </View>
             <Text className="text-dark1 font-medium text-sm font-inter break-words max-w-[40%]">
               VND {formatCurrency(p.share ?? 0)}

@@ -54,7 +54,7 @@ const HEADER_SCROLL_THRESHOLD = 50;
 export default function CreateBill() {
   const router = useRouter();
   const scrollY = useRef(new Animated.Value(0)).current;
-  const scrollViewRef = useRef<Animated.ScrollView>(null);
+  const scrollViewRef = useRef(null);
   const [billName, setBillName] = useState("New Bill");
   const [items, setItems] = useState<BillItem[]>([]);
   const [newItemName, setNewItemName] = useState("");
@@ -488,18 +488,14 @@ export default function CreateBill() {
       )}
 
       <SafeAreaView className="flex-1 bg-primary1" edges={["top"]}>
-        <KeyboardAvoidingView
-          behavior="padding"
-          className="flex-1"
-          keyboardVerticalOffset={0}
-        >
+        <KeyboardAvoidingView behavior="padding" className="flex-1" keyboardVerticalOffset={0}>
           <Animated.ScrollView
             ref={scrollViewRef}
             className="flex-1 px-4"
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="on-drag"
-            contentContainerStyle={{ paddingBottom:  0 }}
+            contentContainerStyle={{ paddingBottom: 0 }}
             scrollEventThrottle={16}
             onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
               useNativeDriver: false,
