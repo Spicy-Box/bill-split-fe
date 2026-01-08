@@ -371,9 +371,9 @@ export default function CreateBill() {
           setLoading(false);
           Toast.show({
             type: "info",
-            text1: "Lưu ý",
+            text1: "Note",
             // text2: "Nếu là item tặng kèm 0đ thì không cần nhập item đó, có thể xóa đi",
-            text2: "Nếu là item tặng kèm 0đ thì không cần nhập item đó",
+            text2: "If it is a free bonus item, there is no need to enter that item",
           });
           return;
         }

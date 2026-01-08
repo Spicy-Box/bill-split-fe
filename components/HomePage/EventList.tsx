@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  KeyboardAvoidingView,
   Modal,
   RefreshControl,
   Text,
@@ -294,8 +295,9 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
         animationType="fade"
         onRequestClose={() => setShowEditModal(false)}
       >
-        <View className="flex-1 bg-black/50 justify-center items-center px-5">
-          <View className="bg-light1 rounded-2xl p-6 w-full max-w-md">
+        <KeyboardAvoidingView behavior="padding" className="flex-1">
+          <View className="flex-1 bg-black/50 justify-center items-center px-5">
+            <View className="bg-light1 rounded-2xl p-6 w-full max-w-md">
             <Text className="text-dark1 text-xl font-bold font-inter mb-4">Edit Event</Text>
 
             <Text className="text-dark1 text-sm font-medium font-inter mb-2">Name</Text>
@@ -406,8 +408,9 @@ export default function EventList({ searchQuery = "" }: EventListProps) {
                 <Text className="text-light1 font-semibold font-inter">Save</Text>
               </TouchableOpacity>
             </View>
+            </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </>
   );

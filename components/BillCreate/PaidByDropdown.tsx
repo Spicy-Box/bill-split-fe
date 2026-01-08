@@ -34,12 +34,12 @@ export default function PaidByDropdown({
                   source={require("../../assets/images/avatar.png")}
                   style={{ marginRight: 12 }}
                 />
-                <Text className="text-dark1 font-medium font-inter flex-1 break-words max-w-[80%]">
+                <Text className="text-dark1 font-medium font-inter flex-1 break-words max-w-[70%]">
                    {currentUser?.id === participant.user_id ? `${currentUser?.first_name} ${currentUser?.last_name} (Me)` : participant.name}
                  </Text>
                 {selectedId === participantId && (
                   <View className="w-8 h-8 bg-primary1 rounded-full items-center justify-center">
-                    <Text className="text-dark1 text-xs">✓</Text>
+                    <Text className="text-dark1 text-sm font-bold">✓</Text>
                   </View>
                 )}
               </TouchableOpacity>

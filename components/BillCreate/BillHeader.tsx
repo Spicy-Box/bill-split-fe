@@ -18,7 +18,7 @@ export default function BillHeader({ title, onBack, setBillName }: BillHeaderPro
         value={title}
         placeholder="New Bill"
         placeholderTextColor={COLOR.dark1}
-        selectionColor={COLOR.dark1}
+        selectionColor={COLOR.secondary4}
       />
 
       <View className="w-8 h-8" />

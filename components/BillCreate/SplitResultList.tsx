@@ -28,7 +28,7 @@ function ManualSplitItem({ split, participant, onUpdateManualSplit }: ManualSpli
           {isMe ? `${overriddenName} (Me)` : overriddenName}
         </Text>
       </View>
-      <View className="flex flex-row items-baseline max-w-[50%]">
+      <View className="flex flex-row items-baseline max-w-[45%]">
 
           <Text
             style={{
@@ -80,7 +80,7 @@ export default function SplitResultList({
 }: SplitResultListProps) {
   if (mode === "manual") {
     return (
-      <View className="bg-primary1 rounded-2xl p-4 mt-4 gap-3">
+      <View className="bg-primary1 rounded-2xl py-4 px-3 mt-4 gap-3">
         {manualSplits.map((split) => {
           const participant = participants.find((p) => getParticipantId(p) === split.participantId);
           return (
