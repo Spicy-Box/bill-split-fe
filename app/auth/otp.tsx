@@ -55,7 +55,7 @@ export default function OtpPage() {
     <View className="gap-10">
       <TitleAuth
         title="Check your email"
-        desc="We sent an otp code to tuananhdeptrai@gmail.com Enter 5 digit code that mentioned in the email"
+        desc={`We sent an otp code to ${email ? email : "example@gmail.com"}. Enter 5 digit code that mentioned in the email`}
       />
 
       <OtpInput
